@@ -1,0 +1,1 @@
+To successfully build, change **BannerlordPath** property in **GCO.csproj** to your M&B directory. Example: *D:\Steam\steamapps\common\Mount &amp; Blade II Bannerlord* (Note that instead of **&**, you should use **\&amp;**).

@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
+    <!-- Change below property to where you game directory is, but please try not to commit the change :D -->
     <BannerlordPath>D:\Steam\steamapps\common\Mount &amp; Blade II Bannerlord</BannerlordPath>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -203,14 +204,6 @@
     <Reference Include="TaleWorlds.TwoDimension.Standalone">
       <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.TwoDimension.Standalone.dll</HintPath>
     </Reference>
-    <!-- Bannerlord Assemblies -->
-    <!-- Native Assemblies -->
-    <!-- Module Assemblies -->
-    <!-- Native -->
-    <!-- SandBox -->
-    <!-- StoryMode -->
-    <!-- Harmony -->
-    <!-- TODO: Don't think this can be made optional -->
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />

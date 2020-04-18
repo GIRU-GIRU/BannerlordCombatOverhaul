@@ -1,6 +1,6 @@
 ﻿<Module>
-  <Name value="TODO"/>
-  <Id value="TODO"/>
+  <Name value="GCO"/>
+  <Id value="GCO"/>
   <Version value="v1.0.0"/>
   <SingleplayerModule value="true"/>
   <MultiplayerModule value="false"/>
@@ -13,9 +13,9 @@
   </DependedModules>
   <SubModules>
     <SubModule>
-      <Name value="TODO"/>
+      <Name value="GCO"/>
       <DLLName value="GCO.dll"/>
-      <SubModuleClassType value="GCO.SubModule"/>
+      <SubModuleClassType value="GCO.GCOSubModule"/>
       <Tags>
         <Tag key="DedicatedServerType" value="none" />
         <Tag key="IsNoRenderModeElement" value="false" />

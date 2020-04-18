@@ -17,15 +17,17 @@ namespace GCO
         [JsonProperty("HPOnKillEnabled")]
         public bool HPOnKillEnabled { get; set; }
 
+        [JsonProperty("HPOnKillAmount")]
+        public float HPOnKillAmount { get; set; }
+
         [JsonProperty("CleaveEnabled")]
         public bool CleaveEnabled { get; set; }
 
-        [JsonProperty("SimplifiedBanditLogicEnabled")]
-        public bool SimplifiedBanditLogicEnabled { get; set; }
+        [JsonProperty("SimplifiedSurrenderLogic")]
+        public bool SimplifiedSurrenderLogic { get; set; }
 
         [JsonProperty("HyperArmorEnabled")]
         public bool HyperArmorEnabled { get; set; }
-
     }
 
     public static class Config
@@ -63,7 +65,8 @@ namespace GCO
             ConfigSettings.CleaveEnabled = true;
             ConfigSettings.HPOnKillEnabled = true;
             ConfigSettings.HyperArmorEnabled = true;
-            ConfigSettings.SimplifiedBanditLogicEnabled = true;
+            ConfigSettings.SimplifiedSurrenderLogic = true;
+            ConfigSettings.HPOnKillAmount = 20f;
 
         }
     }

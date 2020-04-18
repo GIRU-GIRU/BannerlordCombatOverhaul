@@ -264,14 +264,14 @@
     <Compile Include="Features\ModdedMissionLogic\PlayerCleaveLogic.cs" />
     <Compile Include="GCOSubModule.cs" />
     <Compile Include="Features\ModdedMissionLogic\FlinchManagement.cs" />
-    <Compile Include="Features\ModdedWorldMapLogic\BanditLogicAdjustment.cs" />
+    <Compile Include="Features\ModdedWorldMapLogic\SurrenderLogicAdjustment.cs" />
     <Compile Include="Features\ModdedMissionLogic\HealthOnKill.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="SubModule.xml" />
-    <None Include="Features\Changelog.md" />
+    <None Include="Changelog.md" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="config.json">
+    <None Include="GCOConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

@@ -1,6 +1,7 @@
 {
   "HPOnKillEnabled": true,
+  "HPOnKillAmount":  20,
   "CleaveEnabled": true,
-  "SimplifiedBanditLogicEnabled": true,
+  "SimplifiedSurrenderLogic": true,
   "HyperArmorEnabled": true
 }

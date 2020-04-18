@@ -27,28 +27,19 @@ namespace GCO.Features.ModdedMissionLogic
             if (!affAgent1.IsHuman) return;
 
 
-            float hardCodedHealAmount = 20f;
-            float healAmount = hardCodedHealAmount + GetMedicineSkillCalculation();
+            float HPOnKillAmount = Config.ConfigSettings.HPOnKillAmount;
+            float healAmount = HPOnKillAmount + GetMedicineSkillCalculation();
 
 
             bool valid = this.CheckPlayerAlive() && affAgent1.IsHuman && affAgent2 == Mission.MainAgent && damage > 0;
 
             if (valid && affAgent1.Health <= 0f)
             {
-                if (Mission.MainAgent.Health + hardCodedHealAmount >= Mission.MainAgent.HealthLimit)
-                {
-                    Mission.MainAgent.Health = Mission.MainAgent.HealthLimit;
-                }
-                else
-                {
-                    Mission.MainAgent.Health = Mission.MainAgent.Health + hardCodedHealAmount;
-                }
+                Mission.MainAgent.Health = Math.Min(Mission.MainAgent.Health + HPOnKillAmount, Mission.MainAgent.HealthLimit);
 
 
-                InformationManager.DisplayMessage(new InformationMessage(
-                    new TextObject($"Healed {(int)healAmount} health!", null).ToString(), Colors.White));
+                InformationManager.DisplayMessage(new InformationMessage($"Healed {(int)healAmount} health!", Colors.White));
             }
-
         }
     }
 }

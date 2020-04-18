@@ -327,7 +327,7 @@ namespace GCO.Features.ModdedMissionLogic
                         b.BlowFlag |= BlowFlags.ShrugOff;
                         blow.BlowFlag |= BlowFlags.ShrugOff;
                         InformationManager.DisplayMessage(
-                            new InformationMessage(new TextObject($"Player hyperarmor prevented flinch!").ToString(), Colors.White));
+                            new InformationMessage("Player hyperarmor prevented flinch!", Colors.White));
                     }
                 }
             }

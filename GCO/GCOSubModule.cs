@@ -36,55 +36,6 @@ namespace GCO
             }
         }
 
-
-        private void AddBehaviors(CampaignGameStarter gameInitializer)
-        {
-            if (Config.ConfigSettings.SimplifiedBanditLogicEnabled)
-            {
-                gameInitializer.AddBehavior(new CampaignLogic());
-            }
-        }
-
-        private bool xorberaxCompatibilityCheck()
-        {
-            bool xorberaxcutthrougheveryoneExists = false;
-            var methodBases = Harmony.GetAllPatchedMethods().ToList<MethodBase>();
-
-            foreach (var method in methodBases)
-            {
-                if (Harmony.GetPatchInfo(method).Owners.Contains("xorberax.cutthrougheveryone"))
-                {
-                    xorberaxcutthrougheveryoneExists = true;
-                }
-            }
-
-            return xorberaxcutthrougheveryoneExists;
-        }
-
-        protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
-        {
-            Campaign campaign = game.GameType as Campaign;
-
-            bool xorbarexExists = xorberaxCompatibilityCheck();
-
-            if (xorbarexExists)
-            {
-                Config.ConfigSettings.CleaveEnabled = false;
-                Config.xorbarexCleaveExists = true;
-                InformationManager.DisplayMessage(new InformationMessage("Xorbarex Cut Through Everyone installation detected", Color.White));
-            }
-            else
-            {
-                Config.xorbarexCleaveExists = false;
-            }
-        }
-
-
-
-        #region essential placeholder code to prevent crashing
-
-
-
         public override void OnCampaignStart(Game game, object starterObject)
         {
             if (game.GameType is Campaign)
@@ -94,25 +45,51 @@ namespace GCO
             }
         }
 
-        public override void OnGameInitializationFinished(Game game)
+        protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
         {
-            Campaign campaign = game.GameType as Campaign;
+            bool flag = game.GameType is Campaign;
+            if (flag)
+            {
+                CampaignGameStarter gameStarterObject2 = (CampaignGameStarter)gameStarterObject;
+                this.AddBehaviors(gameStarterObject2);
+            }
+
+            if (CompatibilityCheck())
+            {
+                Config.ConfigSettings.CleaveEnabled = false;
+                Config.xorbarexCleaveExists = true;
+                InformationManager.DisplayMessage(new InformationMessage("Xorbarex Cut Through Everyone installation detected", Color.White));
+            }
+            else
+            {
+                Config.xorbarexCleaveExists = false;
+            }
+
         }
 
-        public override void OnGameLoaded(Game game, object initializerObject)
+        private void AddBehaviors(CampaignGameStarter gameInitializer)
         {
-            if (game.GameType is Campaign)
+            if (Config.ConfigSettings.SimplifiedSurrenderLogic)
             {
-                CampaignGameStarter gameInitializer = (CampaignGameStarter)initializerObject;
-                this.AddBehaviors(gameInitializer);
+                gameInitializer.AddBehavior(new CampaignLogic());
             }
         }
 
-        public override void OnNewGameCreated(Game game, object initializerObject)
+        private bool CompatibilityCheck()
         {
+            var methodBases = Harmony.GetAllPatchedMethods().ToList<MethodBase>();
+
+            foreach (var method in methodBases)
+            {
+                if (Harmony.GetPatchInfo(method).Owners.Contains("xorberax.cutthrougheveryone"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
-        #endregion essential placeholder code to prevent crashing
     }
 }
 

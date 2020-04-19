@@ -239,7 +239,7 @@ namespace GCO.Features.ModdedMissionLogic
         private static bool RegisterBlow(Mission __instance, Agent attacker, Agent victim, GameEntity realHitEntity, Blow b, ref AttackCollisionData collisionData)
         {
             b.VictimBodyPart = collisionData.VictimHitBodyPart;
-            if (!collisionData.AttackBlockedWithShield)
+            if (!collisionData.AttackBlockedWithShield || PlayerCleaveLogicExtensionMethods.IsDefenderAFriendlyInShieldFormation(attacker, victim))
             {
                 Blow blow = attacker.CreateBlowFromBlowAsReflection(b);
 

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TaleWorlds.Core;
@@ -14,6 +15,28 @@ namespace GCO.Features.ModdedMissionLogic
     [HarmonyPatch(typeof(Mission))]
     internal static class PlayerCleaveLogic
     {
+        //     if (!collisionData.IsColliderAgent || registeredBlow.InflictedDamage <= 0)
+        //{
+        //	colReaction = MeleeCollisionReaction.Bounced;
+        //	return;
+        //}
+        [HarmonyPrefix]
+        [HarmonyPatch("DecideWeaponCollisionReaction")]
+        private static bool DecideWeaponCollisionReactionPrefix(Mission __instance, Blow registeredBlow, ref AttackCollisionData collisionData, Agent attacker, Agent defender, bool isFatalHit, bool isShruggedOff, ref MeleeCollisionReaction colReaction)
+        {
+            if (Config.ConfigSettings.CleaveEnabled)
+            {
+                if (!collisionData.IsColliderAgent || registeredBlow.InflictedDamage <= 0 || PlayerCleaveLogicExtensionMethods.IsDefenderAFriendlyInShieldFormation(attacker, defender))
+                {
+                    //collisionData = PlayerCleaveLogicExtensionMethods.GetAttackCollisionDataWithNoShieldBlock(collisionData);
+                    //PlayerCleaveLogicExtensionMethods.SetTest(collisionData, false);
+                    colReaction = MeleeCollisionReaction.ContinueChecking;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch("DecideWeaponCollisionReaction")]
         private static void DecideWeaponCollisionReactionPostfix(Mission __instance, Blow registeredBlow, ref AttackCollisionData collisionData, Agent attacker, Agent defender, bool isFatalHit, bool isShruggedOff, ref MeleeCollisionReaction colReaction)
@@ -39,6 +62,10 @@ namespace GCO.Features.ModdedMissionLogic
                     {
                         inOutMomentumRemaining = momentumRemainingToComputeDamage * 0.25f;
                     }
+                    else if(PlayerCleaveLogicExtensionMethods.IsDefenderAFriendlyInShieldFormation(attacker, victim))
+                    {
+                        inOutMomentumRemaining = momentumRemainingToComputeDamage;
+                    }
                     else
                     {
                         inOutMomentumRemaining = momentumRemainingToComputeDamage * 0.5f;
@@ -49,6 +76,19 @@ namespace GCO.Features.ModdedMissionLogic
     }
     internal static class PlayerCleaveLogicExtensionMethods
     {
+
+        internal static void SetTest(AttackCollisionData collisionData, bool value)
+        {
+            var field = typeof(AttackCollisionData).GetField("_attackBlockedWithShield", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.SetField);
+            field.SetValue(collisionData, value); 
+            field = typeof(AttackCollisionData).GetField("_attackBlockedWithShield", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
+            var val = field.GetValue(collisionData);
+        }
+
+        internal static AttackCollisionData GetAttackCollisionDataWithNoShieldBlock(AttackCollisionData attackCollision)
+        {
+            return AttackCollisionData.GetAttackCollisionDataForDebugPurpose(false, false, attackCollision.IsAlternativeAttack, attackCollision.IsColliderAgent, attackCollision.CollidedWithShieldOnBack, attackCollision.IsMissile, attackCollision.MissileHasPhysics, attackCollision.EntityExists, attackCollision.ThrustTipHit, attackCollision.MissileGoneUnderWater, CombatCollisionResult.None, attackCollision.CurrentUsageIndex, attackCollision.AffectorWeaponKind, attackCollision.StrikeType, attackCollision.DamageType, attackCollision.CollisionBoneIndex, attackCollision.VictimHitBodyPart, attackCollision.AttackBoneIndex, attackCollision.AttackDirection, attackCollision.PhysicsMaterialIndex, attackCollision.CollisionHitResultFlags, attackCollision.AttackProgress, attackCollision.CollisionDistanceOnWeapon, attackCollision.AttackerStunPeriod, attackCollision.DefenderStunPeriod, attackCollision.CurrentWeaponTipSpeed, attackCollision.MissileTotalDamage, 0f, attackCollision.ChargeVelocity, attackCollision.FallSpeed, attackCollision.WeaponRotUp, attackCollision.WeaponBlowDir, attackCollision.CollisionGlobalPosition, attackCollision.MissileVelocity, attackCollision.MissileStartingPosition, attackCollision.VictimAgentCurVelocity, new Vec3());
+        }
         internal static bool IsDefenderAFriendlyInShieldFormation(Agent attacker, Agent defender)
         {
             return defender.Formation != null
@@ -73,7 +113,7 @@ namespace GCO.Features.ModdedMissionLogic
                     }
 
                 }
-                if(IsDefenderAFriendlyInShieldFormation(attacker, defender))
+                if (IsDefenderAFriendlyInShieldFormation(attacker, defender))
                 {
                     shouldCleave = true;
                 }

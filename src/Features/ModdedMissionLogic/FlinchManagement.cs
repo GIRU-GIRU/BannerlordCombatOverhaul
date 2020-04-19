@@ -249,11 +249,12 @@ namespace GCO.Features.ModdedMissionLogic
                     GCOToolbox.CheckToAddHyperarmor(ref b, ref blow);
                 }
 
-
                 if (collisionData.IsColliderAgent)
                 {
                     if (b.SelfInflictedDamage > 0 && attacker != null && attacker.IsFriendOf(victim))
                     {
+
+
                         if (victim.IsMount && attacker.MountAgent != null)
                         {
                             attacker.MountAgent.RegisterBlow(blow);
@@ -267,10 +268,9 @@ namespace GCO.Features.ModdedMissionLogic
                 }
                 else if (collisionData.EntityExists)
                 {
-                    if (victim != null)
-                    {
-                        __instance.OnEntityHit(realHitEntity, attacker, b.InflictedDamage, (DamageTypes)collisionData.DamageType, b.Position, b.SwingDirection, collisionData.AffectorWeaponKind, collisionData.CurrentUsageIndex);
-                    }
+
+                    __instance.OnEntityHit(realHitEntity, attacker, b.InflictedDamage, (DamageTypes)collisionData.DamageType, b.Position, b.SwingDirection, collisionData.AffectorWeaponKind, collisionData.CurrentUsageIndex);
+
                     if (b.SelfInflictedDamage > 0)
                     {
                         attacker.RegisterBlow(blow);
@@ -363,7 +363,6 @@ namespace GCO.Features.ModdedMissionLogic
                 typeof(DamageTypes),
                 typeof(Vec3),
                 typeof(Vec3),
-                typeof(int),
                 typeof(int),
                 typeof(int)
             }).GetValue(realHitEntity, attacker, inflictedDamage, damageType, position, swingDirection, affectorWeaponKind, currentUsageIndex);

@@ -325,7 +325,9 @@ namespace GCO.Features.ModdedMissionLogic
             {
                 if (collisionData.VictimHitBodyPart != BoneBodyPartType.Head && collisionData.VictimHitBodyPart != BoneBodyPartType.Neck)
                 {
-                    if (b.InflictedDamage < (victim.HealthLimit * 0.4))
+                    var projStunThresholdMultiplier = Config.ConfigSettings.ProjectileStunPercentageThreshold / 100;
+
+                    if (b.InflictedDamage < (victim.HealthLimit * projStunThresholdMultiplier))
                     {
                         b.BlowFlag |= BlowFlags.ShrugOff;
                         blow.BlowFlag |= BlowFlags.ShrugOff;

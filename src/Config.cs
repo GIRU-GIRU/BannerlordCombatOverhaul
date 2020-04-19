@@ -28,6 +28,9 @@ namespace GCO
 
         [JsonProperty("HyperArmorEnabled")]
         public bool HyperArmorEnabled { get; set; }
+
+        [JsonProperty("ProjectileStunPercentageThreshold")]
+        public float ProjectileStunPercentageThreshold { get; set; }
     }
 
     public static class Config
@@ -67,6 +70,7 @@ namespace GCO
             ConfigSettings.HyperArmorEnabled = true;
             ConfigSettings.SimplifiedSurrenderLogic = true;
             ConfigSettings.HPOnKillAmount = 20f;
+            ConfigSettings.ProjectileStunPercentageThreshold = 40f;
 
         }
     }

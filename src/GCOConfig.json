@@ -1,7 +1,8 @@
 {
   "HPOnKillEnabled": true,
-  "HPOnKillAmount":  20,
+  "HPOnKillAmount": 20,
   "CleaveEnabled": true,
   "SimplifiedSurrenderLogic": true,
-  "HyperArmorEnabled": true
+  "HyperArmorEnabled": true,
+  "ProjectileStunPercentageThreshold": 40
 }

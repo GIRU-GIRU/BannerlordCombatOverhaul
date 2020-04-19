@@ -15,6 +15,7 @@ namespace GCO.Features.ModdedMissionLogic
     [HarmonyPatch(typeof(Mission))]
     internal static class PlayerCleaveLogic
     {
+        // This is what happens in vanilla if you hit shield
         //     if (!collisionData.IsColliderAgent || registeredBlow.InflictedDamage <= 0)
         //{
         //	colReaction = MeleeCollisionReaction.Bounced;

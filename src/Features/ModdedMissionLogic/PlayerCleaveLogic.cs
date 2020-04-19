@@ -28,8 +28,7 @@ namespace GCO.Features.ModdedMissionLogic
             {
                 if (!collisionData.IsColliderAgent || registeredBlow.InflictedDamage <= 0 || PlayerCleaveLogicExtensionMethods.IsDefenderAFriendlyInShieldFormation(attacker, defender))
                 {
-                    //collisionData = PlayerCleaveLogicExtensionMethods.GetAttackCollisionDataWithNoShieldBlock(collisionData);
-                    //PlayerCleaveLogicExtensionMethods.SetTest(collisionData, false);
+                    collisionData = PlayerCleaveLogicExtensionMethods.GetAttackCollisionDataWithNoShieldBlock(collisionData);
                     colReaction = MeleeCollisionReaction.ContinueChecking;
                     return true;
                 }
@@ -76,15 +75,7 @@ namespace GCO.Features.ModdedMissionLogic
     }
     internal static class PlayerCleaveLogicExtensionMethods
     {
-
-        internal static void SetTest(AttackCollisionData collisionData, bool value)
-        {
-            var field = typeof(AttackCollisionData).GetField("_attackBlockedWithShield", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.SetField);
-            field.SetValue(collisionData, value); 
-            field = typeof(AttackCollisionData).GetField("_attackBlockedWithShield", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
-            var val = field.GetValue(collisionData);
-        }
-
+        // using method created for debug purposes to mod game, PogChamp
         internal static AttackCollisionData GetAttackCollisionDataWithNoShieldBlock(AttackCollisionData attackCollision)
         {
             return AttackCollisionData.GetAttackCollisionDataForDebugPurpose(false, false, attackCollision.IsAlternativeAttack, attackCollision.IsColliderAgent, attackCollision.CollidedWithShieldOnBack, attackCollision.IsMissile, attackCollision.MissileHasPhysics, attackCollision.EntityExists, attackCollision.ThrustTipHit, attackCollision.MissileGoneUnderWater, CombatCollisionResult.None, attackCollision.CurrentUsageIndex, attackCollision.AffectorWeaponKind, attackCollision.StrikeType, attackCollision.DamageType, attackCollision.CollisionBoneIndex, attackCollision.VictimHitBodyPart, attackCollision.AttackBoneIndex, attackCollision.AttackDirection, attackCollision.PhysicsMaterialIndex, attackCollision.CollisionHitResultFlags, attackCollision.AttackProgress, attackCollision.CollisionDistanceOnWeapon, attackCollision.AttackerStunPeriod, attackCollision.DefenderStunPeriod, attackCollision.CurrentWeaponTipSpeed, attackCollision.MissileTotalDamage, 0f, attackCollision.ChargeVelocity, attackCollision.FallSpeed, attackCollision.WeaponRotUp, attackCollision.WeaponBlowDir, attackCollision.CollisionGlobalPosition, attackCollision.MissileVelocity, attackCollision.MissileStartingPosition, attackCollision.VictimAgentCurVelocity, new Vec3());

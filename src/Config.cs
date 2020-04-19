@@ -29,6 +29,9 @@ namespace GCO
         [JsonProperty("HyperArmorEnabled")]
         public bool HyperArmorEnabled { get; set; }
 
+        [JsonProperty("HyperArmorDuration")]
+        public float HyperArmorDuration { get; set; }
+
         [JsonProperty("ProjectileStunPercentageThreshold")]
         public float ProjectileStunPercentageThreshold { get; set; }
     }
@@ -71,6 +74,7 @@ namespace GCO
             ConfigSettings.SimplifiedSurrenderLogic = true;
             ConfigSettings.HPOnKillAmount = 20f;
             ConfigSettings.ProjectileStunPercentageThreshold = 40f;
+            ConfigSettings.HyperArmorDuration = 1f;
 
         }
     }

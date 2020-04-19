@@ -16,7 +16,7 @@ namespace GCO.Features.ModdedMissionLogic
 
         public static void ApplyHyperArmor()
         {
-            _playerAgentHyperarmorActiveTime = MissionTime.SecondsFromNow(1f);
+            _playerAgentHyperarmorActiveTime = MissionTime.SecondsFromNow(Config.ConfigSettings.HyperArmorDuration);
         }
 
         public static bool IsHyperArmorActive()

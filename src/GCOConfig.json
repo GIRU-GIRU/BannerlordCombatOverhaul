@@ -4,5 +4,6 @@
   "CleaveEnabled": true,
   "SimplifiedSurrenderLogic": true,
   "HyperArmorEnabled": true,
+  "HyperArmorDuration": 1,
   "ProjectileStunPercentageThreshold": 40
 }

@@ -267,7 +267,10 @@ namespace GCO.Features.ModdedMissionLogic
                 }
                 else if (collisionData.EntityExists)
                 {
-                    __instance.OnEntityHit(realHitEntity, attacker, b.InflictedDamage, (DamageTypes)collisionData.DamageType, b.Position, b.SwingDirection, collisionData.AffectorWeaponKind, collisionData.CurrentUsageIndex);
+                    if (victim != null)
+                    {
+                        __instance.OnEntityHit(realHitEntity, attacker, b.InflictedDamage, (DamageTypes)collisionData.DamageType, b.Position, b.SwingDirection, collisionData.AffectorWeaponKind, collisionData.CurrentUsageIndex);
+                    }
                     if (b.SelfInflictedDamage > 0)
                     {
                         attacker.RegisterBlow(blow);

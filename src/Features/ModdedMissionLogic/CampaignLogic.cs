@@ -26,17 +26,19 @@ namespace GCO.Features.ModdedMissionLogic
         {
             Mission mission = (Mission)misson;
             bool isCombat = mission.CombatType == Mission.MissionCombatType.Combat;
+            bool isArenaCombat = mission.CombatType == Mission.MissionCombatType.ArenaCombat;
 
             if (Config.ConfigSettings.HPOnKillEnabled)
             {
                 if (Mission.Current.Scene != null)
                 {
-                    if (mission.IsFieldBattle && isCombat)
+                    if (mission.IsFieldBattle || isCombat || isArenaCombat)
                     {
                         Mission.Current.AddMissionBehaviour(new HealthOnKill());
                     }
                 }
             }
+
         }
     }
 }

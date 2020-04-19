@@ -29,7 +29,7 @@ namespace GCO.Features.ModdedMissionLogic
             {
                 if (!collisionData.IsColliderAgent || registeredBlow.InflictedDamage <= 0 || PlayerCleaveLogicExtensionMethods.IsDefenderAFriendlyInShieldFormation(attacker, defender))
                 {
-                    collisionData = PlayerCleaveLogicExtensionMethods.GetAttackCollisionDataWithNoShieldBlock(collisionData);
+                    //collisionData = PlayerCleaveLogicExtensionMethods.GetAttackCollisionDataWithNoShieldBlock(collisionData);
                     colReaction = MeleeCollisionReaction.ContinueChecking;
                     return true;
                 }
@@ -85,7 +85,7 @@ namespace GCO.Features.ModdedMissionLogic
         {
             return defender.Formation != null
                 && defender.Formation.ArrangementOrder == ArrangementOrder.ArrangementOrderShieldWall
-                && (attacker.Formation.ArrangementOrder == ArrangementOrder.ArrangementOrderShieldWall || attacker.IsPlayerControlled) // for some reason, player is always considered to be in a Line formation
+                && ((attacker.Formation != null && attacker.Formation.ArrangementOrder == ArrangementOrder.ArrangementOrderShieldWall) || attacker.IsPlayerControlled) // for some reason, player is always considered to be in a Line formation
                 && attacker.Team == defender.Team;
         }
         internal static bool CheckApplyCleave(Mission __instance, Agent attacker, Agent defender, Blow registeredBlow, bool isShruggedOff)

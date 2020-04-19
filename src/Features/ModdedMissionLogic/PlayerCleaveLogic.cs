@@ -49,6 +49,13 @@ namespace GCO.Features.ModdedMissionLogic
     }
     internal static class PlayerCleaveLogicExtensionMethods
     {
+        internal static bool IsDefenderAFriendlyInShieldFormation(Agent attacker, Agent defender)
+        {
+            return defender.Formation != null
+                && defender.Formation.ArrangementOrder == ArrangementOrder.ArrangementOrderShieldWall
+                && (attacker.Formation.ArrangementOrder == ArrangementOrder.ArrangementOrderShieldWall || attacker.IsPlayerControlled) // for some reason, player is always considered to be in a Line formation
+                && attacker.Team == defender.Team;
+        }
         internal static bool CheckApplyCleave(Mission __instance, Agent attacker, Agent defender, Blow registeredBlow, bool isShruggedOff)
         {
             bool shouldCleave = false;
@@ -65,6 +72,10 @@ namespace GCO.Features.ModdedMissionLogic
                         }
                     }
 
+                }
+                if(IsDefenderAFriendlyInShieldFormation(attacker, defender))
+                {
+                    shouldCleave = true;
                 }
             }
 
@@ -84,6 +95,10 @@ namespace GCO.Features.ModdedMissionLogic
                         shouldCleave = true;
                     }
 
+                }
+                if (IsDefenderAFriendlyInShieldFormation(attacker, victim))
+                {
+                    shouldCleave = true;
                 }
             }
 

@@ -25,7 +25,14 @@ namespace GCO
             harmony.PatchAll(typeof(GCOSubModule).Assembly);
 
         }
-
+        public override void OnMissionBehaviourInitialize(Mission mission)
+        {
+            if (mission.IsOrderShoutingAllowed())
+            {
+                mission.AddMissionBehaviour(new QueuedVoiceLogic());
+            }
+            base.OnMissionBehaviourInitialize(mission);
+        }
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
         {
             InformationManager.DisplayMessage(new InformationMessage("Loaded GCO", Color.White));

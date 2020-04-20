@@ -27,25 +27,24 @@ namespace GCO.Features.ModdedMissionLogic
             {
                 case FormationClass.Infantry:
                 case FormationClass.HeavyInfantry:
-                    QueueClass.QueueItem(() => agent.MakeVoice(SkinVoiceManager.VoiceType.Infantry, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("Infantry");
                     return false;
                 case FormationClass.Ranged:
                 case FormationClass.NumberOfDefaultFormations:
-                    QueueClass.QueueItem(() => agent.MakeVoice(SkinVoiceManager.VoiceType.Archers, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("Archers");
                     return false;
                 case FormationClass.Cavalry:
                 case FormationClass.LightCavalry:
                 case FormationClass.HeavyCavalry:
-                    QueueClass.QueueItem(() => agent.MakeVoice(SkinVoiceManager.VoiceType.Cavalry, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("Cavalry");
                     return false;
                 case FormationClass.HorseArcher:
-                    QueueClass.QueueItem(() => agent.MakeVoice(SkinVoiceManager.VoiceType.HorseArchers, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("HorseArchers");
                     return false;
                 default:
                     return false;
             }
         }
-
 
         [HarmonyPrefix]
         [HarmonyPatch("AfterSetOrderMakeVoice")]
@@ -58,53 +57,9 @@ namespace GCO.Features.ModdedMissionLogic
         }
     }
 
-
-
-    [HarmonyPatch(typeof(Mission), "OnTick")]
-    public class VoiceCommandTimer
-    {
-
-        [HarmonyPostfix]
-        internal static void OnTickPostfix(float dt, float realDt, bool updateCamera)
-        {
-      
-            bool initialized = false;
-            MissionTime missionTime;
-
-            if (MissionTime.Now != null)
-            {              
-                initialized = true;
-            }
-
-            if (initialized)
-            {
-                missionTime = MissionTime.SecondsFromNow(5);
-                if (missionTime.IsPast)
-                {
-                    Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.Move, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
-                 
-                }
-            }
-
-
-
-
-            var queue = QueueClass.GetVoiceCommandQueue();
-            if (queue.Count > 0)
-            {
-                var timer = QueueClass.GetVoiceCommandTimer();
-
-                if (timer.IsPast)
-                {
-                    QueueClass.ExecuteVoiceCommand();
-
-                }
-            }
-        }
-    }
     public static class QueueClass
     {
-        private static Queue<Action> queue = new Queue<Action>();
+        private static readonly Queue<string> queue = new Queue<string>();
 
         private static MissionTime VoiceCommandTimer = MissionTime.Now;
 
@@ -117,21 +72,20 @@ namespace GCO.Features.ModdedMissionLogic
         {
             return VoiceCommandTimer;
         }
-        public static void QueueItem(Action makeVoice)
+        public static void QueueItem(string voiceTypeString)
         {
-            queue.Enqueue(makeVoice);
+            queue.Enqueue(voiceTypeString);
         }
 
-        public static Queue<Action> GetVoiceCommandQueue()
+        public static Queue<string> GetVoiceCommandQueue()
         {
             return queue;
         }
 
-        public static void ExecuteVoiceCommand()
+        public static string GetNextQueueItem()
         {
-            var action = queue.Dequeue();
-            // action.Invoke();
             ResetVoiceCommandTimer();
+            return queue.Dequeue();
         }
     }
 
@@ -140,9 +94,9 @@ namespace GCO.Features.ModdedMissionLogic
         public static bool AfterSetOrderMakeVoice(OrderType orderType)
         {
        
-            //testing
-            Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.Move, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
-            return false;
+            ////testing
+            //Agent.Main.MakeVoice("Move, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
+            //return false;
 
             if (!Mission.Current.IsOrderShoutingAllowed())
             {
@@ -153,17 +107,17 @@ namespace GCO.Features.ModdedMissionLogic
                 case OrderType.Move:
                 case OrderType.MoveToLineSegment:
                 case OrderType.MoveToLineSegmentWithHorizontalLayout:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.Move, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("Move");
                     return false;
                 case OrderType.Charge:
                 case OrderType.ChargeWithTarget:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(VoiceType.Charge, CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("Charge");
                     return false;
                 case OrderType.StandYourGround:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.Stop, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("Stop");
                     return false;
                 case OrderType.FollowMe:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.Follow, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("Follow");
                     return false;
                 case OrderType.FollowEntity:
                 case OrderType.GuardMe:
@@ -180,63 +134,63 @@ namespace GCO.Features.ModdedMissionLogic
                 case OrderType.UseBluntWeaponsOnly:
                     break;
                 case OrderType.Retreat:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.Retreat, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("Retreat");
                     return false;
                 case OrderType.AdvanceTenPaces:
                 case OrderType.Advance:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.Advance, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("Advance");
                     return false;
                 case OrderType.FallBackTenPaces:
                 case OrderType.FallBack:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.FallBack, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("FallBack");
                     return false;
                 case OrderType.LookAtEnemy:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.FaceEnemy, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("FaceEnemy");
                     return false;
                 case OrderType.LookAtDirection:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.FaceDirection, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("FaceDirection");
                     break;
                 case OrderType.ArrangementLine:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.FormLine, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("FormLine");
                     return false;
                 case OrderType.ArrangementCloseOrder:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.FormShieldWall, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("FormShieldWall");
                     return false;
                 case OrderType.ArrangementLoose:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.FormLoose, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("FormLoose");
                     return false;
                 case OrderType.ArrangementCircular:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.FormCircle, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("FormCircle");
                     return false;
                 case OrderType.ArrangementSchiltron:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.FormSquare, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("FormSquare");
                     return false;
                 case OrderType.ArrangementVee:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.FormSkein, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("FormSkein");
                     return false;
                 case OrderType.ArrangementColumn:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.FormColumn, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("FormColumn");
                     return false;
                 case OrderType.ArrangementScatter:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.FormScatter, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("FormScatter");
                     return false;
                 case OrderType.HoldFire:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.HoldFire, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("HoldFire");
                     return false;
                 case OrderType.FireAtWill:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.FireAtWill, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("FireAtWill");
                     return false;
                 case OrderType.Mount:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.Mount, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("Mount");
                     return false;
                 case OrderType.Dismount:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.Dismount, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("Dismount");
                     return false;
                 case OrderType.AIControlOn:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.CommandDelegate, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("CommandDelegate");
                     return false;
                 case OrderType.AIControlOff:
-                    QueueClass.QueueItem(() => Mission.Current.MainAgent.MakeVoice(SkinVoiceManager.VoiceType.CommandUndelegate, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction));
+                    QueueClass.QueueItem("CommandUndelegate");
                     return false;
                 default:
                     return false;

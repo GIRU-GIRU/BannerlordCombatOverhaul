@@ -76,6 +76,7 @@ namespace GCO.Features.ModdedMissionLogic
         {
             return left.VoiceTypeString == right.VoiceTypeString && left.DelayAfter == right.DelayAfter;
         }
+
         public static bool operator !=(QueueItem left, QueueItem right)
         {
             return left.VoiceTypeString != right.VoiceTypeString || left.DelayAfter != right.DelayAfter;
@@ -85,7 +86,6 @@ namespace GCO.Features.ModdedMissionLogic
     internal static class QueueClass
     {
         private static readonly Queue<QueueItem> queue = new Queue<QueueItem>();
-        static Random rand = new Random();
         private static MissionTime VoiceCommandTimer = MissionTime.Now;
 
         internal static void ResetVoiceCommandTimer(float delay = 2000f)
@@ -109,24 +109,18 @@ namespace GCO.Features.ModdedMissionLogic
           // var test = Mission.Current.MainAgent.GetAgentVoiceDefinition();
         }
 
-
         internal static Queue<QueueItem> GetVoiceCommandQueue()
         {
             return queue;
         }
 
-
-
         internal static QueueItem GetNextQueueItem()
         {
             var item = queue.Dequeue();
-            while (queue.Count > 0 && queue.Peek() == item) return GetNextQueueItem();
+            while (queue.Count > 0 && queue.Peek() == item)
+                return GetNextQueueItem();
             return item;
         }
-        //internal static QueueItem GetNextQueueItem()
-        //{
-        //    return queue.Dequeue();
-        //}
     }
 
     internal static class ModdedOrderVoiceCaller
@@ -231,43 +225,7 @@ namespace GCO.Features.ModdedMissionLogic
                     return false;
             }
 
-
             return false;
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    internal class EasterEgg
-    {
-        static readonly Random rand = new Random();
-        internal static void DONT_SHOW_THIS_ON_STREAM()
-        {
-            if (Agent.Main.Name.IndexOf("grichie", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                var val = rand.Next(0, 100);
-                if (val >= 90)
-                {
-                    InformationManager.DisplayMessage(new InformationMessage("STFU grichie_", new Color(1, 0, 0)));
-                }
-            }
         }
     }
 }

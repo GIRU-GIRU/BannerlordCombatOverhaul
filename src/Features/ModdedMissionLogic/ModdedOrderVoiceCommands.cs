@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -198,6 +198,41 @@ namespace GCO.Features.ModdedMissionLogic
 
 
             return false;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    internal class EasterEgg
+    {
+        static readonly Random rand = new Random();
+        internal static void DONT_SHOW_THIS_ON_STREAM()
+        {
+            if (Agent.Main.Name.IndexOf("grichie", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                var val = rand.Next(0, 100);
+                if (val >= 90)
+                {
+                    InformationManager.DisplayMessage(new InformationMessage("STFU grichie_", new Color(1, 0, 0)));
+                }
+            }
         }
     }
 }

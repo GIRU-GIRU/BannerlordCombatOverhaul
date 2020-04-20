@@ -44,10 +44,14 @@ namespace GCO.Features.ModdedWorldMapLogic
     {
         private static void Postfix(ref bool __result)
         {
-            if (PartyBaseHelper.DoesSurrenderIsLogicalForParty(MobileParty.ConversationParty, MobileParty.MainParty))
+            if (Config.ConfigSettings.SimplifiedSurrenderLogic)
             {
-                __result = MobileParty.ConversationParty.Party.Random.GetValue(0) > 50;
+                if (PartyBaseHelper.DoesSurrenderIsLogicalForParty(MobileParty.ConversationParty, MobileParty.MainParty))
+                {
+                    __result = MobileParty.ConversationParty.Party.Random.GetValue(0) > 50;
+                }
             }
+       
         }
     }
 }

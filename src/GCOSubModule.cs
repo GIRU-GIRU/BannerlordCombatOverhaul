@@ -69,10 +69,7 @@ namespace GCO
 
         private void AddBehaviors(CampaignGameStarter gameInitializer)
         {
-            if (Config.ConfigSettings.SimplifiedSurrenderLogic)
-            {
-                gameInitializer.AddBehavior(new CampaignLogic());
-            }
+            gameInitializer.AddBehavior(new CampaignLogic());
         }
 
         private bool CompatibilityCheck()

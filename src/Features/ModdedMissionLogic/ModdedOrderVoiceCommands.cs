@@ -23,7 +23,7 @@ namespace GCO.Features.ModdedMissionLogic
             {
                 return false;
             }
-            float delay = 0.2f;
+            float delay = 800f;
             switch (formation.InitialClass)
             {
                 case FormationClass.Infantry:
@@ -40,7 +40,7 @@ namespace GCO.Features.ModdedMissionLogic
                     QueueClass.QueueItem("Cavalry", delay);
                     return false;
                 case FormationClass.HorseArcher:
-                    QueueClass.QueueItem("HorseArchers", delay);
+                    QueueClass.QueueItem("HorseArchers", delay + 400f);
                     return false;
                 default:
                     return false;
@@ -53,11 +53,13 @@ namespace GCO.Features.ModdedMissionLogic
         {
             ModdedOrderVoiceCaller.AfterSetOrderMakeVoice(orderType);
 
-            return true;
+            return false;
 
         }
     }
 
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
+#pragma warning disable CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
     internal class QueueItem
     {
         public string VoiceTypeString { get; }
@@ -68,6 +70,15 @@ namespace GCO.Features.ModdedMissionLogic
         {
             VoiceTypeString = voiceTypeString;
             DelayAfter = delayAfter;
+        }
+
+        public static bool operator ==(QueueItem left, QueueItem right)
+        {
+            return left.VoiceTypeString == right.VoiceTypeString && left.DelayAfter == right.DelayAfter;
+        }
+        public static bool operator !=(QueueItem left, QueueItem right)
+        {
+            return left.VoiceTypeString != right.VoiceTypeString || left.DelayAfter != right.DelayAfter;
         }
     }
 
@@ -80,7 +91,6 @@ namespace GCO.Features.ModdedMissionLogic
         internal static void ResetVoiceCommandTimer(float delay = 2000f)
         {
             VoiceCommandTimer = MissionTime.MillisecondsFromNow(delay);
-            EasterEgg.DONT_SHOW_THIS_ON_STREAM();
         }
 
         internal static MissionTime GetVoiceCommandTimer()
@@ -89,18 +99,34 @@ namespace GCO.Features.ModdedMissionLogic
         }
         internal static void QueueItem(string voiceTypeString, float delayAfter = 2000f)
         {
+            if (queue.Count > 7)
+            {
+                _ = queue.Dequeue();               
+            }
+
             queue.Enqueue(new QueueItem(voiceTypeString, delayAfter));
+
+          // var test = Mission.Current.MainAgent.GetAgentVoiceDefinition();
         }
+
 
         internal static Queue<QueueItem> GetVoiceCommandQueue()
         {
             return queue;
         }
 
+
+
         internal static QueueItem GetNextQueueItem()
         {
-            return queue.Dequeue();
+            var item = queue.Dequeue();
+            while (queue.Count > 0 && queue.Peek() == item) return GetNextQueueItem();
+            return item;
         }
+        //internal static QueueItem GetNextQueueItem()
+        //{
+        //    return queue.Dequeue();
+        //}
     }
 
     internal static class ModdedOrderVoiceCaller
@@ -116,17 +142,17 @@ namespace GCO.Features.ModdedMissionLogic
                 case OrderType.Move:
                 case OrderType.MoveToLineSegment:
                 case OrderType.MoveToLineSegmentWithHorizontalLayout:
-                    QueueClass.QueueItem("Move", 600f);
+                    QueueClass.QueueItem("Move", 650f);
                     return false;
                 case OrderType.Charge:
                 case OrderType.ChargeWithTarget:
-                    QueueClass.QueueItem("Charge", 0.3f);
+                    QueueClass.QueueItem("Charge", 800f);
                     return false;
                 case OrderType.StandYourGround:
-                    QueueClass.QueueItem("Stop", 0.2f);
+                    QueueClass.QueueItem("Stop", 800f);
                     return false;
                 case OrderType.FollowMe:
-                    QueueClass.QueueItem("Follow", 0.2f);
+                    QueueClass.QueueItem("Follow", 800f);
                     return false;
                 case OrderType.FollowEntity:
                 case OrderType.GuardMe:
@@ -143,63 +169,63 @@ namespace GCO.Features.ModdedMissionLogic
                 case OrderType.UseBluntWeaponsOnly:
                     break;
                 case OrderType.Retreat:
-                    QueueClass.QueueItem("Retreat", 0.2f);
+                    QueueClass.QueueItem("Retreat", 800f);
                     return false;
                 case OrderType.AdvanceTenPaces:
                 case OrderType.Advance:
-                    QueueClass.QueueItem("Advance", 0.2f);
+                    QueueClass.QueueItem("Advance", 800f);
                     return false;
                 case OrderType.FallBackTenPaces:
                 case OrderType.FallBack:
-                    QueueClass.QueueItem("FallBack", 0.2f);
+                    QueueClass.QueueItem("FallBack", 800f);
                     return false;
                 case OrderType.LookAtEnemy:
-                    QueueClass.QueueItem("FaceEnemy", 0.2f);
+                    QueueClass.QueueItem("FaceEnemy", 800f);
                     return false;
                 case OrderType.LookAtDirection:
-                    QueueClass.QueueItem("FaceDirection", 0.2f);
+                    QueueClass.QueueItem("FaceDirection", 800f);
                     break;
                 case OrderType.ArrangementLine:
-                    QueueClass.QueueItem("FormLine", 0.3f);
+                    QueueClass.QueueItem("FormLine", 800f);
                     return false;
                 case OrderType.ArrangementCloseOrder:
-                    QueueClass.QueueItem("FormShieldWall", 0.3f);
+                    QueueClass.QueueItem("FormShieldWall", 800f);
                     return false;
                 case OrderType.ArrangementLoose:
-                    QueueClass.QueueItem("FormLoose", 0.3f);
+                    QueueClass.QueueItem("FormLoose", 800f);
                     return false;
                 case OrderType.ArrangementCircular:
-                    QueueClass.QueueItem("FormCircle", 0.3f);
+                    QueueClass.QueueItem("FormCircle", 800f);
                     return false;
                 case OrderType.ArrangementSchiltron:
-                    QueueClass.QueueItem("FormSquare", 0.3f);
+                    QueueClass.QueueItem("FormSquare", 800f);
                     return false;
                 case OrderType.ArrangementVee:
-                    QueueClass.QueueItem("FormSkein", 0.3f);
+                    QueueClass.QueueItem("FormSkein", 800f);
                     return false;
                 case OrderType.ArrangementColumn:
-                    QueueClass.QueueItem("FormColumn", 0.3f);
+                    QueueClass.QueueItem("FormColumn", 800f);
                     return false;
                 case OrderType.ArrangementScatter:
-                    QueueClass.QueueItem("FormScatter", 0.3f);
+                    QueueClass.QueueItem("FormScatter", 800f);
                     return false;
                 case OrderType.HoldFire:
-                    QueueClass.QueueItem("HoldFire", 0.3f);
+                    QueueClass.QueueItem("HoldFire", 800f);
                     return false;
                 case OrderType.FireAtWill:
-                    QueueClass.QueueItem("FireAtWill", 0.3f);
+                    QueueClass.QueueItem("FireAtWill", 800f);
                     return false;
                 case OrderType.Mount:
-                    QueueClass.QueueItem("Mount", 0.3f);
+                    QueueClass.QueueItem("Mount", 800f);
                     return false;
                 case OrderType.Dismount:
-                    QueueClass.QueueItem("Dismount", 0.3f);
+                    QueueClass.QueueItem("Dismount", 800f);
                     return false;
                 case OrderType.AIControlOn:
-                    QueueClass.QueueItem("CommandDelegate", 0.3f);
+                    QueueClass.QueueItem("CommandDelegate", 800f);
                     return false;
                 case OrderType.AIControlOff:
-                    QueueClass.QueueItem("CommandUndelegate", 0.3f);
+                    QueueClass.QueueItem("CommandUndelegate", 800f);
                     return false;
                 default:
                     return false;

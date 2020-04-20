@@ -259,6 +259,7 @@
     <Compile Include="Config.cs" />
     <Compile Include="Features\ModdedMissionLogic\CampaignLogic.cs" />
     <Compile Include="Features\ModdedMissionLogic\Global.cs" />
+    <Compile Include="Features\ModdedMissionLogic\ModdedOrderVoiceCommands.cs" />
     <Compile Include="Features\ModdedMissionLogic\PlayerCleaveLogic.cs" />
     <Compile Include="GCOSubModule.cs" />
     <Compile Include="Features\ModdedMissionLogic\FlinchManagement.cs" />

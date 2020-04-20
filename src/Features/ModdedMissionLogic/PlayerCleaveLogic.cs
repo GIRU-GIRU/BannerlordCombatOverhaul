@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TaleWorlds.Core;
@@ -14,6 +15,28 @@ namespace GCO.Features.ModdedMissionLogic
     [HarmonyPatch(typeof(Mission))]
     internal static class PlayerCleaveLogic
     {
+        // This is what happens in vanilla if you hit shield
+        //     if (!collisionData.IsColliderAgent || registeredBlow.InflictedDamage <= 0)
+        //{
+        //	colReaction = MeleeCollisionReaction.Bounced;
+        //	return;
+        //}
+        [HarmonyPrefix]
+        [HarmonyPatch("DecideWeaponCollisionReaction")]
+        private static bool DecideWeaponCollisionReactionPrefix(Mission __instance, Blow registeredBlow, ref AttackCollisionData collisionData, Agent attacker, Agent defender, bool isFatalHit, bool isShruggedOff, ref MeleeCollisionReaction colReaction)
+        {
+            if (Config.ConfigSettings.CleaveEnabled)
+            {
+                if (!collisionData.IsColliderAgent || registeredBlow.InflictedDamage <= 0 || PlayerCleaveLogicExtensionMethods.IsDefenderAFriendlyInShieldFormation(attacker, defender))
+                {
+                    collisionData = PlayerCleaveLogicExtensionMethods.GetAttackCollisionDataWithNoShieldBlock(collisionData);
+                    colReaction = MeleeCollisionReaction.ContinueChecking;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch("DecideWeaponCollisionReaction")]
         private static void DecideWeaponCollisionReactionPostfix(Mission __instance, Blow registeredBlow, ref AttackCollisionData collisionData, Agent attacker, Agent defender, bool isFatalHit, bool isShruggedOff, ref MeleeCollisionReaction colReaction)
@@ -39,6 +62,10 @@ namespace GCO.Features.ModdedMissionLogic
                     {
                         inOutMomentumRemaining = momentumRemainingToComputeDamage * 0.25f;
                     }
+                    else if(PlayerCleaveLogicExtensionMethods.IsDefenderAFriendlyInShieldFormation(attacker, victim))
+                    {
+                        inOutMomentumRemaining = momentumRemainingToComputeDamage;
+                    }
                     else
                     {
                         inOutMomentumRemaining = momentumRemainingToComputeDamage * 0.5f;
@@ -49,11 +76,16 @@ namespace GCO.Features.ModdedMissionLogic
     }
     internal static class PlayerCleaveLogicExtensionMethods
     {
+        // this doesnt do anything :(
+        internal static AttackCollisionData GetAttackCollisionDataWithNoShieldBlock(AttackCollisionData attackCollision)
+        {
+            return AttackCollisionData.GetAttackCollisionDataForDebugPurpose(false, false, attackCollision.IsAlternativeAttack, attackCollision.IsColliderAgent, attackCollision.CollidedWithShieldOnBack, attackCollision.IsMissile, attackCollision.MissileHasPhysics, attackCollision.EntityExists, attackCollision.ThrustTipHit, attackCollision.MissileGoneUnderWater, CombatCollisionResult.None, attackCollision.CurrentUsageIndex, attackCollision.AffectorWeaponKind, attackCollision.StrikeType, attackCollision.DamageType, attackCollision.CollisionBoneIndex, attackCollision.VictimHitBodyPart, attackCollision.AttackBoneIndex, attackCollision.AttackDirection, attackCollision.PhysicsMaterialIndex, attackCollision.CollisionHitResultFlags, attackCollision.AttackProgress, attackCollision.CollisionDistanceOnWeapon, attackCollision.AttackerStunPeriod, attackCollision.DefenderStunPeriod, attackCollision.CurrentWeaponTipSpeed, attackCollision.MissileTotalDamage, 0f, attackCollision.ChargeVelocity, attackCollision.FallSpeed, attackCollision.WeaponRotUp, attackCollision.WeaponBlowDir, attackCollision.CollisionGlobalPosition, attackCollision.MissileVelocity, attackCollision.MissileStartingPosition, attackCollision.VictimAgentCurVelocity, new Vec3());
+        }
         internal static bool IsDefenderAFriendlyInShieldFormation(Agent attacker, Agent defender)
         {
             return defender.Formation != null
                 && defender.Formation.ArrangementOrder == ArrangementOrder.ArrangementOrderShieldWall
-                && (attacker.Formation.ArrangementOrder == ArrangementOrder.ArrangementOrderShieldWall || attacker.IsPlayerControlled) // for some reason, player is always considered to be in a Line formation
+                && ((attacker.Formation != null && attacker.Formation.ArrangementOrder == ArrangementOrder.ArrangementOrderShieldWall) || attacker.IsPlayerControlled) // for some reason, player is always considered to be in a Line formation
                 && attacker.Team == defender.Team;
         }
         internal static bool CheckApplyCleave(Mission __instance, Agent attacker, Agent defender, Blow registeredBlow, bool isShruggedOff)
@@ -73,7 +105,7 @@ namespace GCO.Features.ModdedMissionLogic
                     }
 
                 }
-                if(IsDefenderAFriendlyInShieldFormation(attacker, defender))
+                if (IsDefenderAFriendlyInShieldFormation(attacker, defender))
                 {
                     shouldCleave = true;
                 }

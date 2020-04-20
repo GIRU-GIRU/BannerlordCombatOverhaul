@@ -18,25 +18,6 @@ namespace GCO.Features.ModdedMissionLogic
 
         public override void OnMissionTick(float dt)
         {
-            // this isnt needed, right?
-            //bool initialized = false;
-            //MissionTime missionTime;
-
-            //if (MissionTime.Now != null)
-            //{
-            //    initialized = true;
-            //}
-
-            //if (initialized)
-            //{
-            //    missionTime = MissionTime.SecondsFromNow(5);
-            //    if (missionTime.IsPast)
-            //    {
-            //        Agent.Main.MakeVoice(VoiceType.Move, CombatVoiceNetworkPredictionType.NoPrediction);
-
-            //    }
-            //}
-
             var queue = QueueClass.GetVoiceCommandQueue();
             if (queue.Count > 0)
             {
@@ -44,9 +25,10 @@ namespace GCO.Features.ModdedMissionLogic
 
                 if (timer.IsPast)
                 {
-                    var voiceTypeString = QueueClass.GetNextQueueItem();
-                    var voiceType = new SkinVoiceType(voiceTypeString);
+                    var queueItem = QueueClass.GetNextQueueItem();
+                    var voiceType = new SkinVoiceType(queueItem.VoiceTypeString);
                     Agent.Main.MakeVoice(voiceType, CombatVoiceNetworkPredictionType.NoPrediction);
+                    QueueClass.ResetVoiceCommandTimer(queueItem.DelayAfter);
 
                 }
             }

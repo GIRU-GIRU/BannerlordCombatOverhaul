@@ -57,7 +57,8 @@ namespace GCO.Features.ModdedMissionLogic
     {
         internal static bool IsDefenderAFriendlyInShieldFormation(Agent attacker, Agent defender)
         {
-            return defender.Formation != null
+            return Config.ConfigSettings.AdditionalCleaveForTroopsInShieldWall 
+                && defender.Formation != null
                 && defender.Formation.ArrangementOrder == ArrangementOrder.ArrangementOrderShieldWall
                 && ((attacker.Formation != null && attacker.Formation.ArrangementOrder == ArrangementOrder.ArrangementOrderShieldWall) || attacker.IsPlayerControlled) // for some reason, player is always considered to be in a Line formation
                 && attacker.Team == defender.Team
@@ -69,10 +70,10 @@ namespace GCO.Features.ModdedMissionLogic
         /// </summary>
         private static bool IsAttackerFacingSimilarDirection(Agent attacker, Agent defender)
         {
-            float offset = 1f;
+            float maxAngle = 1f; // this math is done in radians (1 radian = ~57°)
             // the smaller angleBetween is, the more Look Direction of the agents is simillar
             var angleBetween = attacker.LookDirection.AsVec2.AngleBetween(defender.LookDirection.AsVec2);
-            return angleBetween <= offset;
+            return angleBetween <= maxAngle;
         }
 
         internal static bool CheckApplyCleave(Mission __instance, Agent attacker, Agent defender, Blow registeredBlow, bool isShruggedOff)

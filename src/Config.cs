@@ -34,6 +34,9 @@ namespace GCO
 
         [JsonProperty("ProjectileStunPercentageThreshold")]
         public float ProjectileStunPercentageThreshold { get; set; }
+
+        [JsonProperty("AdditionalCleaveForTroopsInShieldWall")]
+        public bool AdditionalCleaveForTroopsInShieldWall { get; set; }
     }
 
     public static class Config

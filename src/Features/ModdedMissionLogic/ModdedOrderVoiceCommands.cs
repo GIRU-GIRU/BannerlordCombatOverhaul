@@ -99,14 +99,18 @@ namespace GCO.Features.ModdedMissionLogic
         }
         internal static void QueueItem(string voiceTypeString, float delayAfter = 2000f)
         {
+            if(queue.Count == 0)
+            {
+                ResetVoiceCommandTimer(10f);
+            }
             if (queue.Count > 7)
             {
-                _ = queue.Dequeue();               
+                _ = queue.Dequeue();
             }
 
             queue.Enqueue(new QueueItem(voiceTypeString, delayAfter));
 
-          // var test = Mission.Current.MainAgent.GetAgentVoiceDefinition();
+            // var test = Mission.Current.MainAgent.GetAgentVoiceDefinition();
         }
 
         internal static Queue<QueueItem> GetVoiceCommandQueue()

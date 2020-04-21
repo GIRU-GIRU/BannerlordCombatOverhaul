@@ -37,6 +37,10 @@ namespace GCO
 
         [JsonProperty("EnableStandardizedFlinch")]
         public bool EnableStandardizedFlinchOnEnemies { get; set; }
+
+        [JsonProperty("AdditionalCleaveForTroopsInShieldWall")]
+        public bool AdditionalCleaveForTroopsInShieldWall { get; set; }
+
     }
 
     public static class Config
@@ -79,7 +83,7 @@ namespace GCO
             ConfigSettings.ProjectileStunPercentageThreshold = 40f;
             ConfigSettings.HyperArmorDuration = 1f;
             ConfigSettings.EnableStandardizedFlinchOnEnemies = true;
-
+            ConfigSettings.AdditionalCleaveForTroopsInShieldWall = true;
         }
     }
 }

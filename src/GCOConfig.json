@@ -2,6 +2,7 @@
   "HPOnKillEnabled": true,
   "HPOnKillAmount": 20,
   "CleaveEnabled": true,
+  "AdditionalCleaveForTroopsInShieldWall":  true,
   "SimplifiedSurrenderLogic": true,
   "HyperArmorEnabled": true,
   "HyperArmorDuration": 1,

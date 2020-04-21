@@ -34,6 +34,9 @@ namespace GCO
 
         [JsonProperty("ProjectileStunPercentageThreshold")]
         public float ProjectileStunPercentageThreshold { get; set; }
+
+        [JsonProperty("EnableStandardizedFlinch")]
+        public bool EnableStandardizedFlinchOnEnemies { get; set; }
     }
 
     public static class Config
@@ -75,6 +78,7 @@ namespace GCO
             ConfigSettings.HPOnKillAmount = 20f;
             ConfigSettings.ProjectileStunPercentageThreshold = 40f;
             ConfigSettings.HyperArmorDuration = 1f;
+            ConfigSettings.EnableStandardizedFlinchOnEnemies = true;
 
         }
     }

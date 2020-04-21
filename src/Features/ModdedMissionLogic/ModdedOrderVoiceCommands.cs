@@ -142,7 +142,7 @@ namespace GCO.Features.ModdedMissionLogic
                 case OrderType.Move:
                 case OrderType.MoveToLineSegment:
                 case OrderType.MoveToLineSegmentWithHorizontalLayout:
-                    QueueClass.QueueItem("Move", 650f);
+                    QueueClass.QueueItem("Move", 800f);
                     return false;
                 case OrderType.Charge:
                 case OrderType.ChargeWithTarget:
@@ -169,63 +169,63 @@ namespace GCO.Features.ModdedMissionLogic
                 case OrderType.UseBluntWeaponsOnly:
                     break;
                 case OrderType.Retreat:
-                    QueueClass.QueueItem("Retreat", 800f);
+                    QueueClass.QueueItem("Retreat", 1200f);
                     return false;
                 case OrderType.AdvanceTenPaces:
                 case OrderType.Advance:
-                    QueueClass.QueueItem("Advance", 800f);
+                    QueueClass.QueueItem("Advance", 1200f);
                     return false;
                 case OrderType.FallBackTenPaces:
                 case OrderType.FallBack:
-                    QueueClass.QueueItem("FallBack", 800f);
+                    QueueClass.QueueItem("FallBack", 1200f);
                     return false;
                 case OrderType.LookAtEnemy:
-                    QueueClass.QueueItem("FaceEnemy", 800f);
+                    QueueClass.QueueItem("FaceEnemy", 1200f);
                     return false;
                 case OrderType.LookAtDirection:
-                    QueueClass.QueueItem("FaceDirection", 800f);
+                    QueueClass.QueueItem("FaceDirection", 1200f);
                     break;
                 case OrderType.ArrangementLine:
-                    QueueClass.QueueItem("FormLine", 800f);
+                    QueueClass.QueueItem("FormLine", 1200f);
                     return false;
                 case OrderType.ArrangementCloseOrder:
-                    QueueClass.QueueItem("FormShieldWall", 800f);
+                    QueueClass.QueueItem("FormShieldWall", 1200f);
                     return false;
                 case OrderType.ArrangementLoose:
-                    QueueClass.QueueItem("FormLoose", 800f);
+                    QueueClass.QueueItem("FormLoose", 1200f);
                     return false;
                 case OrderType.ArrangementCircular:
-                    QueueClass.QueueItem("FormCircle", 800f);
+                    QueueClass.QueueItem("FormCircle", 1200f);
                     return false;
                 case OrderType.ArrangementSchiltron:
-                    QueueClass.QueueItem("FormSquare", 800f);
+                    QueueClass.QueueItem("FormSquare", 1200f);
                     return false;
                 case OrderType.ArrangementVee:
-                    QueueClass.QueueItem("FormSkein", 800f);
+                    QueueClass.QueueItem("FormSkein", 1200f);
                     return false;
                 case OrderType.ArrangementColumn:
-                    QueueClass.QueueItem("FormColumn", 800f);
+                    QueueClass.QueueItem("FormColumn", 1200f);
                     return false;
                 case OrderType.ArrangementScatter:
-                    QueueClass.QueueItem("FormScatter", 800f);
+                    QueueClass.QueueItem("FormScatter", 1200f);
                     return false;
                 case OrderType.HoldFire:
-                    QueueClass.QueueItem("HoldFire", 800f);
+                    QueueClass.QueueItem("HoldFire", 1200f);
                     return false;
                 case OrderType.FireAtWill:
-                    QueueClass.QueueItem("FireAtWill", 800f);
+                    QueueClass.QueueItem("FireAtWill", 1200f);
                     return false;
                 case OrderType.Mount:
-                    QueueClass.QueueItem("Mount", 800f);
+                    QueueClass.QueueItem("Mount", 1200f);
                     return false;
                 case OrderType.Dismount:
-                    QueueClass.QueueItem("Dismount", 800f);
+                    QueueClass.QueueItem("Dismount", 1200f);
                     return false;
                 case OrderType.AIControlOn:
-                    QueueClass.QueueItem("CommandDelegate", 800f);
+                    QueueClass.QueueItem("CommandDelegate", 1200f);
                     return false;
                 case OrderType.AIControlOff:
-                    QueueClass.QueueItem("CommandUndelegate", 800f);
+                    QueueClass.QueueItem("CommandUndelegate", 1200f);
                     return false;
                 default:
                     return false;

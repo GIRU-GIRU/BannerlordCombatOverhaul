@@ -18,7 +18,7 @@ using TaleWorlds.Engine;
 
 namespace GCO.Features.ModdedMissionLogic
 {
-    [HarmonyPatch(typeof(Mission))]
+    
     public static class FlinchManagement
     {
         //original method required a Blow object, but you must return boolean for harmony lib
@@ -120,10 +120,7 @@ namespace GCO.Features.ModdedMissionLogic
         }
 
 
-
-        [HarmonyPrefix]
-        [HarmonyPatch("GetDefendCollisionResultsAux")]
-        private static bool GetDefendCollisionResultsAux(Mission __instance, Agent attackerAgent, Agent defenderAgent,
+        private static bool GetDefendCollisionResultsAuxPrefix(Mission __instance, Agent attackerAgent, Agent defenderAgent,
             CombatCollisionResult collisionResult, int weaponKind, int currentUsageIndex, bool isAlternativeAttack,
             StrikeType strikeType, Agent.UsageDirection attackDirection, float currentAttackSpeed, float collisionDistanceOnWeapon,
             float attackProgress, bool attackIsParried, ref float defenderStunPeriod, ref float attackerStunPeriod, ref bool crushedThrough,
@@ -234,9 +231,7 @@ namespace GCO.Features.ModdedMissionLogic
         }
 
         //original method required was a void, but you must return boolean for harmony lib
-        [HarmonyPrefix]
-        [HarmonyPatch("RegisterBlow")]
-        private static bool RegisterBlow(Mission __instance, Agent attacker, Agent victim, GameEntity realHitEntity, Blow b, ref AttackCollisionData collisionData)
+        private static bool RegisterBlowPrefix(Mission __instance, Agent attacker, Agent victim, GameEntity realHitEntity, Blow b, ref AttackCollisionData collisionData)
         {
             b.VictimBodyPart = collisionData.VictimHitBodyPart;
             if (!collisionData.AttackBlockedWithShield)
@@ -285,6 +280,8 @@ namespace GCO.Features.ModdedMissionLogic
             return false;
         }
     }
+
+
 
     internal static class GCOToolbox
     {

@@ -21,9 +21,7 @@ namespace GCO
     public class GCOSubModule : MBSubModuleBase
     {
         protected override void OnSubModuleLoad()
-        {
-            
-
+        {           
             Harmony harmony = new Harmony("GIRUCombatOverhaul");
 
             Config.initConfig();
@@ -39,6 +37,7 @@ namespace GCO
             }
             base.OnMissionBehaviourInitialize(mission);
         }
+
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
         {
             InformationManager.DisplayMessage(new InformationMessage("Loaded GCO", Color.White));
@@ -66,40 +65,12 @@ namespace GCO
                 CampaignGameStarter gameStarterObject2 = (CampaignGameStarter)gameStarterObject;
                 this.AddBehaviors(gameStarterObject2);
             }
-
-            if (CompatibilityCheck())
-            {
-                Config.ConfigSettings.CleaveEnabled = false;
-                Config.xorbarexCleaveExists = true;
-                InformationManager.DisplayMessage(new InformationMessage("Xorbarex Cut Through Everyone installation detected", Color.White));
-            }
-            else
-            {
-                Config.xorbarexCleaveExists = false;
-            }
-
         }
 
         private void AddBehaviors(CampaignGameStarter gameInitializer)
         {
             gameInitializer.AddBehavior(new CampaignLogic());
-        }
-
-        private bool CompatibilityCheck()
-        {
-            var methodBases = Harmony.GetAllPatchedMethods().ToList<MethodBase>();
-
-            foreach (var method in methodBases)
-            {
-                if (Harmony.GetPatchInfo(method).Owners.Contains("xorberax.cutthrougheveryone"))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
+        } 
     }
 }
 

@@ -266,6 +266,7 @@
     <Compile Include="Features\ModdedMissionLogic\FlinchManagement.cs" />
     <Compile Include="Features\ModdedWorldMapLogic\SurrenderLogicAdjustment.cs" />
     <Compile Include="Features\ModdedMissionLogic\HealthOnKill.cs" />
+    <Compile Include="HarmonyPatches\CompatibilityCheck.cs" />
     <Compile Include="HarmonyPatches\HarmonyPatchingConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include=".editorconfig" />

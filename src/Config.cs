@@ -38,10 +38,13 @@ namespace GCO
         [JsonProperty("HyperArmorDuration")]
         public float HyperArmorDuration { get; set; }
 
+        [JsonProperty("ProjectileBalancingEnabled")]
+        public bool ProjectileBalancingEnabled { get; set; }
+
         [JsonProperty("ProjectileStunPercentageThreshold")]
         public float ProjectileStunPercentageThreshold { get; set; }
 
-        [JsonProperty("EnableStandardizedFlinch")]
+        [JsonProperty("StandardizedFlinchOnEnemiesEnabled")]
         public bool StandardizedFlinchOnEnemiesEnabled { get; set; }
 
         [JsonProperty("AdditionalCleaveForTroopsInShieldWall")]
@@ -54,9 +57,16 @@ namespace GCO
         public bool SwingThroughTeammatesEnabled { get; set; }
     }
 
+    public class CompatibilitySettings
+    {
+        public bool xorbarexCleaveExists { get; set; }
+    }
+
     public static class Config
     {
         public static ConfigSettings ConfigSettings { get; set; }
+
+        public static CompatibilitySettings compatibilitySettings { get; set; }
 
         private static readonly string ConfigFilePath =
             Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "GCOconfig.json");
@@ -65,7 +75,7 @@ namespace GCO
 
         public static bool ConfigLoadedSuccessfully { get; set; }
 
-        public static bool xorbarexCleaveExists { get; set; }
+
 
         public static void initConfig()
         {
@@ -84,36 +94,50 @@ namespace GCO
             }
 
             ConfigLoadedSuccessfully = false;
-            ConfigSettings = new ConfigSettings();
 
-            ConfigSettings.CleaveEnabled = true;
-            ConfigSettings.HPOnKillEnabled = true;
-            ConfigSettings.HyperArmorEnabled = true;
-            ConfigSettings.SimplifiedSurrenderLogic = true;
-            ConfigSettings.HPOnKillAmount = 20f;
-            ConfigSettings.ProjectileStunPercentageThreshold = 40f;
-            ConfigSettings.HyperArmorDuration = 1f;
-            ConfigSettings.StandardizedFlinchOnEnemiesEnabled = true;
-            ConfigSettings.AdditionalCleaveForTroopsInShieldWall = true;
-            ConfigSettings.OrderVoiceCommandQueuing = true;
-            ConfigSettings.SwingThroughTeammatesEnabled = false;
+            ConfigSettings = new ConfigSettings()
+            {
+                CleaveEnabled = true,
+                ProjectileBalancingEnabled = true,
+                HPOnKillEnabled = true,
+                HyperArmorEnabled = true,
+                SimplifiedSurrenderLogic = true,
+                HPOnKillAmount = 20f,
+                ProjectileStunPercentageThreshold = 40f,
+                HyperArmorDuration = 1f,
+                StandardizedFlinchOnEnemiesEnabled = true,
+                AdditionalCleaveForTroopsInShieldWall = true,
+                OrderVoiceCommandQueuing = true,
+              
+
+                SwingThroughTeammatesEnabled = true,
+                // SwingThroughTeammatesEnabled = false,
+            };
+
+
+            compatibilitySettings = new CompatibilitySettings()
+            {
+                xorbarexCleaveExists = true,
+            };
+
         }
 
         public static void ConfigureHarmonyPatches(ref Harmony harmony)
         {
             var harmonyPatchConfig = new HarmonyPatchingConfiguration();
 
-            //Hyperarmor & Projectile flinch, two features so not manually patched
-            //var getDefendCollisionResultsAux = typeof(Mission).GetMethod("GetDefendCollisionResultsAux");
-            //var registerBlow = typeof(Mission).GetMethod("RegisterBlow");
+            if (ConfigSettings.HyperArmorEnabled || ConfigSettings.ProjectileBalancingEnabled)
+             {
+                harmonyPatchConfig.HyperArmorAndProjectileBalancing(ref harmony);
+            }
 
 
             if (ConfigSettings.OrderVoiceCommandQueuing)
             {
-                harmonyPatchConfig.OrderVoiceCommandQueuingPatch(ref harmony);  
+                harmonyPatchConfig.OrderVoiceCommandQueuingPatch(ref harmony);
             }
 
-     
+
             if (ConfigSettings.StandardizedFlinchOnEnemiesEnabled)
             {
                 harmonyPatchConfig.StandardizedFlinchOnEnemiesEnablePatch(ref harmony);
@@ -124,13 +148,13 @@ namespace GCO
                 harmonyPatchConfig.SwingThroughTeammatesEnabledPatch(ref harmony);
             }
 
-        
+
             if (ConfigSettings.CleaveEnabled)
             {
                 harmonyPatchConfig.CleaveEnabledPatch(ref harmony);
             }
 
-    
+
             if (ConfigSettings.SimplifiedSurrenderLogic)
             {
                 harmonyPatchConfig.SimplifiedSurrenderLogicEnabledPatch(ref harmony);

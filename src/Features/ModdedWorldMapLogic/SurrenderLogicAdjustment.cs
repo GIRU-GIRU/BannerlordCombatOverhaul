@@ -12,7 +12,6 @@ namespace GCO.Features.ModdedWorldMapLogic
 {
 
     //what the fuck is DoesSurrenderIsLogicalForParty mean taleworlds
-    [HarmonyPatch(typeof(PartyBaseHelper), "DoesSurrenderIsLogicalForParty")]
     public class SurrenderLogicAdjustment
     {
         private static void DoesSurrenderIsLogicalForPartyPostfix(ref bool __result, MobileParty ourParty, MobileParty enemyParty, float acceptablePowerRatio = 0.1f)
@@ -39,7 +38,6 @@ namespace GCO.Features.ModdedWorldMapLogic
     }
 
     //pogchamp TGlees45 for 15 sub gift
-    [HarmonyPatch(typeof(BanditsCampaignBehavior), "conversation_bandits_will_join_player_on_condition")]
     public class IsSurrenderLogical
     {
         private static void conversation_bandits_will_join_player_on_conditionPostfix(ref bool __result)

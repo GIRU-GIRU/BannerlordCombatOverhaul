@@ -16,7 +16,7 @@ namespace GCO.Features.ModdedMissionLogic
     {
         private static void DecideWeaponCollisionReactionPostfix(Mission __instance, Blow registeredBlow, ref AttackCollisionData collisionData, Agent attacker, Agent defender, bool isFatalHit, bool isShruggedOff, ref MeleeCollisionReaction colReaction)
         {
-            if (Config.ConfigSettings.CleaveEnabled)
+            if (!Config.compatibilitySettings.xorbarexCleaveExists)
             {
                 if (PlayerCleaveLogicExtensionMethods.CheckApplyCleave(__instance, attacker, defender, registeredBlow, isShruggedOff))
                 {
@@ -44,7 +44,7 @@ namespace GCO.Features.ModdedMissionLogic
 
         private static void MeleeHitCallbackPostfix(Mission __instance, ref AttackCollisionData collisionData, Agent attacker, Agent victim, GameEntity realHitEntity, float momentumRemainingToComputeDamage, ref float inOutMomentumRemaining, ref MeleeCollisionReaction colReaction, CrushThroughState cts, Vec3 blowDir, Vec3 swingDir, bool crushedThroughWithoutAgentCollision)
         {
-            if (Config.ConfigSettings.CleaveEnabled)
+            if (!Config.compatibilitySettings.xorbarexCleaveExists)
             {
                 if (PlayerCleaveLogicExtensionMethods.CheckApplyCleave(__instance, attacker, victim, colReaction))
                 {

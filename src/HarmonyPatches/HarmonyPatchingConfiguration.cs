@@ -31,7 +31,6 @@ namespace GCO.HarmonyPatches
             var doesSurrenderIsLogicalForParty = typeof(PartyBaseHelper).GetMethod("DoesSurrenderIsLogicalForParty");
             var doesSurrenderIsLogicalForPartyPostfix = typeof(SurrenderLogicAdjustment).GetMethod("doesSurrenderIsLogicalForPartyPostfix");
 
-
             var conversation_bandits_will_join_player_on_condition = typeof(BanditsCampaignBehavior).GetMethod("MeleeHitCallback");
             var conversation_bandits_will_join_player_on_conditionPostfix = typeof(IsSurrenderLogical)
                                                                                 .GetMethod("conversation_bandits_will_join_player_on_conditionPostfix");
@@ -45,13 +44,13 @@ namespace GCO.HarmonyPatches
         {
             var createBlow = typeof(Mission).GetMethod("CreateBlow");
             var createBlowPrefix = typeof(FlinchManagement).GetMethod("CreateBlowPrefix");
+
             harmony.Patch(createBlow, new HarmonyMethod(createBlowPrefix), null, null, null);
         }
 
         internal void SwingThroughTeammatesEnabledPatch(ref Harmony harmony)
         {
             var cancelsDamageAndBlocksAttackBecauseOfNonEnemyCase = typeof(Mission).GetMethod("CancelsDamageAndBlocksAttackBecauseOfNonEnemyCase");
-
             var cancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix = typeof(PlayerCleaveLogic).GetMethod("CancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix");
 
             harmony.Patch(cancelsDamageAndBlocksAttackBecauseOfNonEnemyCase,

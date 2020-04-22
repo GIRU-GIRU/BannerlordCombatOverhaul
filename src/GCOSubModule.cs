@@ -22,13 +22,14 @@ namespace GCO
     {
         protected override void OnSubModuleLoad()
         {
-            Config.initConfig();
+            
 
             Harmony harmony = new Harmony("GIRUCombatOverhaul");
+
+            Config.initConfig();
+            Config.ConfigureHarmonyPatches(ref harmony);
+
             harmony.PatchAll(typeof(GCOSubModule).Assembly);
-
-           
-
         }
         public override void OnMissionBehaviourInitialize(Mission mission)
         {

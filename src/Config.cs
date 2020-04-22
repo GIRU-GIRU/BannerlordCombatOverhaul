@@ -6,9 +6,15 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using GCO.Features.ModdedMissionLogic;
+using GCO.Features.ModdedWorldMapLogic;
+using GCO.HarmonyPatches;
+using HarmonyLib;
+using Helpers;
 using Newtonsoft.Json;
+using TaleWorlds.CampaignSystem.SandBox.CampaignBehaviors;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using TaleWorlds.MountAndBlade;
 
 namespace GCO
 {
@@ -36,11 +42,16 @@ namespace GCO
         public float ProjectileStunPercentageThreshold { get; set; }
 
         [JsonProperty("EnableStandardizedFlinch")]
-        public bool EnableStandardizedFlinchOnEnemies { get; set; }
+        public bool StandardizedFlinchOnEnemiesEnabled { get; set; }
 
         [JsonProperty("AdditionalCleaveForTroopsInShieldWall")]
         public bool AdditionalCleaveForTroopsInShieldWall { get; set; }
 
+        [JsonProperty("OrderVoiceCommandQueuing")]
+        public bool OrderVoiceCommandQueuing { get; set; }
+
+        [JsonProperty("SwingThroughTeammatesEnabled")]
+        public bool SwingThroughTeammatesEnabled { get; set; }
     }
 
     public static class Config
@@ -68,7 +79,7 @@ namespace GCO
                 }
                 catch
                 {
-      
+
                 }
             }
 
@@ -82,8 +93,48 @@ namespace GCO
             ConfigSettings.HPOnKillAmount = 20f;
             ConfigSettings.ProjectileStunPercentageThreshold = 40f;
             ConfigSettings.HyperArmorDuration = 1f;
-            ConfigSettings.EnableStandardizedFlinchOnEnemies = true;
+            ConfigSettings.StandardizedFlinchOnEnemiesEnabled = true;
             ConfigSettings.AdditionalCleaveForTroopsInShieldWall = true;
+            ConfigSettings.OrderVoiceCommandQueuing = true;
+            ConfigSettings.SwingThroughTeammatesEnabled = false;
+        }
+
+        public static void ConfigureHarmonyPatches(ref Harmony harmony)
+        {
+            var harmonyPatchConfig = new HarmonyPatchingConfiguration();
+
+            //Hyperarmor & Projectile flinch, two features so not manually patched
+            //var getDefendCollisionResultsAux = typeof(Mission).GetMethod("GetDefendCollisionResultsAux");
+            //var registerBlow = typeof(Mission).GetMethod("RegisterBlow");
+
+
+            if (ConfigSettings.OrderVoiceCommandQueuing)
+            {
+                harmonyPatchConfig.OrderVoiceCommandQueuingPatch(ref harmony);  
+            }
+
+     
+            if (ConfigSettings.StandardizedFlinchOnEnemiesEnabled)
+            {
+                harmonyPatchConfig.StandardizedFlinchOnEnemiesEnablePatch(ref harmony);
+            }
+
+            if (ConfigSettings.SwingThroughTeammatesEnabled)
+            {
+                harmonyPatchConfig.SwingThroughTeammatesEnabledPatch(ref harmony);
+            }
+
+        
+            if (ConfigSettings.CleaveEnabled)
+            {
+                harmonyPatchConfig.CleaveEnabledPatch(ref harmony);
+            }
+
+    
+            if (ConfigSettings.SimplifiedSurrenderLogic)
+            {
+                harmonyPatchConfig.SimplifiedSurrenderLogicEnabledPatch(ref harmony);
+            }
         }
     }
 }

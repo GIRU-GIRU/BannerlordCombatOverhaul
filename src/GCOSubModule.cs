@@ -12,6 +12,9 @@ using System.Reflection;
 using System.IO;
 using Newtonsoft.Json;
 using TaleWorlds.Library;
+using Helpers;
+using TaleWorlds.CampaignSystem.SandBox.CampaignBehaviors;
+using GCO.Features.ModdedWorldMapLogic;
 
 namespace GCO
 {
@@ -24,12 +27,14 @@ namespace GCO
             Harmony harmony = new Harmony("GIRUCombatOverhaul");
             harmony.PatchAll(typeof(GCOSubModule).Assembly);
 
+           
+
         }
         public override void OnMissionBehaviourInitialize(Mission mission)
         {
             if (mission.IsOrderShoutingAllowed())
             {
-                mission.AddMissionBehaviour(new QueuedVoiceLogic());
+                if (Config.ConfigSettings.OrderVoiceCommandQueuing) mission.AddMissionBehaviour(new QueuedVoiceLogic());
             }
             base.OnMissionBehaviourInitialize(mission);
         }

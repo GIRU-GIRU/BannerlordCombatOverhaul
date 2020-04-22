@@ -22,9 +22,7 @@ namespace GCO.Features.ModdedMissionLogic
     public static class FlinchManagement
     {
         //original method required a Blow object, but you must return boolean for harmony lib
-        [HarmonyPrefix]
-        [HarmonyPatch("CreateBlow")]
-        private static bool CreateBlow(Mission __instance, ref Blow __result, Agent attackerAgent, Agent victimAgent, ref AttackCollisionData collisionData, CrushThroughState cts, Vec3 blowDir, Vec3 swingDir, bool cancelDamage)
+        private static bool CreateBlowPrefix(Mission __instance, ref Blow __result, Agent attackerAgent, Agent victimAgent, ref AttackCollisionData collisionData, CrushThroughState cts, Vec3 blowDir, Vec3 swingDir, bool cancelDamage)
         {
             Blow blow = new Blow(attackerAgent.Index);
             blow.VictimBodyPart = collisionData.VictimHitBodyPart;
@@ -51,13 +49,11 @@ namespace GCO.Features.ModdedMissionLogic
             blow.DamageType = ((itemFromWeaponKind != null && !flag && !collisionData.IsAlternativeAttack) ? ((DamageTypes)collisionData.DamageType) : DamageTypes.Blunt);
             blow.NoIgnore = collisionData.IsAlternativeAttack;
             blow.AttackerStunPeriod = collisionData.AttackerStunPeriod;
-            blow.DefenderStunPeriod = collisionData.DefenderStunPeriod;
+            //blow.DefenderStunPeriod = collisionData.DefenderStunPeriod;
 
-            if (Config.ConfigSettings.EnableStandardizedFlinchOnEnemies)
-            {
-                blow.DefenderStunPeriod = GCOToolbox.GCOGetStaticFlinchPeriod(attackerAgent, collisionData.DefenderStunPeriod);
-            }
-            
+            blow.DefenderStunPeriod = GCOToolbox.GCOGetStaticFlinchPeriod(attackerAgent, collisionData.DefenderStunPeriod);
+
+
             blow.BlowFlag = BlowFlags.None;
             if (collisionData.IsHorseCharge || (collisionData.IsAlternativeAttack && !attackerAgent.IsHuman))
             {

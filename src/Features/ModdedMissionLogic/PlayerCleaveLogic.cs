@@ -12,11 +12,8 @@ using TaleWorlds.MountAndBlade;
 
 namespace GCO.Features.ModdedMissionLogic
 {
-    [HarmonyPatch(typeof(Mission))]
     internal static class PlayerCleaveLogic
     {
-        [HarmonyPostfix]
-        [HarmonyPatch("DecideWeaponCollisionReaction")]
         private static void DecideWeaponCollisionReactionPostfix(Mission __instance, Blow registeredBlow, ref AttackCollisionData collisionData, Agent attacker, Agent defender, bool isFatalHit, bool isShruggedOff, ref MeleeCollisionReaction colReaction)
         {
             if (Config.ConfigSettings.CleaveEnabled)
@@ -28,8 +25,23 @@ namespace GCO.Features.ModdedMissionLogic
             }
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch("MeleeHitCallback")]
+        private static bool CancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix(ref bool __result, Agent attacker, Agent victim)
+		{
+            if (attacker != Mission.Current.MainAgent)
+            {
+                if (victim == null || attacker == null)
+                {
+                    return false;
+                }
+                bool flag = !GameNetwork.IsSessionActive || (MultiplayerOptions.OptionType.FriendlyFireDamageMeleeFriendPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0 && MultiplayerOptions.OptionType.FriendlyFireDamageMeleeSelfPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0) || Mission.Current.Mode == MissionMode.Duel || attacker.Controller == Agent.ControllerType.AI;
+                bool flag2 = attacker.IsFriendOf(victim);
+                __result = (flag && flag2) || (victim.IsHuman && !flag2 && !attacker.IsEnemyOf(victim));
+            }
+
+            __result = false;
+            return false;		
+		}
+
         private static void MeleeHitCallbackPostfix(Mission __instance, ref AttackCollisionData collisionData, Agent attacker, Agent victim, GameEntity realHitEntity, float momentumRemainingToComputeDamage, ref float inOutMomentumRemaining, ref MeleeCollisionReaction colReaction, CrushThroughState cts, Vec3 blowDir, Vec3 swingDir, bool crushedThroughWithoutAgentCollision)
         {
             if (Config.ConfigSettings.CleaveEnabled)

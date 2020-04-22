@@ -12,11 +12,9 @@ using static TaleWorlds.MountAndBlade.SkinVoiceManager;
 
 namespace GCO.Features.ModdedMissionLogic
 {
-    [HarmonyPatch(typeof(OrderController))]
+
     class ModdedOrderVoiceCommands
     {
-        [HarmonyPrefix]
-        [HarmonyPatch("SelectFormationMakeVoice")]
         private static bool SelectFormationMakeVoicePrefix(Formation formation, Agent agent)
         {
             if (!Mission.Current.IsOrderShoutingAllowed())
@@ -47,8 +45,6 @@ namespace GCO.Features.ModdedMissionLogic
             }
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch("AfterSetOrderMakeVoice")]
         private static bool AfterSetOrderMakeVoicePrefix(OrderType orderType, Agent agent)
         {
             ModdedOrderVoiceCaller.AfterSetOrderMakeVoice(orderType);
@@ -99,18 +95,13 @@ namespace GCO.Features.ModdedMissionLogic
         }
         internal static void QueueItem(string voiceTypeString, float delayAfter = 2000f)
         {
-            if(queue.Count == 0)
-            {
-                ResetVoiceCommandTimer(10f);
-            }
+       
             if (queue.Count > 7)
             {
                 _ = queue.Dequeue();
             }
 
             queue.Enqueue(new QueueItem(voiceTypeString, delayAfter));
-
-            // var test = Mission.Current.MainAgent.GetAgentVoiceDefinition();
         }
 
         internal static Queue<QueueItem> GetVoiceCommandQueue()
@@ -135,6 +126,9 @@ namespace GCO.Features.ModdedMissionLogic
             {
                 return false;
             }
+
+
+            // var test = Mission.Current.MainAgent.GetAgentVoiceDefinition();
             switch (orderType)
             {
                 case OrderType.Move:

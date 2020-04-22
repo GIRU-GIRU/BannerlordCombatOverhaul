@@ -13,7 +13,7 @@ namespace GCO.Features.ModdedMissionLogic
     {
         public QueuedVoiceLogic() : base()
         {
-
+            QueueClass.ResetVoiceCommandTimer(10f);
         }
 
         public override void OnMissionTick(float dt)

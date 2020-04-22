@@ -9,7 +9,8 @@
 
   "CleaveEnabled": true,
   "AdditionalCleaveForTroopsInShieldWall": true,
-  "SwingThroughTeammatesEnabled": true,
+  "MurderEnabled": false,
+  "TrueFriendlyFireEnabled": false,
 
   "SimplifiedSurrenderLogic": true,
 

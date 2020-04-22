@@ -18,7 +18,7 @@ using TaleWorlds.Engine;
 
 namespace GCO.Features.ModdedMissionLogic
 {
-    
+
     public static class FlinchManagement
     {
         //original method required a Blow object, but you must return boolean for harmony lib
@@ -316,6 +316,8 @@ namespace GCO.Features.ModdedMissionLogic
             {
                 b.BlowFlag |= BlowFlags.ShrugOff;
                 blow.BlowFlag |= BlowFlags.ShrugOff;
+                InformationManager.DisplayMessage(
+                     new InformationMessage("Player hyperarmor prevented flinch!", Colors.White));
             }
         }
         internal static void CreateHyperArmorBuff(Agent defenderAgent)
@@ -338,8 +340,6 @@ namespace GCO.Features.ModdedMissionLogic
                     {
                         b.BlowFlag |= BlowFlags.ShrugOff;
                         blow.BlowFlag |= BlowFlags.ShrugOff;
-                        InformationManager.DisplayMessage(
-                            new InformationMessage("Player hyperarmor prevented flinch!", Colors.White));
                     }
                 }
             }

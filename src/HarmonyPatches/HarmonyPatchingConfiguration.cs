@@ -49,7 +49,7 @@ namespace GCO.HarmonyPatches
             harmony.Patch(createBlow, new HarmonyMethod(createBlowPrefix), null, null, null);
         }
 
-        internal void SwingThroughTeammatesEnabledPatch(ref Harmony harmony)
+        internal void KillFriendliesPatch(ref Harmony harmony)
         {
             var cancelsDamageAndBlocksAttackBecauseOfNonEnemyCase = typeof(Mission).GetMethod("CancelsDamageAndBlocksAttackBecauseOfNonEnemyCase", BindingFlags.NonPublic | BindingFlags.Instance);
             var cancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix = typeof(PlayerCleaveLogic).GetMethod("CancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix", BindingFlags.NonPublic | BindingFlags.Static);
@@ -66,6 +66,16 @@ namespace GCO.HarmonyPatches
             var afterSetOrderMakeVoice = typeof(OrderController).GetMethod("AfterSetOrderMakeVoice", BindingFlags.NonPublic | BindingFlags.Static);
             var afterSetOrderMakeVoicePrefix = typeof(ModdedOrderVoiceCommands).GetMethod("AfterSetOrderMakeVoicePrefix", BindingFlags.NonPublic | BindingFlags.Static);
 
+            var selectAllFormations= typeof(OrderController).GetMethod("SelectAllFormations", BindingFlags.NonPublic | BindingFlags.Instance);
+            var selectAllFormationsPrefix = typeof(ModdedOrderVoiceCommands).GetMethod("SelectAllFormationsPrefix", BindingFlags.NonPublic | BindingFlags.Static);       
+
+            var ChooseWeaponToCheerWithCheerAndUpdateTimer = typeof(AgentVictoryLogic)
+                .GetMethod("ChooseWeaponToCheerWithCheerAndUpdateTimer", BindingFlags.NonPublic | BindingFlags.Instance);
+            var chooseWeaponToCheerWithCheerAndUpdateTimerPrefix = typeof(ModdedOrderVoiceCommands)
+                .GetMethod("ChooseWeaponToCheerWithCheerAndUpdateTimerPrefix", BindingFlags.NonPublic | BindingFlags.Static);
+
+            harmony.Patch(ChooseWeaponToCheerWithCheerAndUpdateTimer, new HarmonyMethod(chooseWeaponToCheerWithCheerAndUpdateTimerPrefix), null, null, null);
+            harmony.Patch(selectAllFormations, new HarmonyMethod(selectAllFormationsPrefix), null, null, null);
             harmony.Patch(selectFormationMakeVoice, new HarmonyMethod(SelectFormationMakeVoicePrefix), null, null, null);
             harmony.Patch(afterSetOrderMakeVoice, new HarmonyMethod(afterSetOrderMakeVoicePrefix), null, null, null);
         }

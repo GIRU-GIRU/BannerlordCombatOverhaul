@@ -1,6 +1,8 @@
 ﻿using HarmonyLib;
+using NetworkMessages.FromClient;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -45,12 +47,113 @@ namespace GCO.Features.ModdedMissionLogic
             }
         }
 
+        #region SelectAllFormations and Victory bugfix
+        private static bool SelectAllFormationsPrefix(ref OrderController __instance, Agent selectorAgent, bool uiFeedback)
+        {
+            if (GameNetwork.IsClient)
+            {
+                GameNetwork.BeginModuleEventAsClient();
+                GameNetwork.WriteMessage(new SelectAllFormations());
+                GameNetwork.EndModuleEventAsClient();
+            }
+            if (uiFeedback && !GameNetwork.IsClientOrReplay && selectorAgent != null && Mission.Current.IsOrderShoutingAllowed())
+            {
+                var voiceType = new SkinVoiceType("Everyone");
+                selectorAgent.MakeVoice(voiceType, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
+            }
+            __instance.GetSelectedFormations().Clear();
+
+            IEnumerable<Formation> formations = __instance.GetTeam().Formations;
+
+            var thisFormations = __instance.GetSelectedFormations();
+            foreach (var formation in formations.Where((Func<Formation, bool>)
+                (f => ModdedOrderVoiceExtensions.IsFormationSelectable(f, selectorAgent))))
+            {
+                thisFormations.Add(formation);
+            };
+
+            return false;
+        }
+
+        private static bool ChooseWeaponToCheerWithCheerAndUpdateTimerPrefix(KeyValuePair<Agent, RandomTimer> kvp)
+        {
+            Agent key = kvp.Key;
+            if (key.GetCurrentActionType(1) != Agent.ActionCodeType.EquipUnequip)
+            {
+                EquipmentIndex wieldedItemIndex = key.GetWieldedItemIndex(Agent.HandIndex.MainHand);
+                bool flag = wieldedItemIndex != EquipmentIndex.None && !key.Equipment[wieldedItemIndex].CurrentUsageItem.Item.ItemFlags.HasAnyFlag(ItemFlags.DropOnAnyAction);
+                if (!flag)
+                {
+                    EquipmentIndex equipmentIndex = EquipmentIndex.None;
+                    for (EquipmentIndex equipmentIndex2 = EquipmentIndex.WeaponItemBeginSlot; equipmentIndex2 < EquipmentIndex.Weapon4; equipmentIndex2++)
+                    {
+                        if (!key.Equipment[equipmentIndex2].IsEmpty && !key.Equipment[equipmentIndex2].CurrentUsageItem.Item.ItemFlags.HasAnyFlag(ItemFlags.DropOnAnyAction))
+                        {
+                            equipmentIndex = equipmentIndex2;
+                            break;
+                        }
+                    }
+                    if (equipmentIndex == EquipmentIndex.None)
+                    {
+                        if (wieldedItemIndex != EquipmentIndex.None)
+                        {
+                            key.TryToSheathWeaponInHand(Agent.HandIndex.MainHand, Agent.WeaponWieldActionType.WithAnimation);
+                        }
+                        else
+                        {
+                            flag = true;
+                        }
+                    }
+                    else
+                    {
+                        key.TryToWieldWeaponInSlot(equipmentIndex, Agent.WeaponWieldActionType.WithAnimation, false);
+                    }
+                }
+                if (flag)
+                {
+                    var voiceType = new SkinVoiceType("Victory");
+                    key.SetActionChannel(1, ModdedOrderVoiceExtensions._cheerActions[MBRandom.RandomInt(ModdedOrderVoiceExtensions._cheerActions.Length)], false, 0UL, 0f, 1f, -0.2f, 0.4f, 0f, false, -0.2f, 0, true);
+                    key.MakeVoice(voiceType, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
+                    kvp.Value.Reset(Mission.Current.Time);
+                    kvp.Value.ChangeDuration(6f, 12f);
+                }
+            }
+            return false;
+        }
+        #endregion SelectAllFormations and Victory bugfix
+
         private static bool AfterSetOrderMakeVoicePrefix(OrderType orderType, Agent agent)
         {
             ModdedOrderVoiceCaller.AfterSetOrderMakeVoice(orderType);
 
             return false;
 
+        }
+    }
+
+    internal static class ModdedOrderVoiceExtensions
+    {
+        internal static readonly ActionIndexCache[] _cheerActions = new ActionIndexCache[]
+        {
+            ActionIndexCache.Create("act_cheer_1"),
+            ActionIndexCache.Create("act_cheer_2"),
+            ActionIndexCache.Create("act_cheer_3"),
+            ActionIndexCache.Create("act_cheer_4")
+        };
+
+        internal static ObservableCollection<Formation> GetSelectedFormations(this OrderController __instance)
+        {
+            return Traverse.Create(__instance).Field<ObservableCollection<Formation>>("selectedFormations").Value;
+
+        }
+
+        internal static bool IsFormationSelectable(Formation formation, Agent selectorAgent)
+        {
+            return (selectorAgent == null || formation.PlayerOwner == selectorAgent) && !formation.Units.IsEmpty<Agent>();
+        }
+        internal static Team GetTeam(this OrderController __instance)
+        {
+            return Traverse.Create(__instance).Field<Team>("team").Value;
         }
     }
 
@@ -95,7 +198,7 @@ namespace GCO.Features.ModdedMissionLogic
         }
         internal static void QueueItem(string voiceTypeString, float delayAfter = 2000f)
         {
-       
+
             if (queue.Count > 7)
             {
                 _ = queue.Dequeue();
@@ -117,6 +220,7 @@ namespace GCO.Features.ModdedMissionLogic
             return item;
         }
     }
+
 
     internal static class ModdedOrderVoiceCaller
     {

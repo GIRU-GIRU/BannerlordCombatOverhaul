@@ -29,13 +29,19 @@ namespace GCO.Features.ModdedMissionLogic
 		{
             if (attacker != Mission.Current.MainAgent)
             {
-                if (victim == null || attacker == null)
+                bool canMurder = Config.ConfigSettings.MurderEnabled && Mission.Current.Mode == MissionMode.StartUp;
+                bool canTK = Config.ConfigSettings.TrueFriendlyFireEnabled && Mission.Current.Mode != MissionMode.StartUp;
+
+                if (canMurder || canTK)
                 {
-                    return false;
-                }
-                bool flag = !GameNetwork.IsSessionActive || (MultiplayerOptions.OptionType.FriendlyFireDamageMeleeFriendPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0 && MultiplayerOptions.OptionType.FriendlyFireDamageMeleeSelfPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0) || Mission.Current.Mode == MissionMode.Duel || attacker.Controller == Agent.ControllerType.AI;
-                bool flag2 = attacker.IsFriendOf(victim);
-                __result = (flag && flag2) || (victim.IsHuman && !flag2 && !attacker.IsEnemyOf(victim));
+                    if (victim == null || attacker == null)
+                    {
+                        return false;
+                    }
+                    bool flag = !GameNetwork.IsSessionActive || (MultiplayerOptions.OptionType.FriendlyFireDamageMeleeFriendPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0 && MultiplayerOptions.OptionType.FriendlyFireDamageMeleeSelfPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0) || Mission.Current.Mode == MissionMode.Duel || attacker.Controller == Agent.ControllerType.AI;
+                    bool flag2 = attacker.IsFriendOf(victim);
+                    __result = (flag && flag2) || (victim.IsHuman && !flag2 && !attacker.IsEnemyOf(victim));
+                }        
             }
 
             __result = false;

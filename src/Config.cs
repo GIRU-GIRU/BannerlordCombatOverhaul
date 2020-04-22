@@ -53,8 +53,11 @@ namespace GCO
         [JsonProperty("OrderVoiceCommandQueuing")]
         public bool OrderVoiceCommandQueuing { get; set; }
 
-        [JsonProperty("SwingThroughTeammatesEnabled")]
-        public bool SwingThroughTeammatesEnabled { get; set; }
+        [JsonProperty("TrueFriendlyFireEnabled")]
+        public bool TrueFriendlyFireEnabled { get; set; }
+
+        [JsonProperty("MurderEnabled")]
+        public bool MurderEnabled { get; set; }
     }
 
     public class CompatibilitySettings
@@ -64,21 +67,23 @@ namespace GCO
 
     public static class Config
     {
-        public static ConfigSettings ConfigSettings { get; set; }
-
-        public static CompatibilitySettings compatibilitySettings { get; set; }
-
         private static readonly string ConfigFilePath =
             Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "GCOconfig.json");
 
         private static readonly bool configExists = File.Exists(ConfigFilePath);
-
         public static bool ConfigLoadedSuccessfully { get; set; }
 
+        public static ConfigSettings ConfigSettings { get; set; }
 
+        public static CompatibilitySettings compatibilitySettings { get; set; }
 
         public static void initConfig()
         {
+            compatibilitySettings = new CompatibilitySettings()
+            {
+                xorbarexCleaveExists = false,
+            };
+
             if (configExists)
             {
                 try
@@ -108,18 +113,10 @@ namespace GCO
                 StandardizedFlinchOnEnemiesEnabled = true,
                 AdditionalCleaveForTroopsInShieldWall = true,
                 OrderVoiceCommandQueuing = true,
-              
 
-                SwingThroughTeammatesEnabled = true,
-                // SwingThroughTeammatesEnabled = false,
+                MurderEnabled = false,
+                TrueFriendlyFireEnabled = false,
             };
-
-
-            compatibilitySettings = new CompatibilitySettings()
-            {
-                xorbarexCleaveExists = true,
-            };
-
         }
 
         public static void ConfigureHarmonyPatches(ref Harmony harmony)
@@ -127,7 +124,7 @@ namespace GCO
             var harmonyPatchConfig = new HarmonyPatchingConfiguration();
 
             if (ConfigSettings.HyperArmorEnabled || ConfigSettings.ProjectileBalancingEnabled)
-             {
+            {
                 harmonyPatchConfig.HyperArmorAndProjectileBalancing(ref harmony);
             }
 
@@ -143,9 +140,9 @@ namespace GCO
                 harmonyPatchConfig.StandardizedFlinchOnEnemiesEnablePatch(ref harmony);
             }
 
-            if (ConfigSettings.SwingThroughTeammatesEnabled)
+            if (ConfigSettings.TrueFriendlyFireEnabled || ConfigSettings.MurderEnabled)
             {
-                harmonyPatchConfig.SwingThroughTeammatesEnabledPatch(ref harmony);
+                harmonyPatchConfig.KillFriendliesPatch(ref harmony);
             }
 
 

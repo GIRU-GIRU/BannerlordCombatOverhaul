@@ -1,9 +1,21 @@
 {
-  "HPOnKillEnabled": true,
-  "HPOnKillAmount": 20,
-  "CleaveEnabled": true,
-  "SimplifiedSurrenderLogic": true,
   "HyperArmorEnabled": true,
   "HyperArmorDuration": 1,
+
+  "HPOnKillEnabled": true,
+  "HPOnKillAmount": 20,
+
+  "StandardizedFlinchOnEnemiesEnabled": true,
+
+  "CleaveEnabled": true,
+  "AdditionalCleaveForTroopsInShieldWall": true,
+  "MurderEnabled": false,
+  "TrueFriendlyFireEnabled": false,
+
+  "SimplifiedSurrenderLogic": true,
+
+  "OrderVoiceCommandQueuing": true,
+
+  "ProjectileBalancingEnabled": true,
   "ProjectileStunPercentageThreshold": 40
 }

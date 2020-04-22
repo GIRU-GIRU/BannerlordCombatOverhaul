@@ -12,18 +12,30 @@ using System.Reflection;
 using System.IO;
 using Newtonsoft.Json;
 using TaleWorlds.Library;
+using Helpers;
+using TaleWorlds.CampaignSystem.SandBox.CampaignBehaviors;
+using GCO.Features.ModdedWorldMapLogic;
 
 namespace GCO
 {
     public class GCOSubModule : MBSubModuleBase
     {
         protected override void OnSubModuleLoad()
-        {
-            Config.initConfig();
-
+        {           
             Harmony harmony = new Harmony("GIRUCombatOverhaul");
-            harmony.PatchAll(typeof(GCOSubModule).Assembly);
 
+            Config.initConfig();
+            Config.ConfigureHarmonyPatches(ref harmony);
+
+            harmony.PatchAll(typeof(GCOSubModule).Assembly);
+        }
+        public override void OnMissionBehaviourInitialize(Mission mission)
+        {
+            if (mission.IsOrderShoutingAllowed())
+            {
+                if (Config.ConfigSettings.OrderVoiceCommandQueuing) mission.AddMissionBehaviour(new QueuedVoiceLogic());
+            }
+            base.OnMissionBehaviourInitialize(mission);
         }
 
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
@@ -53,40 +65,12 @@ namespace GCO
                 CampaignGameStarter gameStarterObject2 = (CampaignGameStarter)gameStarterObject;
                 this.AddBehaviors(gameStarterObject2);
             }
-
-            if (CompatibilityCheck())
-            {
-                Config.ConfigSettings.CleaveEnabled = false;
-                Config.xorbarexCleaveExists = true;
-                InformationManager.DisplayMessage(new InformationMessage("Xorbarex Cut Through Everyone installation detected", Color.White));
-            }
-            else
-            {
-                Config.xorbarexCleaveExists = false;
-            }
-
         }
 
         private void AddBehaviors(CampaignGameStarter gameInitializer)
         {
             gameInitializer.AddBehavior(new CampaignLogic());
-        }
-
-        private bool CompatibilityCheck()
-        {
-            var methodBases = Harmony.GetAllPatchedMethods().ToList<MethodBase>();
-
-            foreach (var method in methodBases)
-            {
-                if (Harmony.GetPatchInfo(method).Owners.Contains("xorberax.cutthrougheveryone"))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
+        } 
     }
 }
 

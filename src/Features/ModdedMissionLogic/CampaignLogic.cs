@@ -11,7 +11,6 @@ namespace GCO.Features.ModdedMissionLogic
 {
     public class CampaignLogic : CampaignBehaviorBase
     {
-
         //required to prevent crashing
         public override void RegisterEvents()
         {

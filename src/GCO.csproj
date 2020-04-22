@@ -259,12 +259,17 @@
     <Compile Include="Config.cs" />
     <Compile Include="Features\ModdedMissionLogic\CampaignLogic.cs" />
     <Compile Include="Features\ModdedMissionLogic\Global.cs" />
+    <Compile Include="Features\ModdedMissionLogic\ModdedOrderVoiceCommands.cs" />
     <Compile Include="Features\ModdedMissionLogic\PlayerCleaveLogic.cs" />
+    <Compile Include="Features\ModdedMissionLogic\QueuedVoiceLogic.cs" />
     <Compile Include="GCOSubModule.cs" />
     <Compile Include="Features\ModdedMissionLogic\FlinchManagement.cs" />
     <Compile Include="Features\ModdedWorldMapLogic\SurrenderLogicAdjustment.cs" />
     <Compile Include="Features\ModdedMissionLogic\HealthOnKill.cs" />
+    <Compile Include="HarmonyPatches\CompatibilityCheck.cs" />
+    <Compile Include="HarmonyPatches\HarmonyPatchingConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include=".editorconfig" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

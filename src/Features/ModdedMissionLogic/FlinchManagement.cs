@@ -18,112 +18,109 @@ using TaleWorlds.Engine;
 
 namespace GCO.Features.ModdedMissionLogic
 {
-    [HarmonyPatch(typeof(Mission))]
+
     public static class FlinchManagement
     {
-
-        #region CreateBlow (currently unused)
-        ////original method required a Blow object, but you must return boolean for harmony lib
-        //[HarmonyPrefix]
-        //[HarmonyPatch("CreateBlow")]
-        //private static bool CreateBlow(Mission __instance, ref Blow __result, Agent attackerAgent, Agent victimAgent, ref AttackCollisionData collisionData, CrushThroughState cts, Vec3 blowDir, Vec3 swingDir, bool cancelDamage)
-        //{
-        //    Blow blow = new Blow(attackerAgent.Index);
-        //    blow.VictimBodyPart = collisionData.VictimHitBodyPart;
-        //    if (collisionData.AttackBlockedWithShield)
-        //    {
-        //        __result = blow;
-        //    }
-        //    ItemObject itemFromWeaponKind = ItemObject.GetItemFromWeaponKind(collisionData.AffectorWeaponKind);
-        //    WeaponComponentData w = (itemFromWeaponKind != null) ? itemFromWeaponKind.GetWeaponWithUsageIndex(collisionData.CurrentUsageIndex) : null;
-        //    bool flag = __instance.HitWithAnotherBone(ref collisionData, attackerAgent);
-        //    if (collisionData.IsAlternativeAttack)
-        //    {
-        //        blow.AttackType = ((itemFromWeaponKind != null) ? AgentAttackType.Bash : AgentAttackType.Kick);
-        //    }
-        //    else
-        //    {
-        //        blow.AttackType = AgentAttackType.Standard;
-        //    }
+        //original method required a Blow object, but you must return boolean for harmony lib
+        private static bool CreateBlowPrefix(Mission __instance, ref Blow __result, Agent attackerAgent, Agent victimAgent, ref AttackCollisionData collisionData, CrushThroughState cts, Vec3 blowDir, Vec3 swingDir, bool cancelDamage)
+        {
+            Blow blow = new Blow(attackerAgent.Index);
+            blow.VictimBodyPart = collisionData.VictimHitBodyPart;
+            if (collisionData.AttackBlockedWithShield)
+            {
+                __result = blow;
+            }
+            ItemObject itemFromWeaponKind = ItemObject.GetItemFromWeaponKind(collisionData.AffectorWeaponKind);
+            WeaponComponentData w = (itemFromWeaponKind != null) ? itemFromWeaponKind.GetWeaponWithUsageIndex(collisionData.CurrentUsageIndex) : null;
+            bool flag = __instance.HitWithAnotherBone(ref collisionData, attackerAgent);
+            if (collisionData.IsAlternativeAttack)
+            {
+                blow.AttackType = ((itemFromWeaponKind != null) ? AgentAttackType.Bash : AgentAttackType.Kick);
+            }
+            else
+            {
+                blow.AttackType = AgentAttackType.Standard;
+            }
 
 
-        //    sbyte weaponAttachBoneIndex = (itemFromWeaponKind != null) ? attackerAgent.Monster.GetBoneToAttachForItem(itemFromWeaponKind) : ((sbyte)-1);
-        //    blow.WeaponRecord.FillWith(w, weaponAttachBoneIndex, collisionData.CurrentUsageIndex);
-        //    blow.StrikeType = (StrikeType)collisionData.StrikeType;
-        //    blow.DamageType = ((itemFromWeaponKind != null && !flag && !collisionData.IsAlternativeAttack) ? ((DamageTypes)collisionData.DamageType) : DamageTypes.Blunt);
-        //    blow.NoIgnore = collisionData.IsAlternativeAttack;
-        //    blow.AttackerStunPeriod = collisionData.AttackerStunPeriod;
-        //    blow.DefenderStunPeriod = collisionData.DefenderStunPeriod;
-        //    blow.BlowFlag = BlowFlags.None;
-        //    if (collisionData.IsHorseCharge || (collisionData.IsAlternativeAttack && !attackerAgent.IsHuman))
-        //    {
-        //        blow.BlowFlag |= BlowFlags.KnockBack;
-        //    }
-        //    if (cts != CrushThroughState.None)
-        //    {
-        //        blow.BlowFlag |= BlowFlags.CrushThrough;
-        //    }
-        //    if (collisionData.IsColliderAgent)
-        //    {
-        //        if (itemFromWeaponKind != null && victimAgent.Health - (float)collisionData.InflictedDamage >= 1f)
-        //        {
-        //            ManagedParametersEnum managedParameterEnum;
-        //            if (blow.DamageType == DamageTypes.Cut)
-        //            {
-        //                managedParameterEnum = ManagedParametersEnum.DamageInterruptAttackThresholdCut;
-        //            }
-        //            else if (blow.DamageType == DamageTypes.Pierce)
-        //            {
-        //                managedParameterEnum = ManagedParametersEnum.DamageInterruptAttackThresholdPierce;
-        //            }
-        //            else
-        //            {
-        //                managedParameterEnum = ManagedParametersEnum.DamageInterruptAttackThresholdBlunt;
-        //            }
-        //            float managedParameter = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum);
-        //            if ((float)collisionData.InflictedDamage <= managedParameter)
-        //            {
-        //                blow.BlowFlag |= BlowFlags.ShrugOff;
-        //            }
-        //        }
-        //        if (blow.StrikeType == StrikeType.Thrust && blow.WeaponRecord.WeaponFlags.HasAnyFlag(WeaponFlags.WideGrip) && victimAgent.GetAgentFlags().HasAnyFlag(AgentFlag.CanRear) && attackerAgent != null && attackerAgent.MountAgent == null && Vec3.DotProduct(swingDir, victimAgent.Frame.rotation.f) < -0.5f && victimAgent.MovementVelocity.y > 4f && (float)collisionData.InflictedDamage >= ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.MakesRearAttackDamageThreshold) * __instance.GetDamageMultiplierOfCombatDifficulty(victimAgent))
-        //        {
-        //            blow.BlowFlag |= BlowFlags.MakesRear;
-        //        }
-        //        if (blow.StrikeType == StrikeType.Thrust && !collisionData.ThrustTipHit)
-        //        {
-        //            blow.BlowFlag |= BlowFlags.NonTipThrust;
-        //        }
-        //    }
-        //    blow.Position = collisionData.CollisionGlobalPosition;
-        //    blow.BoneIndex = collisionData.CollisionBoneIndex;
-        //    blow.Direction = blowDir;
-        //    blow.SwingDirection = swingDir;
-        //    blow.BaseMagnitude = collisionData.BaseMagnitude;
-        //    blow.MovementSpeedDamageModifier = collisionData.MovementSpeedDamageModifier;
-        //    blow.InflictedDamage = collisionData.InflictedDamage;
-        //    blow.SelfInflictedDamage = collisionData.SelfInflictedDamage;
-        //    blow.AbsorbedByArmor = (float)collisionData.AbsorbedByArmor;
-        //    blow.DamageCalculated = true;
-        //    if (cancelDamage)
-        //    {
-        //        blow.BaseMagnitude = 0f;
-        //        blow.MovementSpeedDamageModifier = 0f;
-        //        blow.InflictedDamage = 0;
-        //        blow.SelfInflictedDamage = 0;
-        //        blow.AbsorbedByArmor = 0f;
-        //    }
+            sbyte weaponAttachBoneIndex = (itemFromWeaponKind != null) ? attackerAgent.Monster.GetBoneToAttachForItem(itemFromWeaponKind) : ((sbyte)-1);
+            blow.WeaponRecord.FillWith(w, weaponAttachBoneIndex, collisionData.CurrentUsageIndex);
+            blow.StrikeType = (StrikeType)collisionData.StrikeType;
+            blow.DamageType = ((itemFromWeaponKind != null && !flag && !collisionData.IsAlternativeAttack) ? ((DamageTypes)collisionData.DamageType) : DamageTypes.Blunt);
+            blow.NoIgnore = collisionData.IsAlternativeAttack;
+            blow.AttackerStunPeriod = collisionData.AttackerStunPeriod;
+            //blow.DefenderStunPeriod = collisionData.DefenderStunPeriod;
 
-        //    //modifying the return value through Harmony
-        //    __result = blow;
-        //    return false;
-        //}
+            blow.DefenderStunPeriod = GCOToolbox.GCOGetStaticFlinchPeriod(attackerAgent, collisionData.DefenderStunPeriod);
 
-        #endregion CreateBlow (currently unused)
 
-        [HarmonyPrefix]
-        [HarmonyPatch("GetDefendCollisionResultsAux")]
-        private static bool GetDefendCollisionResultsAux(Mission __instance, Agent attackerAgent, Agent defenderAgent,
+            blow.BlowFlag = BlowFlags.None;
+            if (collisionData.IsHorseCharge || (collisionData.IsAlternativeAttack && !attackerAgent.IsHuman))
+            {
+                blow.BlowFlag |= BlowFlags.KnockBack;
+            }
+            if (cts != CrushThroughState.None)
+            {
+                blow.BlowFlag |= BlowFlags.CrushThrough;
+            }
+            if (collisionData.IsColliderAgent)
+            {
+                if (itemFromWeaponKind != null && victimAgent.Health - (float)collisionData.InflictedDamage >= 1f)
+                {
+                    ManagedParametersEnum managedParameterEnum;
+                    if (blow.DamageType == DamageTypes.Cut)
+                    {
+                        managedParameterEnum = ManagedParametersEnum.DamageInterruptAttackThresholdCut;
+                    }
+                    else if (blow.DamageType == DamageTypes.Pierce)
+                    {
+                        managedParameterEnum = ManagedParametersEnum.DamageInterruptAttackThresholdPierce;
+                    }
+                    else
+                    {
+                        managedParameterEnum = ManagedParametersEnum.DamageInterruptAttackThresholdBlunt;
+                    }
+                    float managedParameter = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum);
+                    if ((float)collisionData.InflictedDamage <= managedParameter)
+                    {
+                        blow.BlowFlag |= BlowFlags.ShrugOff;
+                    }
+                }
+                if (blow.StrikeType == StrikeType.Thrust && blow.WeaponRecord.WeaponFlags.HasAnyFlag(WeaponFlags.WideGrip) && victimAgent.GetAgentFlags().HasAnyFlag(AgentFlag.CanRear) && attackerAgent != null && attackerAgent.MountAgent == null && Vec3.DotProduct(swingDir, victimAgent.Frame.rotation.f) < -0.5f && victimAgent.MovementVelocity.y > 4f && (float)collisionData.InflictedDamage >= ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.MakesRearAttackDamageThreshold) * __instance.GetDamageMultiplierOfCombatDifficulty(victimAgent))
+                {
+                    blow.BlowFlag |= BlowFlags.MakesRear;
+                }
+                if (blow.StrikeType == StrikeType.Thrust && !collisionData.ThrustTipHit)
+                {
+                    blow.BlowFlag |= BlowFlags.NonTipThrust;
+                }
+            }
+            blow.Position = collisionData.CollisionGlobalPosition;
+            blow.BoneIndex = collisionData.CollisionBoneIndex;
+            blow.Direction = blowDir;
+            blow.SwingDirection = swingDir;
+            blow.BaseMagnitude = collisionData.BaseMagnitude;
+            blow.MovementSpeedDamageModifier = collisionData.MovementSpeedDamageModifier;
+            blow.InflictedDamage = collisionData.InflictedDamage;
+            blow.SelfInflictedDamage = collisionData.SelfInflictedDamage;
+            blow.AbsorbedByArmor = (float)collisionData.AbsorbedByArmor;
+            blow.DamageCalculated = true;
+            if (cancelDamage)
+            {
+                blow.BaseMagnitude = 0f;
+                blow.MovementSpeedDamageModifier = 0f;
+                blow.InflictedDamage = 0;
+                blow.SelfInflictedDamage = 0;
+                blow.AbsorbedByArmor = 0f;
+            }
+
+            //modifying the return value through Harmony
+            __result = blow;
+            return false;
+        }
+
+
+        private static bool GetDefendCollisionResultsAuxPrefix(Mission __instance, Agent attackerAgent, Agent defenderAgent,
             CombatCollisionResult collisionResult, int weaponKind, int currentUsageIndex, bool isAlternativeAttack,
             StrikeType strikeType, Agent.UsageDirection attackDirection, float currentAttackSpeed, float collisionDistanceOnWeapon,
             float attackProgress, bool attackIsParried, ref float defenderStunPeriod, ref float attackerStunPeriod, ref bool crushedThrough,
@@ -234,12 +231,10 @@ namespace GCO.Features.ModdedMissionLogic
         }
 
         //original method required was a void, but you must return boolean for harmony lib
-        [HarmonyPrefix]
-        [HarmonyPatch("RegisterBlow")]
-        private static bool RegisterBlow(Mission __instance, Agent attacker, Agent victim, GameEntity realHitEntity, Blow b, ref AttackCollisionData collisionData)
+        private static bool RegisterBlowPrefix(Mission __instance, Agent attacker, Agent victim, GameEntity realHitEntity, Blow b, ref AttackCollisionData collisionData)
         {
             b.VictimBodyPart = collisionData.VictimHitBodyPart;
-            if (!collisionData.AttackBlockedWithShield || PlayerCleaveLogicExtensionMethods.IsDefenderAFriendlyInShieldFormation(attacker, victim))
+            if (!collisionData.AttackBlockedWithShield)
             {
                 Blow blow = attacker.CreateBlowFromBlowAsReflection(b);
 
@@ -286,8 +281,20 @@ namespace GCO.Features.ModdedMissionLogic
         }
     }
 
+
+
     internal static class GCOToolbox
     {
+        internal static float GCOGetStaticFlinchPeriod(Agent attackerAgent, float defenderStunPeriod)
+        {
+            if (attackerAgent == Mission.Current.MainAgent)
+            {
+                return 0.6f;
+            };
+
+            return defenderStunPeriod;
+        }
+
         internal static bool GCOCheckForPlayerAgent(Agent agent)
         {
             bool isPlayer = false;
@@ -309,6 +316,8 @@ namespace GCO.Features.ModdedMissionLogic
             {
                 b.BlowFlag |= BlowFlags.ShrugOff;
                 blow.BlowFlag |= BlowFlags.ShrugOff;
+                InformationManager.DisplayMessage(
+                     new InformationMessage("Player hyperarmor prevented flinch!", Colors.White));
             }
         }
         internal static void CreateHyperArmorBuff(Agent defenderAgent)
@@ -331,12 +340,11 @@ namespace GCO.Features.ModdedMissionLogic
                     {
                         b.BlowFlag |= BlowFlags.ShrugOff;
                         blow.BlowFlag |= BlowFlags.ShrugOff;
-                        InformationManager.DisplayMessage(
-                            new InformationMessage("Player hyperarmor prevented flinch!", Colors.White));
                     }
                 }
             }
         }
+
     }
 
 

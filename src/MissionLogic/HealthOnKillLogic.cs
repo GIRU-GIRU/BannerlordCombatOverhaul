@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
@@ -8,6 +9,11 @@ namespace GCO.Features.ModdedMissionLogic
 {
     public class HealthOnKillLogic : MissionLogic
     {
+        public HealthOnKillLogic() : base()
+        {
+
+        }
+
         public bool CheckPlayerAlive()
         {
             return Mission.MainAgent != null && Mission.MainAgent.IsActive();
@@ -15,9 +21,15 @@ namespace GCO.Features.ModdedMissionLogic
 
         private float GetMedicineSkillCalculation()
         {
-            int medicineSkill = (int)Math.Floor((double)Hero.MainHero.GetSkillValue(DefaultSkills.Medicine));
+            float medicineSkill = 0f;
+            try
+            {
+                medicineSkill = (int)Math.Floor((double)Hero.MainHero.GetSkillValue(DefaultSkills.Medicine));
+                medicineSkill = (float)medicineSkill * 0.1f;
+            }
+            catch { }
 
-            return (float)medicineSkill * 0.1f;
+            return medicineSkill;
         }
 
         public override void OnAgentHit(Agent affAgent1, Agent affAgent2, int damage, int weaponKind, int currentWeaponUsageIndex)

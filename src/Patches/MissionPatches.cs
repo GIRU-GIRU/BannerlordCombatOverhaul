@@ -7,6 +7,7 @@ using GCO.ReversePatches;
 using GCO.Features;
 using GCO.CopiedLogic;
 using GCO.Features.ModdedMissionLogic;
+using GCO.ModOptions;
 
 namespace GCO.Patches
 {

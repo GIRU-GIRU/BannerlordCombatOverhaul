@@ -3,7 +3,7 @@ using System;
 using TaleWorlds.MountAndBlade;
 using static TaleWorlds.MountAndBlade.SkinVoiceManager;
 
-namespace GCO.Features.ModdedMissionLogic
+namespace GCO.Features.CustomMissionLogic
 {
     internal class QueuedVoiceLogic : MissionLogic
     {

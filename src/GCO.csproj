@@ -265,11 +265,11 @@
     <Compile Include="Utility\VoiceCommandQueue.cs" />
     <Compile Include="Features\PlayerCleaveLogic.cs" />
     <Compile Include="Features\ProjectileBalanceLogic.cs" />
-    <Compile Include="MissionLogic\QueuedVoiceLogic.cs" />
+    <Compile Include="CustomMissionLogic\QueuedVoiceLogic.cs" />
     <Compile Include="GCOSubModule.cs" />
     <Compile Include="Features\GCOToolbox.cs" />
     <Compile Include="Patches\PartyBaseHelperPatches.cs" />
-    <Compile Include="MissionLogic\HealthOnKillLogic.cs" />
+    <Compile Include="CustomMissionLogic\HealthOnKillLogic.cs" />
     <Compile Include="Utility\CompatibilityCheck.cs" />
     <Compile Include="ModOptions\HarmonyPatchesConfiguration.cs" />
     <Compile Include="Patches\MissionPatches.cs" />

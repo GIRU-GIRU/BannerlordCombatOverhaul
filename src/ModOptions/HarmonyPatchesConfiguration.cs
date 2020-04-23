@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using GCO.Features.ModdedMissionLogic;
-using GCO.Features.ModdedWorldMapLogic;
+﻿using System.Reflection;
+using GCO.Features;
 using GCO.Patches;
 using HarmonyLib;
 using Helpers;
@@ -53,7 +47,7 @@ namespace GCO.ModOptions
         internal static void KillFriendliesPatch(ref Harmony harmony)
         {
             var cancelsDamageAndBlocksAttackBecauseOfNonEnemyCase = typeof(Mission).GetMethod("CancelsDamageAndBlocksAttackBecauseOfNonEnemyCase", BindingFlags.NonPublic | BindingFlags.Instance);
-            var cancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix = typeof(PlayerCleaveLogic).GetMethod(nameof(PlayerCleaveLogic.CancelsDamageAndBlocksAttackBecauseOfNonEnemyCase), BindingFlags.NonPublic | BindingFlags.Static);
+            var cancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix = typeof(MissionPatches).GetMethod(nameof(MissionPatches.CancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix), BindingFlags.NonPublic | BindingFlags.Static);
 
             harmony.Patch(cancelsDamageAndBlocksAttackBecauseOfNonEnemyCase,
                 new HarmonyMethod(cancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix), null, null, null);

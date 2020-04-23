@@ -4,7 +4,7 @@ using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using GCO.ReversePatches;
 
-namespace GCO.Features.ModdedMissionLogic
+namespace GCO.Features
 {
     //TODO: Refactor and cleanup after finishing feature
     internal class ProjectileBalanceLogic

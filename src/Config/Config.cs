@@ -62,7 +62,7 @@ namespace GCO
 
     public class CompatibilitySettings
     {
-        public bool xorbarexCleaveExists { get; set; }
+        public bool XorbarexCleaveExists { get; set; }
     }
 
     public static class Config
@@ -71,17 +71,17 @@ namespace GCO
             Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "GCOconfig.json");
 
         private static readonly bool configExists = File.Exists(ConfigFilePath);
-        public static bool ConfigLoadedSuccessfully { get; set; }
+        public static bool ConfigLoadedSuccessfully { get; private set; }
 
-        public static ConfigSettings ConfigSettings { get; set; }
+        public static ConfigSettings ConfigSettings { get; private set; }
 
-        public static CompatibilitySettings compatibilitySettings { get; set; }
+        public static CompatibilitySettings CompatibilitySettings { get; private set; }
 
-        public static void initConfig()
+        public static void InitConfig()
         {
-            compatibilitySettings = new CompatibilitySettings()
+            CompatibilitySettings = new CompatibilitySettings()
             {
-                xorbarexCleaveExists = false,
+                XorbarexCleaveExists = false,
             };
 
             if (configExists)
@@ -92,10 +92,7 @@ namespace GCO
                     ConfigLoadedSuccessfully = true;
                     return;
                 }
-                catch
-                {
-
-                }
+                catch { }
             }
 
             ConfigLoadedSuccessfully = false;
@@ -121,45 +118,39 @@ namespace GCO
 
         public static void ConfigureHarmonyPatches(ref Harmony harmony)
         {
-            var harmonyPatchConfig = new HarmonyPatchingConfiguration();
-
             if (ConfigSettings.HyperArmorEnabled || ConfigSettings.ProjectileBalancingEnabled)
             {
-                harmonyPatchConfig.HyperArmorAndProjectileBalancing(ref harmony);
+                HarmonyPatchesConfiguration.HyperArmorAndProjectileBalancing(ref harmony);
             }
-
 
             if (ConfigSettings.OrderVoiceCommandQueuing)
             {
-                harmonyPatchConfig.OrderVoiceCommandQueuingPatch(ref harmony);
+                HarmonyPatchesConfiguration.OrderVoiceCommandQueuingPatch(ref harmony);
             }
-
 
             if (ConfigSettings.StandardizedFlinchOnEnemiesEnabled)
             {
-                harmonyPatchConfig.StandardizedFlinchOnEnemiesEnablePatch(ref harmony);
+                HarmonyPatchesConfiguration.StandardizedFlinchOnEnemiesEnablePatch(ref harmony);
             }
 
             if (ConfigSettings.TrueFriendlyFireEnabled || ConfigSettings.MurderEnabled)
             {
-                harmonyPatchConfig.KillFriendliesPatch(ref harmony);
+                HarmonyPatchesConfiguration.KillFriendliesPatch(ref harmony);
             }
-
 
             if (ConfigSettings.CleaveEnabled)
             {
-                harmonyPatchConfig.CleaveEnabledPatch(ref harmony);
+                HarmonyPatchesConfiguration.CleaveEnabledPatch(ref harmony);
             }
-
 
             if (ConfigSettings.SimplifiedSurrenderLogic)
             {
-                harmonyPatchConfig.SimplifiedSurrenderLogicEnabledPatch(ref harmony);
+                HarmonyPatchesConfiguration.SimplifiedSurrenderLogicEnabledPatch(ref harmony);
             }
 
             if(ConfigSettings.ProjectileBalancingEnabled)
             {
-                harmonyPatchConfig.ProjectileBalancingEnabledPatch(ref harmony);
+                HarmonyPatchesConfiguration.ProjectileBalancingEnabledPatch(ref harmony);
             }
         }
     }

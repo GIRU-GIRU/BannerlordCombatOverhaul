@@ -156,6 +156,11 @@ namespace GCO
             {
                 harmonyPatchConfig.SimplifiedSurrenderLogicEnabledPatch(ref harmony);
             }
+
+            if(ConfigSettings.ProjectileBalancingEnabled)
+            {
+                harmonyPatchConfig.ProjectileBalancingEnabledPatch(ref harmony);
+            }
         }
     }
 }

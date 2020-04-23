@@ -283,184 +283,121 @@ namespace GCO.Features.ModdedMissionLogic
 
 
 
-    internal static class GCOToolbox
-    {
-        internal static float GCOGetStaticFlinchPeriod(Agent attackerAgent, float defenderStunPeriod)
-        {
-            if (attackerAgent == Mission.Current.MainAgent)
-            {
-                return 0.6f;
-            };
-
-            return defenderStunPeriod;
-        }
-
-        internal static bool GCOCheckForPlayerAgent(Agent agent)
-        {
-            bool isPlayer = false;
-
-            if (agent != null)
-            {
-                if (agent.IsPlayerControlled && agent.IsHuman && agent.IsHero)
-                {
-                    isPlayer = true;
-                }
-            }
-
-            return isPlayer;
-        }
-
-        internal static void CheckToAddHyperarmor(ref Blow b, ref Blow blow)
-        {
-            if (Global.IsHyperArmorActive())
-            {
-                b.BlowFlag |= BlowFlags.ShrugOff;
-                blow.BlowFlag |= BlowFlags.ShrugOff;
-                InformationManager.DisplayMessage(
-                     new InformationMessage("Player hyperarmor prevented flinch!", Colors.White));
-            }
-        }
-        internal static void CreateHyperArmorBuff(Agent defenderAgent)
-        {
-            if (defenderAgent.IsPlayerControlled)
-            {
-                Global.ApplyHyperArmor();
-            }
-        }
-
-        internal static void CheckForProjectileFlinch(ref Blow b, ref Blow blow, AttackCollisionData collisionData, Agent victim)
-        {
-            if (victim != null && b.IsMissile())
-            {
-                if (collisionData.VictimHitBodyPart != BoneBodyPartType.Head && collisionData.VictimHitBodyPart != BoneBodyPartType.Neck)
-                {
-                    var projStunThresholdMultiplier = Config.ConfigSettings.ProjectileStunPercentageThreshold / 100;
-
-                    if (b.InflictedDamage < (victim.HealthLimit * projStunThresholdMultiplier))
-                    {
-                        b.BlowFlag |= BlowFlags.ShrugOff;
-                        blow.BlowFlag |= BlowFlags.ShrugOff;
-                    }
-                }
-            }
-        }
-
-    }
 
 
-    //grabbing the values of required methods for RegisterBlow/CreateBlow through Harmony. This must be in a seperate class
-    internal static class FlinchManagementExtensionMethods
-    {
-        //ensure you pass in the __instance
-        internal static float GetDamageMultiplierOfCombatDifficulty(this Mission __instance, Agent victimAgent)
-        {
-            return Traverse.Create(__instance).Method("GetDamageMultiplierOfCombatDifficulty", new Type[] { typeof(Agent) }).GetValue<float>(victimAgent);
-        }
 
-        //ensure you pass in the __instance
-        internal static bool HitWithAnotherBone(this Mission __instance, ref AttackCollisionData collisionData, Agent attacker)
-        {
-            return Traverse.Create(__instance).Method("HitWithAnotherBone", new Type[] { typeof(AttackCollisionData).MakeByRefType(), typeof(Agent) }).GetValue<bool>(collisionData, attacker);
-        }
+    ////grabbing the values of required methods for RegisterBlow/CreateBlow through Harmony. This must be in a seperate class
+    //internal static class FlinchManagementExtensionMethods
+    //{
+    //    //ensure you pass in the __instance
+    //    internal static float GetDamageMultiplierOfCombatDifficulty(this Mission __instance, Agent victimAgent)
+    //    {
+    //        return Traverse.Create(__instance).Method("GetDamageMultiplierOfCombatDifficulty", new Type[] { typeof(Agent) }).GetValue<float>(victimAgent);
+    //    }
 
-        //void method still requires a .GetValue
-        internal static void OnEntityHit(this Mission __instance, GameEntity realHitEntity, Agent attacker, int inflictedDamage, DamageTypes damageType, Vec3 position, Vec3 swingDirection, int affectorWeaponKind, int currentUsageIndex)
-        {
-            Traverse.Create(__instance).Method("OnEntityHit", new Type[] {
-                typeof(GameEntity),
-                typeof(Agent),
-                typeof(int),
-                typeof(DamageTypes),
-                typeof(Vec3),
-                typeof(Vec3),
-                typeof(int),
-                typeof(int)
-            }).GetValue(realHitEntity, attacker, inflictedDamage, damageType, position, swingDirection, affectorWeaponKind, currentUsageIndex);
-        }
+    //    //ensure you pass in the __instance
+    //    internal static bool HitWithAnotherBone(this Mission __instance, ref AttackCollisionData collisionData, Agent attacker)
+    //    {
+    //        return Traverse.Create(__instance).Method("HitWithAnotherBone", new Type[] { typeof(AttackCollisionData).MakeByRefType(), typeof(Agent) }).GetValue<bool>(collisionData, attacker);
+    //    }
 
-        internal static float ComputeRelativeSpeedDiffOfAgents(this Mission __instance, Agent agentA, Agent agentB)
-        {
-            Vec3 v = Vec3.Zero;
-            if (agentA.MountAgent != null)
-            {
-                v = agentA.MountAgent.MovementVelocity.y * agentA.MountAgent.GetMovementDirection();
-            }
-            else
-            {
-                v.AsVec2 = agentA.MovementVelocity;
-                v.RotateAboutZ(agentA.MovementDirectionAsAngle);
-            }
-            Vec3 v2 = Vec3.Zero;
-            if (agentB.MountAgent != null)
-            {
-                v2 = agentB.MountAgent.MovementVelocity.y * agentB.MountAgent.GetMovementDirection();
-            }
-            else
-            {
-                v2.AsVec2 = agentB.MovementVelocity;
-                v2.RotateAboutZ(agentB.MovementDirectionAsAngle);
-            }
-            return (v - v2).Length;
+    //    //void method still requires a .GetValue
+    //    internal static void OnEntityHit(this Mission __instance, GameEntity realHitEntity, Agent attacker, int inflictedDamage, DamageTypes damageType, Vec3 position, Vec3 swingDirection, int affectorWeaponKind, int currentUsageIndex)
+    //    {
+    //        Traverse.Create(__instance).Method("OnEntityHit", new Type[] {
+    //            typeof(GameEntity),
+    //            typeof(Agent),
+    //            typeof(int),
+    //            typeof(DamageTypes),
+    //            typeof(Vec3),
+    //            typeof(Vec3),
+    //            typeof(int),
+    //            typeof(int)
+    //        }).GetValue(realHitEntity, attacker, inflictedDamage, damageType, position, swingDirection, affectorWeaponKind, currentUsageIndex);
+    //    }
 
-        }
+    //    internal static float ComputeRelativeSpeedDiffOfAgents(this Mission __instance, Agent agentA, Agent agentB)
+    //    {
+    //        Vec3 v = Vec3.Zero;
+    //        if (agentA.MountAgent != null)
+    //        {
+    //            v = agentA.MountAgent.MovementVelocity.y * agentA.MountAgent.GetMovementDirection();
+    //        }
+    //        else
+    //        {
+    //            v.AsVec2 = agentA.MovementVelocity;
+    //            v.RotateAboutZ(agentA.MovementDirectionAsAngle);
+    //        }
+    //        Vec3 v2 = Vec3.Zero;
+    //        if (agentB.MountAgent != null)
+    //        {
+    //            v2 = agentB.MountAgent.MovementVelocity.y * agentB.MountAgent.GetMovementDirection();
+    //        }
+    //        else
+    //        {
+    //            v2.AsVec2 = agentB.MovementVelocity;
+    //            v2.RotateAboutZ(agentB.MovementDirectionAsAngle);
+    //        }
+    //        return (v - v2).Length;
 
-        internal static float SpeedGraphFunction(this Mission __instance, float progress, StrikeType strikeType, Agent.UsageDirection attackDir)
-        {
-            bool flag = strikeType == StrikeType.Thrust;
-            bool flag2 = attackDir == Agent.UsageDirection.AttackUp;
-            ManagedParametersEnum managedParameterEnum;
-            ManagedParametersEnum managedParameterEnum2;
-            ManagedParametersEnum managedParameterEnum3;
-            ManagedParametersEnum managedParameterEnum4;
-            if (flag)
-            {
-                managedParameterEnum = ManagedParametersEnum.ThrustCombatSpeedGraphZeroProgressValue;
-                managedParameterEnum2 = ManagedParametersEnum.ThrustCombatSpeedGraphFirstMaximumPoint;
-                managedParameterEnum3 = ManagedParametersEnum.ThrustCombatSpeedGraphSecondMaximumPoint;
-                managedParameterEnum4 = ManagedParametersEnum.ThrustCombatSpeedGraphOneProgressValue;
-            }
-            else if (flag2)
-            {
-                managedParameterEnum = ManagedParametersEnum.OverSwingCombatSpeedGraphZeroProgressValue;
-                managedParameterEnum2 = ManagedParametersEnum.OverSwingCombatSpeedGraphFirstMaximumPoint;
-                managedParameterEnum3 = ManagedParametersEnum.OverSwingCombatSpeedGraphSecondMaximumPoint;
-                managedParameterEnum4 = ManagedParametersEnum.OverSwingCombatSpeedGraphOneProgressValue;
-            }
-            else
-            {
-                managedParameterEnum = ManagedParametersEnum.SwingCombatSpeedGraphZeroProgressValue;
-                managedParameterEnum2 = ManagedParametersEnum.SwingCombatSpeedGraphFirstMaximumPoint;
-                managedParameterEnum3 = ManagedParametersEnum.SwingCombatSpeedGraphSecondMaximumPoint;
-                managedParameterEnum4 = ManagedParametersEnum.SwingCombatSpeedGraphOneProgressValue;
-            }
-            float managedParameter = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum);
-            float managedParameter2 = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum2);
-            float managedParameter3 = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum3);
-            float managedParameter4 = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum4);
-            float result;
-            if (progress < managedParameter2)
-            {
-                result = (1f - managedParameter) / managedParameter2 * progress + managedParameter;
-            }
-            else if (managedParameter3 < progress)
-            {
-                result = (managedParameter4 - 1f) / (1f - managedParameter3) * (progress - managedParameter3) + 1f;
-            }
-            else
-            {
-                result = 1f;
-            }
-            return result;
-        }
+    //    }
+
+    //    internal static float SpeedGraphFunction(this Mission __instance, float progress, StrikeType strikeType, Agent.UsageDirection attackDir)
+    //    {
+    //        bool flag = strikeType == StrikeType.Thrust;
+    //        bool flag2 = attackDir == Agent.UsageDirection.AttackUp;
+    //        ManagedParametersEnum managedParameterEnum;
+    //        ManagedParametersEnum managedParameterEnum2;
+    //        ManagedParametersEnum managedParameterEnum3;
+    //        ManagedParametersEnum managedParameterEnum4;
+    //        if (flag)
+    //        {
+    //            managedParameterEnum = ManagedParametersEnum.ThrustCombatSpeedGraphZeroProgressValue;
+    //            managedParameterEnum2 = ManagedParametersEnum.ThrustCombatSpeedGraphFirstMaximumPoint;
+    //            managedParameterEnum3 = ManagedParametersEnum.ThrustCombatSpeedGraphSecondMaximumPoint;
+    //            managedParameterEnum4 = ManagedParametersEnum.ThrustCombatSpeedGraphOneProgressValue;
+    //        }
+    //        else if (flag2)
+    //        {
+    //            managedParameterEnum = ManagedParametersEnum.OverSwingCombatSpeedGraphZeroProgressValue;
+    //            managedParameterEnum2 = ManagedParametersEnum.OverSwingCombatSpeedGraphFirstMaximumPoint;
+    //            managedParameterEnum3 = ManagedParametersEnum.OverSwingCombatSpeedGraphSecondMaximumPoint;
+    //            managedParameterEnum4 = ManagedParametersEnum.OverSwingCombatSpeedGraphOneProgressValue;
+    //        }
+    //        else
+    //        {
+    //            managedParameterEnum = ManagedParametersEnum.SwingCombatSpeedGraphZeroProgressValue;
+    //            managedParameterEnum2 = ManagedParametersEnum.SwingCombatSpeedGraphFirstMaximumPoint;
+    //            managedParameterEnum3 = ManagedParametersEnum.SwingCombatSpeedGraphSecondMaximumPoint;
+    //            managedParameterEnum4 = ManagedParametersEnum.SwingCombatSpeedGraphOneProgressValue;
+    //        }
+    //        float managedParameter = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum);
+    //        float managedParameter2 = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum2);
+    //        float managedParameter3 = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum3);
+    //        float managedParameter4 = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum4);
+    //        float result;
+    //        if (progress < managedParameter2)
+    //        {
+    //            result = (1f - managedParameter) / managedParameter2 * progress + managedParameter;
+    //        }
+    //        else if (managedParameter3 < progress)
+    //        {
+    //            result = (managedParameter4 - 1f) / (1f - managedParameter3) * (progress - managedParameter3) + 1f;
+    //        }
+    //        else
+    //        {
+    //            result = 1f;
+    //        }
+    //        return result;
+    //    }
 
 
 
 
 
-        // This is how to grab a private variable with harmony 
-        //internal static bool GetVariableNameHere(this Mission __instance)
-        //{
-        //    return Traverse.Create(__instance).Field<VariableType>("VariableNameHere").Value;
-        //}
-    }
+    // This is how to grab a private variable with harmony 
+    //internal static bool GetVariableNameHere(this Mission __instance)
+    //{
+    //    return Traverse.Create(__instance).Field<VariableType>("VariableNameHere").Value;
+    //}
 }

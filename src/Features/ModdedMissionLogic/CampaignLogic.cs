@@ -33,7 +33,7 @@ namespace GCO.Features.ModdedMissionLogic
                 {
                     if (mission.IsFieldBattle || isCombat || isArenaCombat)
                     {
-                        Mission.Current.AddMissionBehaviour(new HealthOnKill());
+                        Mission.Current.AddMissionBehaviour(new HealthOnKillLogic());
                     }
                 }
             }

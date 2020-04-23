@@ -11,7 +11,7 @@ namespace GCO.Features
     {
         internal static bool MissileHitCallbackPrefix(ref bool __result, ref Mission __instance, out int hitParticleIndex, ref AttackCollisionData collisionData, int missileIndex, Vec3 missileStartingPosition, Vec3 missilePosition, Vec3 missileAngularVelocity, Vec3 movementVelocity, MatrixFrame attachGlobalFrame, MatrixFrame affectedShieldGlobalFrame, int numDamagedAgents, Agent attacker, Agent victim, GameEntity hitEntity)
         {
-            var _missiles = MissionReversePatches.GetMissiles(ref __instance);
+            var _missiles = MissionReversePatches.Get_missiles(ref __instance);
 
             Mission.Missile missile = _missiles[missileIndex];
             WeaponFlags weaponFlags = missile.Weapon.CurrentUsageItem.WeaponFlags;
@@ -19,7 +19,7 @@ namespace GCO.Features
             WeaponComponentData weaponComponentData = null;
             if (collisionData.AttackBlockedWithShield && weaponFlags.HasAnyFlag(WeaponFlags.CanPenetrateShield))
             {
-                ProjectileBalanceExtensionMethods.GetAttackCollisionResults(ref __instance, attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
+                __instance.GetAttackCollisionResults(attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
                 EquipmentIndex wieldedItemIndex = victim.GetWieldedItemIndex(Agent.HandIndex.OffHand);
                 if ((float)collisionData.InflictedDamage > ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.ShieldPenetrationOffset) + ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.ShieldPenetrationFactor) * (float)victim.Equipment[wieldedItemIndex].GetShieldArmorForCurrentUsage())
                 {
@@ -75,16 +75,16 @@ namespace GCO.Features
             {
                 if (hitEntity != null)
                 {
-                    ProjectileBalanceExtensionMethods.GetAttackCollisionResults(ref __instance, attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
-                    Blow b = ProjectileBalanceExtensionMethods.CreateMissileBlow(attacker, ref collisionData, missile, missilePosition, missileStartingPosition);
-                    ProjectileBalanceExtensionMethods.RegisterBlow(ref __instance, attacker, null, hitEntity, b, ref collisionData);
+                    __instance.GetAttackCollisionResults(attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
+                    Blow b = __instance.CreateMissileBlow(attacker, ref collisionData, missile, missilePosition, missileStartingPosition);
+                    __instance.RegisterBlow(attacker, null, hitEntity, b, ref collisionData);
                 }
                 missileCollisionReaction = missileCollisionReaction2;
                 hitParticleIndex = 0;
             }
             else if (collisionData.AttackBlockedWithShield)
             {
-                ProjectileBalanceExtensionMethods.GetAttackCollisionResults(ref __instance, attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
+                __instance.GetAttackCollisionResults(attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
                 missileCollisionReaction = (collisionData.IsShieldBroken ? Mission.MissileCollisionReaction.BecomeInvisible : missileCollisionReaction2);
                 hitParticleIndex = 0;
             }
@@ -126,8 +126,8 @@ namespace GCO.Features
                 else
                 {
                     bool flag6 = (weaponFlags & WeaponFlags.MultiplePenetration) > (WeaponFlags)0UL;
-                    ProjectileBalanceExtensionMethods.GetAttackCollisionResults(ref __instance, attacker, victim, null, num, ref collisionData, false, false, out weaponComponentData);
-                    Blow blow = ProjectileBalanceExtensionMethods.CreateMissileBlow(attacker, ref collisionData, missile, missilePosition, missileStartingPosition);
+                    __instance.GetAttackCollisionResults(attacker, victim, null, num, ref collisionData, false, false, out weaponComponentData);
+                    Blow blow = __instance.CreateMissileBlow(attacker, ref collisionData, missile, missilePosition, missileStartingPosition);
                     if (!collisionData.CollidedWithShieldOnBack && flag6 && numDamagedAgents > 0)
                     {
                         blow.InflictedDamage /= numDamagedAgents;
@@ -153,7 +153,7 @@ namespace GCO.Features
                     }
                     if (victim.State == AgentState.Active)
                     {
-                        ProjectileBalanceExtensionMethods.RegisterBlow(ref __instance, attacker, victim, null, blow, ref collisionData);
+                        __instance.RegisterBlow(attacker, victim, null, blow, ref collisionData);
                     }
                     hitParticleIndex = ParticleSystemManager.GetRuntimeIdByName("psys_game_blood_sword_enter");
                     if (flag6 && numDamagedAgents < 3)
@@ -195,7 +195,7 @@ namespace GCO.Features
             if (!collisionData.MissileHasPhysics && !collisionData.MissileGoneUnderWater)
             {
                 bool shouldMissilePenetrate = missileCollisionReaction == Mission.MissileCollisionReaction.Stick;
-                attachLocalFrame = ProjectileBalanceExtensionMethods.CalculateAttachedLocalFrame(ref __instance, ref attachGlobalFrame, collisionData, missile.Weapon.CurrentUsageItem, victim, hitEntity, movementVelocity, missileAngularVelocity, affectedShieldGlobalFrame, shouldMissilePenetrate);
+                attachLocalFrame = __instance.CalculateAttachedLocalFrame(ref attachGlobalFrame, collisionData, missile.Weapon.CurrentUsageItem, victim, hitEntity, movementVelocity, missileAngularVelocity, affectedShieldGlobalFrame, shouldMissilePenetrate);
             }
             else
             {
@@ -225,60 +225,6 @@ namespace GCO.Features
             __result = missileCollisionReaction != Mission.MissileCollisionReaction.PassThrough;
 
             return false;
-        }
-
-        internal static class ProjectileBalanceExtensionMethods
-        {
-            internal static void GetAttackCollisionResults(ref Mission __instance, Agent attacker, Agent victim, GameEntity hitObject, float momentumRemaining, ref AttackCollisionData attackCollisionData, bool crushedThrough, bool cancelDamage, out WeaponComponentData shieldOnBack)
-            {
-                shieldOnBack = null;
-                var obj = new object[] { attacker, victim, hitObject, momentumRemaining, attackCollisionData, crushedThrough, cancelDamage, shieldOnBack };
-                
-                MissionReversePatches.GetAttackCollisionResults.Invoke(__instance, obj);
-                attackCollisionData = (AttackCollisionData)obj[4];
-            }
-
-            internal static Blow CreateMissileBlow(Agent attackerAgent, ref AttackCollisionData collisionData, Mission.Missile missile, Vec3 missilePosition, Vec3 missileStartingPosition)
-            {
-                Blow blow = new Blow(attackerAgent.Index);
-                blow.BlowFlag = BlowFlags.None;
-                blow.Direction = collisionData.MissileVelocity.NormalizedCopy();
-                blow.SwingDirection = blow.Direction;
-                blow.Position = collisionData.CollisionGlobalPosition;
-                blow.BoneIndex = collisionData.CollisionBoneIndex;
-                blow.MissileRecord.IsValid = true;
-                blow.MissileRecord.CurrentPosition = missilePosition;
-                blow.MissileRecord.StartingPosition = missileStartingPosition;
-                blow.MissileRecord.MissileItemKind = collisionData.AffectorWeaponKind;
-                blow.MissileRecord.ItemFlags = missile.Weapon.PrimaryItem.ItemFlags;
-                blow.MissileRecord.WeaponFlags = missile.Weapon.CurrentUsageItem.WeaponFlags;
-                blow.MissileRecord.Velocity = collisionData.MissileVelocity;
-                blow.StrikeType = (StrikeType)collisionData.StrikeType;
-                blow.DamageType = (DamageTypes)collisionData.DamageType;
-                blow.VictimBodyPart = collisionData.VictimHitBodyPart;
-                blow.WeaponRecord.FillWith(missile.Weapon.CurrentUsageItem, attackerAgent.Monster.GetBoneToAttachForItem(missile.Weapon.PrimaryItem), collisionData.CurrentUsageIndex);
-                blow.BaseMagnitude = collisionData.BaseMagnitude;
-                blow.MovementSpeedDamageModifier = collisionData.MovementSpeedDamageModifier;
-                blow.AbsorbedByArmor = (float)collisionData.AbsorbedByArmor;
-                blow.InflictedDamage = collisionData.InflictedDamage;
-                blow.SelfInflictedDamage = collisionData.SelfInflictedDamage;
-                blow.DamageCalculated = true;
-                return blow;
-            }
-
-            internal static void RegisterBlow(ref Mission __instance, Agent attacker, Agent p, GameEntity hitEntity, Blow b, ref AttackCollisionData collisionData)
-            {
-               var obj = new object[] { attacker, p, hitEntity, b, collisionData };
-                MissionReversePatches.RegisterBlow.Invoke(__instance, obj);
-               collisionData = (AttackCollisionData)obj[4];
-            }
-
-            internal static MatrixFrame CalculateAttachedLocalFrame(ref Mission __instance, ref MatrixFrame attachGlobalFrame, AttackCollisionData collisionData, WeaponComponentData currentUsageItem, Agent victim, GameEntity hitEntity, Vec3 movementVelocity, Vec3 missileAngularVelocity, MatrixFrame affectedShieldGlobalFrame, bool shouldMissilePenetrate)
-            {
-                
-                return (MatrixFrame)MissionReversePatches.CalculateAttachedLocalFrame.Invoke(__instance, new object[] { attachGlobalFrame, collisionData, 
-                    currentUsageItem, victim, hitEntity, movementVelocity, missileAngularVelocity, affectedShieldGlobalFrame, shouldMissilePenetrate });
-            }
         }
     }
 }

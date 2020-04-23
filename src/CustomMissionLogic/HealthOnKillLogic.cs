@@ -1,11 +1,12 @@
-﻿using System;
+﻿using GCO.ModOptions;
+using System;
 using System.Diagnostics;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
-namespace GCO.Features.ModdedMissionLogic
+namespace GCO.Features.CustomMissionLogic
 {
     public class HealthOnKillLogic : MissionLogic
     {

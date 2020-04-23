@@ -3,7 +3,7 @@ using HarmonyLib;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 
-namespace GCO.HarmonyPatches
+namespace GCO.Utility
 {
     internal static class CompatibilityCheck
     {

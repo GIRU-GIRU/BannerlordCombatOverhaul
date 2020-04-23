@@ -3,7 +3,7 @@ using System;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 
-namespace GCO.Features.ModdedWorldMapLogic
+namespace GCO.Patches
 {
     //what the fuck is DoesSurrenderIsLogicalForParty mean taleworlds
     internal class PartyBaseHelperPatches

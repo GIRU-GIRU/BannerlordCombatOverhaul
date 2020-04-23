@@ -1,9 +1,10 @@
 ﻿using TaleWorlds.MountAndBlade;
 using TaleWorlds.Core;
 using HarmonyLib;
-using GCO.Features.ModdedMissionLogic;
 using TaleWorlds.Library;
-using GCO.HarmonyPatches;
+using GCO.ModOptions;
+using GCO.Features.CustomMissionLogic;
+using GCO.Utility;
 
 namespace GCO
 {

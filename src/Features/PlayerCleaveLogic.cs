@@ -2,7 +2,7 @@ using GCO.ModOptions;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 
-namespace GCO.Features.ModdedMissionLogic
+namespace GCO.Features
 {
     internal static class PlayerCleaveLogic
     {

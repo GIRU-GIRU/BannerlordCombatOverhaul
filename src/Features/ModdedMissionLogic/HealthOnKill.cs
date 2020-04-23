@@ -31,7 +31,7 @@ namespace GCO.Features.ModdedMissionLogic
             float healAmount = HPOnKillAmount + GetMedicineSkillCalculation();
 
 
-            bool valid = this.CheckPlayerAlive() && affAgent1.IsHuman && affAgent2 == Mission.MainAgent && damage > 0;
+            bool valid = this.CheckPlayerAlive() && affAgent1.IsHuman && affAgent2 == Mission.MainAgent && damage > 0 && affAgent2 != affAgent1;
 
             if (valid && affAgent1.Health <= 0f)
             {

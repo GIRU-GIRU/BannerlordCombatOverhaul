@@ -80,6 +80,15 @@ namespace GCO.HarmonyPatches
             harmony.Patch(afterSetOrderMakeVoice, new HarmonyMethod(afterSetOrderMakeVoicePrefix), null, null, null);
         }
 
+        internal void ProjectileBalancingEnabledPatch(ref Harmony harmony)
+        {
+            var MissileHitCallback = typeof(Mission).GetMethod("MissileHitCallback", BindingFlags.NonPublic | BindingFlags.Instance);
+            var MissileHitCallbackPrefix = typeof(ProjectileBalanceLogic).GetMethod("MissileHitCallbackPrefix", BindingFlags.NonPublic | BindingFlags.Static);
+
+     
+            harmony.Patch(MissileHitCallback, new HarmonyMethod(MissileHitCallbackPrefix), null, null, null);
+        }
+
         internal void HyperArmorAndProjectileBalancing(ref Harmony harmony)
         {
             var getDefendCollisionResultsAux = typeof(Mission).GetMethod("GetDefendCollisionResultsAux", BindingFlags.NonPublic | BindingFlags.Static);

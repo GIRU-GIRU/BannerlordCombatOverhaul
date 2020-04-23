@@ -261,6 +261,7 @@
     <Compile Include="Features\ModdedMissionLogic\Global.cs" />
     <Compile Include="Features\ModdedMissionLogic\ModdedOrderVoiceCommands.cs" />
     <Compile Include="Features\ModdedMissionLogic\PlayerCleaveLogic.cs" />
+    <Compile Include="Features\ModdedMissionLogic\ProjectileBalanceLogic.cs" />
     <Compile Include="Features\ModdedMissionLogic\QueuedVoiceLogic.cs" />
     <Compile Include="GCOSubModule.cs" />
     <Compile Include="Features\ModdedMissionLogic\FlinchManagement.cs" />

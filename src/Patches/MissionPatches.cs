@@ -1,28 +1,18 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
-using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Linq;
-using JetBrains.Annotations;
-using NetworkMessages.FromServer;
-using TaleWorlds.MountAndBlade.Network;
 using TaleWorlds.Engine;
+using GCO.ReversePatches;
+using GCO.Features;
+using GCO.CopiedLogic;
+using GCO.Features.ModdedMissionLogic;
 
-namespace GCO.Features.ModdedMissionLogic
+namespace GCO.Patches
 {
-
-    public static class FlinchManagement
+    internal static class MissionPatches
     {
-        //original method required a Blow object, but you must return boolean for harmony lib
-        private static bool CreateBlowPrefix(Mission __instance, ref Blow __result, Agent attackerAgent, Agent victimAgent, ref AttackCollisionData collisionData, CrushThroughState cts, Vec3 blowDir, Vec3 swingDir, bool cancelDamage)
+        internal static bool CreateBlowPrefix(Mission __instance, ref Blow __result, Agent attackerAgent, Agent victimAgent, ref AttackCollisionData collisionData, CrushThroughState cts, Vec3 blowDir, Vec3 swingDir, bool cancelDamage)
         {
             Blow blow = new Blow(attackerAgent.Index);
             blow.VictimBodyPart = collisionData.VictimHitBodyPart;
@@ -119,8 +109,7 @@ namespace GCO.Features.ModdedMissionLogic
             return false;
         }
 
-
-        private static bool GetDefendCollisionResultsAuxPrefix(Mission __instance, Agent attackerAgent, Agent defenderAgent,
+        internal static bool GetDefendCollisionResultsAuxPrefix(Mission __instance, Agent attackerAgent, Agent defenderAgent,
             CombatCollisionResult collisionResult, int weaponKind, int currentUsageIndex, bool isAlternativeAttack,
             StrikeType strikeType, Agent.UsageDirection attackDirection, float currentAttackSpeed, float collisionDistanceOnWeapon,
             float attackProgress, bool attackIsParried, ref float defenderStunPeriod, ref float attackerStunPeriod, ref bool crushedThrough,
@@ -231,7 +220,7 @@ namespace GCO.Features.ModdedMissionLogic
         }
 
         //original method required was a void, but you must return boolean for harmony lib
-        private static bool RegisterBlowPrefix(Mission __instance, Agent attacker, Agent victim, GameEntity realHitEntity, Blow b, ref AttackCollisionData collisionData)
+        internal static bool RegisterBlowPrefix(Mission __instance, Agent attacker, Agent victim, GameEntity realHitEntity, Blow b, ref AttackCollisionData collisionData)
         {
             b.VictimBodyPart = collisionData.VictimHitBodyPart;
             if (!collisionData.AttackBlockedWithShield)
@@ -279,188 +268,61 @@ namespace GCO.Features.ModdedMissionLogic
 
             return false;
         }
-    }
 
-
-
-    internal static class GCOToolbox
-    {
-        internal static float GCOGetStaticFlinchPeriod(Agent attackerAgent, float defenderStunPeriod)
+        internal static void DecideWeaponCollisionReactionPostfix(Mission __instance, Blow registeredBlow, ref AttackCollisionData collisionData, Agent attacker, Agent defender, bool isFatalHit, bool isShruggedOff, ref MeleeCollisionReaction colReaction)
         {
-            if (attackerAgent == Mission.Current.MainAgent)
+            if (!Config.CompatibilitySettings.XorbarexCleaveExists)
             {
-                return 0.6f;
-            };
-
-            return defenderStunPeriod;
+                if (PlayerCleaveLogic.CheckApplyCleave(__instance, attacker, defender, registeredBlow, isShruggedOff))
+                {
+                    colReaction = MeleeCollisionReaction.SlicedThrough;
+                }
+            }
         }
 
-        internal static bool GCOCheckForPlayerAgent(Agent agent)
+        internal static bool CancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix(ref bool __result, Agent attacker, Agent victim)
         {
-            bool isPlayer = false;
-
-            if (agent != null)
+            if (attacker != Mission.Current.MainAgent)
             {
-                if (agent.IsPlayerControlled && agent.IsHuman && agent.IsHero)
+                bool canMurder = Config.ConfigSettings.MurderEnabled && Mission.Current.Mode == MissionMode.StartUp;
+                bool canTK = Config.ConfigSettings.TrueFriendlyFireEnabled && Mission.Current.Mode != MissionMode.StartUp;
+
+                if (canMurder || canTK)
                 {
-                    isPlayer = true;
+                    if (victim == null || attacker == null)
+                    {
+                        return false;
+                    }
+                    bool flag = !GameNetwork.IsSessionActive || (MultiplayerOptions.OptionType.FriendlyFireDamageMeleeFriendPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0 && MultiplayerOptions.OptionType.FriendlyFireDamageMeleeSelfPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0) || Mission.Current.Mode == MissionMode.Duel || attacker.Controller == Agent.ControllerType.AI;
+                    bool flag2 = attacker.IsFriendOf(victim);
+                    __result = (flag && flag2) || (victim.IsHuman && !flag2 && !attacker.IsEnemyOf(victim));
                 }
             }
 
-            return isPlayer;
+            __result = false;
+            return false;
         }
 
-        internal static void CheckToAddHyperarmor(ref Blow b, ref Blow blow)
+        internal static void MeleeHitCallbackPostfix(Mission __instance, ref AttackCollisionData collisionData, Agent attacker, Agent victim, GameEntity realHitEntity, float momentumRemainingToComputeDamage, ref float inOutMomentumRemaining, ref MeleeCollisionReaction colReaction, CrushThroughState cts, Vec3 blowDir, Vec3 swingDir, bool crushedThroughWithoutAgentCollision)
         {
-            if (Global.IsHyperArmorActive())
+            if (!Config.CompatibilitySettings.XorbarexCleaveExists)
             {
-                b.BlowFlag |= BlowFlags.ShrugOff;
-                blow.BlowFlag |= BlowFlags.ShrugOff;
-                InformationManager.DisplayMessage(
-                     new InformationMessage("Player hyperarmor prevented flinch!", Colors.White));
-            }
-        }
-        internal static void CreateHyperArmorBuff(Agent defenderAgent)
-        {
-            if (defenderAgent.IsPlayerControlled)
-            {
-                Global.ApplyHyperArmor();
-            }
-        }
-
-        internal static void CheckForProjectileFlinch(ref Blow b, ref Blow blow, AttackCollisionData collisionData, Agent victim)
-        {
-            if (victim != null && b.IsMissile())
-            {
-                if (collisionData.VictimHitBodyPart != BoneBodyPartType.Head && collisionData.VictimHitBodyPart != BoneBodyPartType.Neck)
+                if (PlayerCleaveLogic.CheckApplyCleave(__instance, attacker, victim, colReaction))
                 {
-                    var projStunThresholdMultiplier = Config.ConfigSettings.ProjectileStunPercentageThreshold / 100;
-
-                    if (b.InflictedDamage < (victim.HealthLimit * projStunThresholdMultiplier))
+                    if (attacker.HasMount)
                     {
-                        b.BlowFlag |= BlowFlags.ShrugOff;
-                        blow.BlowFlag |= BlowFlags.ShrugOff;
+                        inOutMomentumRemaining = momentumRemainingToComputeDamage * 0.25f;
+                    }
+                    else if (PlayerCleaveLogic.IsDefenderAFriendlyInShieldFormation(attacker, victim))
+                    {
+                        inOutMomentumRemaining = momentumRemainingToComputeDamage;
+                    }
+                    else
+                    {
+                        inOutMomentumRemaining = momentumRemainingToComputeDamage * 0.5f;
                     }
                 }
             }
         }
-
-    }
-
-
-    //grabbing the values of required methods for RegisterBlow/CreateBlow through Harmony. This must be in a seperate class
-    internal static class FlinchManagementExtensionMethods
-    {
-        //ensure you pass in the __instance
-        internal static float GetDamageMultiplierOfCombatDifficulty(this Mission __instance, Agent victimAgent)
-        {
-            return Traverse.Create(__instance).Method("GetDamageMultiplierOfCombatDifficulty", new Type[] { typeof(Agent) }).GetValue<float>(victimAgent);
-        }
-
-        //ensure you pass in the __instance
-        internal static bool HitWithAnotherBone(this Mission __instance, ref AttackCollisionData collisionData, Agent attacker)
-        {
-            return Traverse.Create(__instance).Method("HitWithAnotherBone", new Type[] { typeof(AttackCollisionData).MakeByRefType(), typeof(Agent) }).GetValue<bool>(collisionData, attacker);
-        }
-
-        //void method still requires a .GetValue
-        internal static void OnEntityHit(this Mission __instance, GameEntity realHitEntity, Agent attacker, int inflictedDamage, DamageTypes damageType, Vec3 position, Vec3 swingDirection, int affectorWeaponKind, int currentUsageIndex)
-        {
-            Traverse.Create(__instance).Method("OnEntityHit", new Type[] {
-                typeof(GameEntity),
-                typeof(Agent),
-                typeof(int),
-                typeof(DamageTypes),
-                typeof(Vec3),
-                typeof(Vec3),
-                typeof(int),
-                typeof(int)
-            }).GetValue(realHitEntity, attacker, inflictedDamage, damageType, position, swingDirection, affectorWeaponKind, currentUsageIndex);
-        }
-
-        internal static float ComputeRelativeSpeedDiffOfAgents(this Mission __instance, Agent agentA, Agent agentB)
-        {
-            Vec3 v = Vec3.Zero;
-            if (agentA.MountAgent != null)
-            {
-                v = agentA.MountAgent.MovementVelocity.y * agentA.MountAgent.GetMovementDirection();
-            }
-            else
-            {
-                v.AsVec2 = agentA.MovementVelocity;
-                v.RotateAboutZ(agentA.MovementDirectionAsAngle);
-            }
-            Vec3 v2 = Vec3.Zero;
-            if (agentB.MountAgent != null)
-            {
-                v2 = agentB.MountAgent.MovementVelocity.y * agentB.MountAgent.GetMovementDirection();
-            }
-            else
-            {
-                v2.AsVec2 = agentB.MovementVelocity;
-                v2.RotateAboutZ(agentB.MovementDirectionAsAngle);
-            }
-            return (v - v2).Length;
-
-        }
-
-        internal static float SpeedGraphFunction(this Mission __instance, float progress, StrikeType strikeType, Agent.UsageDirection attackDir)
-        {
-            bool flag = strikeType == StrikeType.Thrust;
-            bool flag2 = attackDir == Agent.UsageDirection.AttackUp;
-            ManagedParametersEnum managedParameterEnum;
-            ManagedParametersEnum managedParameterEnum2;
-            ManagedParametersEnum managedParameterEnum3;
-            ManagedParametersEnum managedParameterEnum4;
-            if (flag)
-            {
-                managedParameterEnum = ManagedParametersEnum.ThrustCombatSpeedGraphZeroProgressValue;
-                managedParameterEnum2 = ManagedParametersEnum.ThrustCombatSpeedGraphFirstMaximumPoint;
-                managedParameterEnum3 = ManagedParametersEnum.ThrustCombatSpeedGraphSecondMaximumPoint;
-                managedParameterEnum4 = ManagedParametersEnum.ThrustCombatSpeedGraphOneProgressValue;
-            }
-            else if (flag2)
-            {
-                managedParameterEnum = ManagedParametersEnum.OverSwingCombatSpeedGraphZeroProgressValue;
-                managedParameterEnum2 = ManagedParametersEnum.OverSwingCombatSpeedGraphFirstMaximumPoint;
-                managedParameterEnum3 = ManagedParametersEnum.OverSwingCombatSpeedGraphSecondMaximumPoint;
-                managedParameterEnum4 = ManagedParametersEnum.OverSwingCombatSpeedGraphOneProgressValue;
-            }
-            else
-            {
-                managedParameterEnum = ManagedParametersEnum.SwingCombatSpeedGraphZeroProgressValue;
-                managedParameterEnum2 = ManagedParametersEnum.SwingCombatSpeedGraphFirstMaximumPoint;
-                managedParameterEnum3 = ManagedParametersEnum.SwingCombatSpeedGraphSecondMaximumPoint;
-                managedParameterEnum4 = ManagedParametersEnum.SwingCombatSpeedGraphOneProgressValue;
-            }
-            float managedParameter = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum);
-            float managedParameter2 = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum2);
-            float managedParameter3 = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum3);
-            float managedParameter4 = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum4);
-            float result;
-            if (progress < managedParameter2)
-            {
-                result = (1f - managedParameter) / managedParameter2 * progress + managedParameter;
-            }
-            else if (managedParameter3 < progress)
-            {
-                result = (managedParameter4 - 1f) / (1f - managedParameter3) * (progress - managedParameter3) + 1f;
-            }
-            else
-            {
-                result = 1f;
-            }
-            return result;
-        }
-
-
-
-
-
-        // This is how to grab a private variable with harmony 
-        //internal static bool GetVariableNameHere(this Mission __instance)
-        //{
-        //    return Traverse.Create(__instance).Field<VariableType>("VariableNameHere").Value;
-        //}
     }
 }

@@ -10,11 +10,11 @@ using TaleWorlds.Library;
 
 namespace GCO.HarmonyPatches
 {
-    class CompatibilityCheck
+    internal static class CompatibilityCheck
     {
-        public void CheckAndApply()
+        public static void CheckAndApply()
         {
-            var methodBases = Harmony.GetAllPatchedMethods().ToList<MethodBase>();
+            var methodBases = Harmony.GetAllPatchedMethods();
 
             foreach (var method in methodBases)
             {
@@ -25,10 +25,10 @@ namespace GCO.HarmonyPatches
             }
         }
 
-        public void ApplyCompatibility()
+        private static void ApplyCompatibility()
         {
             Config.ConfigSettings.CleaveEnabled = false;
-            Config.compatibilitySettings.xorbarexCleaveExists = true;
+            Config.CompatibilitySettings.XorbarexCleaveExists = true;
             InformationManager.DisplayMessage(new InformationMessage("Xorbarex Cut Through Everyone installation detected", Color.White));
         }
     }

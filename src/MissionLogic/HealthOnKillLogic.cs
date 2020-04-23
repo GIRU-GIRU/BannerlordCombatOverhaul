@@ -2,18 +2,16 @@
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
-using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
 
 namespace GCO.Features.ModdedMissionLogic
 {
-    public class HealthOnKill : TaleWorlds.MountAndBlade.MissionLogic
+    public class HealthOnKillLogic : MissionLogic
     {
         public bool CheckPlayerAlive()
         {
             return Mission.MainAgent != null && Mission.MainAgent.IsActive();
         }
-
 
         private float GetMedicineSkillCalculation()
         {
@@ -26,17 +24,14 @@ namespace GCO.Features.ModdedMissionLogic
         {
             if (!affAgent1.IsHuman) return;
 
-
             float HPOnKillAmount = Config.ConfigSettings.HPOnKillAmount;
             float healAmount = HPOnKillAmount + GetMedicineSkillCalculation();
 
-
-            bool valid = this.CheckPlayerAlive() && affAgent1.IsHuman && affAgent2 == Mission.MainAgent && damage > 0 && affAgent2 != affAgent1;
+            bool valid = CheckPlayerAlive() && affAgent1.IsHuman && affAgent2 == Mission.MainAgent && damage > 0 && affAgent2 != affAgent1;
 
             if (valid && affAgent1.Health <= 0f)
             {
                 Mission.MainAgent.Health = Math.Min(Mission.MainAgent.Health + HPOnKillAmount, Mission.MainAgent.HealthLimit);
-
 
                 InformationManager.DisplayMessage(new InformationMessage($"Healed {(int)healAmount} health!", Colors.White));
             }

@@ -1,24 +1,17 @@
-﻿using HarmonyLib;
-using JetBrains.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using TaleWorlds.Core;
+﻿using TaleWorlds.Core;
 using TaleWorlds.Engine;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
-using static HarmonyLib.AccessTools;
+using GCO.ReversePatches;
 
 namespace GCO.Features.ModdedMissionLogic
 {
-    class ProjectileBalanceLogic
+    //TODO: Refactor and cleanup after finishing feature
+    internal class ProjectileBalanceLogic
     {
-        private static bool MissileHitCallbackPrefix(ref bool __result, ref Mission __instance, out int hitParticleIndex, ref AttackCollisionData collisionData, int missileIndex, Vec3 missileStartingPosition, Vec3 missilePosition, Vec3 missileAngularVelocity, Vec3 movementVelocity, MatrixFrame attachGlobalFrame, MatrixFrame affectedShieldGlobalFrame, int numDamagedAgents, Agent attacker, Agent victim, GameEntity hitEntity)
+        internal static bool MissileHitCallbackPrefix(ref bool __result, ref Mission __instance, out int hitParticleIndex, ref AttackCollisionData collisionData, int missileIndex, Vec3 missileStartingPosition, Vec3 missilePosition, Vec3 missileAngularVelocity, Vec3 movementVelocity, MatrixFrame attachGlobalFrame, MatrixFrame affectedShieldGlobalFrame, int numDamagedAgents, Agent attacker, Agent victim, GameEntity hitEntity)
         {
-            var _missiles = ProjectileBalanceExtensionMethods.Get_missiles(ref __instance);
+            var _missiles = MissionReversePatches.GetMissiles(ref __instance);
 
             Mission.Missile missile = _missiles[missileIndex];
             WeaponFlags weaponFlags = missile.Weapon.CurrentUsageItem.WeaponFlags;
@@ -234,49 +227,14 @@ namespace GCO.Features.ModdedMissionLogic
             return false;
         }
 
-        public static class ProjectileBalanceExtensionMethods
+        internal static class ProjectileBalanceExtensionMethods
         {
-            private static MethodInfo accessTools_RegisterBlow = AccessTools.Method(typeof(Mission), "RegisterBlow", new Type[] {
-                    typeof(Agent),
-                    typeof(Agent),
-                    typeof(GameEntity),
-                    typeof(Blow),
-                    typeof(AttackCollisionData).MakeByRefType() });
-
-            private static MethodInfo accessTools_GetAttackCollisionResults = AccessTools.Method(typeof(Mission), "GetAttackCollisionResults", new Type[] {
-                    typeof(Agent),
-                    typeof(Agent),
-                    typeof(GameEntity),
-                    typeof(float),
-                    typeof(AttackCollisionData).MakeByRefType(),
-                    typeof(bool),
-                    typeof(bool),
-                    typeof(WeaponComponentData).MakeByRefType() });
-
-
-            private static FieldRef<Mission, Dictionary<int, Mission.Missile>> accessTools_missiles = AccessTools.FieldRefAccess<Mission, Dictionary<int, Mission.Missile>>("_missiles");
-
-            private static MethodInfo accessTools_CalculateAttachedLocalFrame = AccessTools.Method(typeof(Mission), "CalculateAttachedLocalFrame", new Type[] {
-                    typeof(MatrixFrame).MakeByRefType(),
-                    typeof(AttackCollisionData),
-                    typeof(WeaponComponentData),
-                    typeof(Agent),
-                    typeof(GameEntity),
-                    typeof(Vec3),
-                    typeof(Vec3),
-                    typeof(MatrixFrame),
-                    typeof(bool)});
-            internal static Dictionary<int, Mission.Missile> Get_missiles(ref Mission __instance)
-            {
-                return accessTools_missiles(__instance);
-            }
-
             internal static void GetAttackCollisionResults(ref Mission __instance, Agent attacker, Agent victim, GameEntity hitObject, float momentumRemaining, ref AttackCollisionData attackCollisionData, bool crushedThrough, bool cancelDamage, out WeaponComponentData shieldOnBack)
             {
                 shieldOnBack = null;
                 var obj = new object[] { attacker, victim, hitObject, momentumRemaining, attackCollisionData, crushedThrough, cancelDamage, shieldOnBack };
                 
-                accessTools_GetAttackCollisionResults.Invoke(__instance, obj);
+                MissionReversePatches.GetAttackCollisionResults.Invoke(__instance, obj);
                 attackCollisionData = (AttackCollisionData)obj[4];
             }
 
@@ -311,15 +269,14 @@ namespace GCO.Features.ModdedMissionLogic
             internal static void RegisterBlow(ref Mission __instance, Agent attacker, Agent p, GameEntity hitEntity, Blow b, ref AttackCollisionData collisionData)
             {
                var obj = new object[] { attacker, p, hitEntity, b, collisionData };
-
-               accessTools_RegisterBlow.Invoke(__instance, obj);
+                MissionReversePatches.RegisterBlow.Invoke(__instance, obj);
                collisionData = (AttackCollisionData)obj[4];
             }
 
             internal static MatrixFrame CalculateAttachedLocalFrame(ref Mission __instance, ref MatrixFrame attachGlobalFrame, AttackCollisionData collisionData, WeaponComponentData currentUsageItem, Agent victim, GameEntity hitEntity, Vec3 movementVelocity, Vec3 missileAngularVelocity, MatrixFrame affectedShieldGlobalFrame, bool shouldMissilePenetrate)
             {
                 
-                return (MatrixFrame)accessTools_CalculateAttachedLocalFrame.Invoke(__instance, new object[] { attachGlobalFrame, collisionData, 
+                return (MatrixFrame)MissionReversePatches.CalculateAttachedLocalFrame.Invoke(__instance, new object[] { attachGlobalFrame, collisionData, 
                     currentUsageItem, victim, hitEntity, movementVelocity, missileAngularVelocity, affectedShieldGlobalFrame, shouldMissilePenetrate });
             }
         }

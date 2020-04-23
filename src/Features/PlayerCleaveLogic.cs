@@ -14,65 +14,6 @@ namespace GCO.Features.ModdedMissionLogic
 {
     internal static class PlayerCleaveLogic
     {
-        private static void DecideWeaponCollisionReactionPostfix(Mission __instance, Blow registeredBlow, ref AttackCollisionData collisionData, Agent attacker, Agent defender, bool isFatalHit, bool isShruggedOff, ref MeleeCollisionReaction colReaction)
-        {
-            if (!Config.compatibilitySettings.xorbarexCleaveExists)
-            {
-                if (PlayerCleaveLogicExtensionMethods.CheckApplyCleave(__instance, attacker, defender, registeredBlow, isShruggedOff))
-                {
-                    colReaction = MeleeCollisionReaction.SlicedThrough;
-                }
-            }
-        }
-
-        private static bool CancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix(ref bool __result, Agent attacker, Agent victim)
-		{
-            if (attacker != Mission.Current.MainAgent)
-            {
-                bool canMurder = Config.ConfigSettings.MurderEnabled && Mission.Current.Mode == MissionMode.StartUp;
-                bool canTK = Config.ConfigSettings.TrueFriendlyFireEnabled && Mission.Current.Mode != MissionMode.StartUp;
-
-                if (canMurder || canTK)
-                {
-                    if (victim == null || attacker == null)
-                    {
-                        return false;
-                    }
-                    bool flag = !GameNetwork.IsSessionActive || (MultiplayerOptions.OptionType.FriendlyFireDamageMeleeFriendPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0 && MultiplayerOptions.OptionType.FriendlyFireDamageMeleeSelfPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0) || Mission.Current.Mode == MissionMode.Duel || attacker.Controller == Agent.ControllerType.AI;
-                    bool flag2 = attacker.IsFriendOf(victim);
-                    __result = (flag && flag2) || (victim.IsHuman && !flag2 && !attacker.IsEnemyOf(victim));
-                }        
-            }
-
-            __result = false;
-            return false;		
-		}
-
-        private static void MeleeHitCallbackPostfix(Mission __instance, ref AttackCollisionData collisionData, Agent attacker, Agent victim, GameEntity realHitEntity, float momentumRemainingToComputeDamage, ref float inOutMomentumRemaining, ref MeleeCollisionReaction colReaction, CrushThroughState cts, Vec3 blowDir, Vec3 swingDir, bool crushedThroughWithoutAgentCollision)
-        {
-            if (!Config.compatibilitySettings.xorbarexCleaveExists)
-            {
-                if (PlayerCleaveLogicExtensionMethods.CheckApplyCleave(__instance, attacker, victim, colReaction))
-                {
-                    if (attacker.HasMount)
-                    {
-                        inOutMomentumRemaining = momentumRemainingToComputeDamage * 0.25f;
-                    }
-                    else if(PlayerCleaveLogicExtensionMethods.IsDefenderAFriendlyInShieldFormation(attacker, victim))
-                    {
-                        inOutMomentumRemaining = momentumRemainingToComputeDamage;
-                    }
-                    else
-                    {
-                        inOutMomentumRemaining = momentumRemainingToComputeDamage * 0.5f;
-                    }
-                }
-            }
-        }
-	}
-
-    internal static class PlayerCleaveLogicExtensionMethods
-    {
         internal static bool IsDefenderAFriendlyInShieldFormation(Agent attacker, Agent defender)
         {
             return Config.ConfigSettings.AdditionalCleaveForTroopsInShieldWall 

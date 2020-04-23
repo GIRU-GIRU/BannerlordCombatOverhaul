@@ -1,41 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using TaleWorlds.MountAndBlade;
-using System.Linq;
-using System.Text;
+﻿using TaleWorlds.MountAndBlade;
 using TaleWorlds.Core;
-using TaleWorlds.Localization;
-using TaleWorlds.CampaignSystem;
 using HarmonyLib;
 using GCO.Features.ModdedMissionLogic;
-using System.Reflection;
-using System.IO;
-using Newtonsoft.Json;
 using TaleWorlds.Library;
-using Helpers;
-using TaleWorlds.CampaignSystem.SandBox.CampaignBehaviors;
-using GCO.Features.ModdedWorldMapLogic;
+using GCO.HarmonyPatches;
 
 namespace GCO
 {
     public class GCOSubModule : MBSubModuleBase
     {
         protected override void OnSubModuleLoad()
-        {           
+        {
             Harmony harmony = new Harmony("GIRUCombatOverhaul");
 
-            Config.initConfig();
+            CompatibilityCheck.CheckAndApply();
+
+            Config.InitConfig();
             Config.ConfigureHarmonyPatches(ref harmony);
 
             harmony.PatchAll(typeof(GCOSubModule).Assembly);
         }
+
         public override void OnMissionBehaviourInitialize(Mission mission)
         {
-            if (mission.IsOrderShoutingAllowed())
-            {
-                if (Config.ConfigSettings.OrderVoiceCommandQueuing) mission.AddMissionBehaviour(new QueuedVoiceLogic());
-            }
+            ConfigureHealthOnkillLogic(mission);
+            ConfigureQueuedVoiceLogic(mission);
+            
             base.OnMissionBehaviourInitialize(mission);
+        }
+
+        private void ConfigureQueuedVoiceLogic(Mission mission)
+        {
+            if (Config.ConfigSettings.OrderVoiceCommandQueuing && mission.IsOrderShoutingAllowed())
+            {
+                mission.AddMissionBehaviour(new QueuedVoiceLogic());
+            }
+        }
+
+        private void ConfigureHealthOnkillLogic(Mission mission)
+        {
+            if (Config.ConfigSettings.HPOnKillEnabled)
+            {
+                if (mission.Scene != null) // why is this needed?
+                {
+                    bool isCombat = mission.CombatType == Mission.MissionCombatType.Combat;
+                    bool isArenaCombat = mission.CombatType == Mission.MissionCombatType.ArenaCombat;
+                    if (mission.IsFieldBattle || isCombat || isArenaCombat)
+                    {
+                        mission.AddMissionBehaviour(new HealthOnKillLogic());
+                    }
+                }
+            }
         }
 
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
@@ -47,30 +62,6 @@ namespace GCO
                 InformationManager.DisplayMessage(new InformationMessage("Unable to read GCO Config - defaulting settings", Color.White));
             }
         }
-
-        public override void OnCampaignStart(Game game, object starterObject)
-        {
-            if (game.GameType is Campaign)
-            {
-                CampaignGameStarter gameInitializer = (CampaignGameStarter)starterObject;
-                this.AddBehaviors(gameInitializer);
-            }
-        }
-
-        protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
-        {
-            bool flag = game.GameType is Campaign;
-            if (flag)
-            {
-                CampaignGameStarter gameStarterObject2 = (CampaignGameStarter)gameStarterObject;
-                this.AddBehaviors(gameStarterObject2);
-            }
-        }
-
-        private void AddBehaviors(CampaignGameStarter gameInitializer)
-        {
-            gameInitializer.AddBehavior(new CampaignLogic());
-        } 
     }
 }
 

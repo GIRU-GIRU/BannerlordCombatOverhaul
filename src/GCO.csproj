@@ -256,7 +256,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\Config.cs" />
+    <Compile Include="ModOptions\CompatibilitySettings.cs" />
+    <Compile Include="ModOptions\Config.cs" />
+    <Compile Include="ModOptions\ConfigSettings.cs" />
     <Compile Include="CopiedLogic\MissionExtensions.cs" />
     <Compile Include="CopiedLogic\OrderControllerExtensions.cs" />
     <Compile Include="Patches\BanditsCampaignBehaviorPatches.cs" />
@@ -269,7 +271,7 @@
     <Compile Include="Patches\PartyBaseHelperPatches.cs" />
     <Compile Include="MissionLogic\HealthOnKillLogic.cs" />
     <Compile Include="Utility\CompatibilityCheck.cs" />
-    <Compile Include="Config\HarmonyPatchesConfiguration.cs" />
+    <Compile Include="ModOptions\HarmonyPatchesConfiguration.cs" />
     <Compile Include="Patches\MissionPatches.cs" />
     <Compile Include="Patches\OrderControllerPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -279,7 +281,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Config\GCOConfig.json">
+    <None Include="ModOptions\GCOConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

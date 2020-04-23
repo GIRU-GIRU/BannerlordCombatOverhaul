@@ -12,7 +12,7 @@ using Helpers;
 using TaleWorlds.CampaignSystem.SandBox.CampaignBehaviors;
 using TaleWorlds.MountAndBlade;
 
-namespace GCO.HarmonyPatches
+namespace GCO.ModOptions
 {
     internal static class HarmonyPatchesConfiguration
     {

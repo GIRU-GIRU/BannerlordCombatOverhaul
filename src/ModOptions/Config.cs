@@ -8,7 +8,7 @@ namespace GCO.ModOptions
     public static class Config
     {
         private static readonly string ConfigFilePath =
-            Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Config/GCOconfig.json");
+            Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ModOptions/GCOconfig.json");
 
         private static readonly bool configExists = File.Exists(ConfigFilePath);
         public static bool ConfigLoadedSuccessfully { get; private set; }

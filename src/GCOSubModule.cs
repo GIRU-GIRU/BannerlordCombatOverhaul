@@ -59,7 +59,7 @@ namespace GCO
 
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
         {
-            InformationManager.DisplayMessage(new InformationMessage("Loaded GCO", Color.White));
+            InformationManager.DisplayMessage(new InformationMessage("Loaded GCOTEST", Color.White));
 
             if (!Config.ConfigLoadedSuccessfully)
             {

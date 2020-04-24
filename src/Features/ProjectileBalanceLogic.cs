@@ -29,7 +29,7 @@ namespace GCO.Features
                 }
             }
             hitParticleIndex = -1;
-            Mission.MissileCollisionReaction missileCollisionReaction = Mission.MissileCollisionReaction.Invalid;
+            Mission.MissileCollisionReaction missileCollisionReaction = Mission.MissileCollisionReaction.BecomeInvisible; //  Mission.MissileCollisionReaction.Invalid;
             bool flag = !GameNetwork.IsSessionActive;
             bool missileHasPhysics = collisionData.MissileHasPhysics;
             PhysicsMaterial fromIndex = PhysicsMaterial.GetFromIndex(collisionData.PhysicsMaterialIndex);

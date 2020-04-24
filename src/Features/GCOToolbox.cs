@@ -83,22 +83,23 @@ namespace GCO.Features
             private static void ApplyBoltArmorPen(ref AttackCollisionData collisionData, int inputArmor, bool multiplierHeadOrNeckShot)
             {
                 var inflictedDamage = collisionData.InflictedDamage;
+                var inputArmorReduced = (int)Math.Round(inputArmor * 0.7);
 
-                inflictedDamage -= inputArmor;
-                inflictedDamage = Math.Max(inflictedDamage, 30);
+                inflictedDamage -= inputArmorReduced;
+                inflictedDamage = Math.Max(inflictedDamage, 35);
 
                 if (multiplierHeadOrNeckShot)
                 {
                     if (inputArmor >= 20)
                     {
-                        inflictedDamage = Math.Min(inflictedDamage, 60);
+                        inflictedDamage = Math.Min(inflictedDamage, 65);
                     }
                 }
                 else
                 {
-                    if (inputArmor >= 20) inflictedDamage = Math.Min(inflictedDamage, 40);
-                    if (inputArmor >= 30) inflictedDamage = Math.Min(inflictedDamage, 35);
-                    if (inputArmor >= 40) inflictedDamage = Math.Min(inflictedDamage, 30);
+                    if (inputArmor >= 20) inflictedDamage = Math.Min(inflictedDamage, 45);
+                    if (inputArmor >= 30) inflictedDamage = Math.Min(inflictedDamage, 40);
+                    if (inputArmor >= 40) inflictedDamage = Math.Min(inflictedDamage, 35);
                 }
 
 
@@ -110,7 +111,7 @@ namespace GCO.Features
                 var inflictedDamage = collisionData.InflictedDamage;
 
                 inflictedDamage -= inputArmor;
-                inflictedDamage = Math.Max(inflictedDamage, 20);
+                inflictedDamage = Math.Max(inflictedDamage, 25);
 
                 if (multiplierHeadOrNeckShot)
                 {

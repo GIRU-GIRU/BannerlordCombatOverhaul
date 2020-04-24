@@ -5,6 +5,7 @@ using TaleWorlds.Library;
 using GCO.ModOptions;
 using GCO.Features.CustomMissionLogic;
 using GCO.Utility;
+using System.Linq;
 
 namespace GCO
 {
@@ -17,9 +18,11 @@ namespace GCO
             CompatibilityCheck.CheckAndApply();
 
             Config.InitConfig();
-            Config.ConfigureHarmonyPatches(ref harmony);
 
             harmony.PatchAll(typeof(GCOSubModule).Assembly);
+            var methodss = harmony.GetPatchedMethods().ToList();
+            Config.ConfigureHarmonyPatches(ref harmony);
+
         }
 
         public override void OnMissionBehaviourInitialize(Mission mission)

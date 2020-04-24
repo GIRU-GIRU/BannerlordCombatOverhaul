@@ -5,13 +5,11 @@ using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using System.Collections.Generic;
 using TaleWorlds.Engine;
-using System.Reflection;
 using static HarmonyLib.AccessTools;
 
 namespace GCO.ReversePatches
 {
-    // TODO: Rework with Harmony Reverse Patches
-    internal static class MissionReversePatches
+    internal static class Foo
     {
         private static FieldRef<Mission, Dictionary<int, Mission.Missile>> accessTools_missiles = FieldRefAccess<Mission, Dictionary<int, Mission.Missile>>("_missiles");
 
@@ -19,10 +17,42 @@ namespace GCO.ReversePatches
         {
             return accessTools_missiles(__instance);
         }
+    }
 
+    [HarmonyPatch]
+    internal static class MissionReversePatches
+    {
         [HarmonyReversePatch]
-        [HarmonyPatch(typeof(Mission), "GetAttackCollisionResults")]
-        internal static void GetAttackCollisionResults(this Mission __instance, Agent attacker, Agent victim, GameEntity hitObject, float momentumRemaining, ref AttackCollisionData attackCollisionData, bool crushedThrough, bool cancelDamage, out WeaponComponentData shieldOnBack)
+        [HarmonyPatch(typeof(Mission), "GetAttackCollisionResults"
+            ,
+            new Type[] {
+                typeof(Agent),
+                typeof(Agent),
+                typeof(GameEntity),
+                typeof(float),
+                typeof(AttackCollisionData),
+                typeof(bool),
+                typeof(bool),
+                typeof(WeaponComponent)
+            }, new ArgumentType[] {
+                ArgumentType.Normal,
+                ArgumentType.Normal,
+                ArgumentType.Normal,
+                ArgumentType.Normal,
+                ArgumentType.Ref,
+                ArgumentType.Normal,
+                ArgumentType.Normal,
+                ArgumentType.Out }
+            )]
+        internal static void GetAttackCollisionResults(this Mission __instance, 
+            Agent attacker, 
+            Agent victim, 
+            GameEntity hitObject, 
+            float momentumRemaining,
+            ref AttackCollisionData attackCollisionData, 
+            bool crushedThrough, 
+            bool cancelDamage, 
+            out WeaponComponentData shieldOnBack)
         {
             throw new NotImplementedException("Need to patch first");
         }
@@ -83,11 +113,11 @@ namespace GCO.ReversePatches
             throw new NotImplementedException("Need to patch first");
         }
 
-        [HarmonyReversePatch]
-        [HarmonyPatch(typeof(Mission), "HitWithAnotherBone")]
-        internal static bool HitWithAnotherBone(this Mission __instance, ref AttackCollisionData collisionData, Agent attacker)
-        {
-            throw new NotImplementedException("Need to patch first");
-        }
+        //[HarmonyReversePatch]
+        //[HarmonyPatch(typeof(Mission), "HitWithAnotherBone", new Type[] { typeof(AttackCollisionData), typeof(Agent) }, new ArgumentType[] { ArgumentType.Ref, ArgumentType.Normal })]
+        //internal static bool HitWithAnotherBone(this Mission __instance, ref AttackCollisionData collisionData, Agent attacker)
+        //{
+        //    throw new NotImplementedException("Need to patch first");
+        //}
     }
 }

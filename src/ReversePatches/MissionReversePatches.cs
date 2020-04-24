@@ -101,7 +101,7 @@ namespace GCO.ReversePatches
 
         [HarmonyReversePatch]
         [HarmonyPatch(typeof(Mission), "ComputeRelativeSpeedDiffOfAgents")]
-        internal static float ComputeRelativeSpeedDiffOfAgents(this Mission __instance, Agent agentA, Agent agentB)
+        internal static float ComputeRelativeSpeedDiffOfAgents(Agent agentA, Agent agentB)
         {
             throw new NotImplementedException("Need to patch first");
         }

@@ -133,7 +133,7 @@ namespace GCO.Patches
                 float z = attackerAgent.GetCurWeaponOffset().z;
                 float num3 = weaponComponentData.GetRealWeaponLength() + z;
                 num2 = MBMath.ClampFloat((0.2f + collisionDistanceOnWeapon) / num3, 0.1f, 0.98f);
-                float exraLinearSpeed = __instance.ComputeRelativeSpeedDiffOfAgents(attackerAgent, defenderAgent);
+                float exraLinearSpeed = MissionReversePatches.ComputeRelativeSpeedDiffOfAgents(attackerAgent, defenderAgent);
                 float num4;
                 if (strikeType == StrikeType.Thrust)
                 {

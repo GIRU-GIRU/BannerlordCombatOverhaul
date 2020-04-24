@@ -42,6 +42,7 @@ namespace GCO.ModOptions
                 CleaveEnabled = true,
                 ProjectileBalancingEnabled = true,
                 HPOnKillEnabled = true,
+                HPOnKillMedicineLevelScalePersentage = 0.1f,
                 HyperArmorEnabled = true,
                 SimplifiedSurrenderLogic = true,
                 HPOnKillAmount = 20f,
@@ -49,6 +50,7 @@ namespace GCO.ModOptions
                 HyperArmorDuration = 1f,
                 StandardizedFlinchOnEnemiesEnabled = true,
                 AdditionalCleaveForTroopsInShieldWall = true,
+                AdditionalCleaveForTroopsInShieldWallAngleRestriction = 60,
                 OrderVoiceCommandQueuing = true,
 
                 MurderEnabled = false,
@@ -88,7 +90,7 @@ namespace GCO.ModOptions
                 HarmonyPatchesConfiguration.SimplifiedSurrenderLogicEnabledPatch(ref harmony);
             }
 
-            if(ConfigSettings.ProjectileBalancingEnabled)
+            if (ConfigSettings.ProjectileBalancingEnabled)
             {
                 HarmonyPatchesConfiguration.ProjectileBalancingEnabledPatch(ref harmony);
             }

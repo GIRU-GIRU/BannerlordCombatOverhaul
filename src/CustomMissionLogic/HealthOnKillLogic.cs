@@ -26,7 +26,7 @@ namespace GCO.Features.CustomMissionLogic
             try
             {
                 medicineSkill = (int)Math.Floor((double)Hero.MainHero.GetSkillValue(DefaultSkills.Medicine));
-                medicineSkill = (float)medicineSkill * 0.1f;
+                medicineSkill = (float)medicineSkill * Config.ConfigSettings.HPOnKillMedicineLevelScalePersentage * 0.01f;
             }
             catch { }
 

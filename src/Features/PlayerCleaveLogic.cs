@@ -1,4 +1,5 @@
 using GCO.ModOptions;
+using System;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 
@@ -21,7 +22,7 @@ namespace GCO.Features
         /// </summary>
         private static bool IsAttackerFacingSimilarDirection(Agent attacker, Agent defender)
         {
-            float maxAngle = 1f; // this math is done in radians (1 radian = ~57°)
+            float maxAngle = (float)(Math.PI / 180) * Config.ConfigSettings.AdditionalCleaveForTroopsInShieldWallAngleRestriction;
             // the smaller angleBetween is, the more Look Direction of the agents is simillar
             var angleBetween = attacker.LookDirection.AsVec2.AngleBetween(defender.LookDirection.AsVec2);
             return angleBetween <= maxAngle;

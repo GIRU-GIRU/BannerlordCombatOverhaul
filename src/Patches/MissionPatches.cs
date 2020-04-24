@@ -315,7 +315,7 @@ namespace GCO.Patches
                     }
                     else if (PlayerCleaveLogic.IsDefenderAFriendlyInShieldFormation(attacker, victim))
                     {
-                        inOutMomentumRemaining = momentumRemainingToComputeDamage;
+                        inOutMomentumRemaining = momentumRemainingToComputeDamage * (Config.ConfigSettings.AdditionalCleaveForTroopsInShieldWallMomentumLoss * 0.01f);
                     }
                     else
                     {

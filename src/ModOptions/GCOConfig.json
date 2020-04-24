@@ -4,11 +4,16 @@
 
   "HPOnKillEnabled": true,
   "HPOnKillAmount": 20,
+  "HPOnKillMedicineLevelScalePersentage": 0.1, // default is 0.1 which is 10% of your medicine level
 
   "StandardizedFlinchOnEnemiesEnabled": true,
 
   "CleaveEnabled": true,
-  "AdditionalCleaveForTroopsInShieldWall": true,
+
+  "AdditionalCleaveForTroopsInShieldWall": true, // allows troops in the shield wall to cleave through each other
+  "AdditionalCleaveForTroopsInShieldWallMomentumLoss": 0, // 0 to 100 value defining the percentage of possible damage lost because of cleaving through friendlies
+  "AdditionalCleaveForTroopsInShieldWallAngleRestriction": 10, // cleave restriction (from 0 to 360 degrees)
+
   "MurderEnabled": false,
   "TrueFriendlyFireEnabled": false,
 

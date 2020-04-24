@@ -3,7 +3,6 @@ using System;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
-using System.Collections.Generic;
 using TaleWorlds.Engine;
 using static HarmonyLib.AccessTools;
 using GCO.Patches;

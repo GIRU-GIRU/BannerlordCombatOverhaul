@@ -10,6 +10,9 @@ namespace GCO.ModOptions
         [JsonProperty("HPOnKillAmount")]
         public float HPOnKillAmount { get; set; }
 
+        [JsonProperty("HPOnKillMedicineLevelScalePersentage")]
+        public float HPOnKillMedicineLevelScalePersentage { get; set; }
+
         [JsonProperty("CleaveEnabled")]
         public bool CleaveEnabled { get; set; }
 
@@ -33,6 +36,12 @@ namespace GCO.ModOptions
 
         [JsonProperty("AdditionalCleaveForTroopsInShieldWall")]
         public bool AdditionalCleaveForTroopsInShieldWall { get; set; }
+
+        [JsonProperty("AdditionalCleaveForTroopsInShieldWallMomentumLoss")]
+        public int AdditionalCleaveForTroopsInShieldWallMomentumLoss { get; set; }
+
+        [JsonProperty("AdditionalCleaveForTroopsInShieldWallAngleRestriction")]
+        public int AdditionalCleaveForTroopsInShieldWallAngleRestriction { get; set; }
 
         [JsonProperty("OrderVoiceCommandQueuing")]
         public bool OrderVoiceCommandQueuing { get; set; }

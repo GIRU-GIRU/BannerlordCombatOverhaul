@@ -9,6 +9,12 @@ namespace GCO.Features
 {
     internal static class GCOToolbox
     {
+        internal static void ApplyProjectileArmorResistance(float inputArmor, ref AttackCollisionData collisionData)
+        {
+
+        }
+
+
         internal static float GCOGetStaticFlinchPeriod(Agent attackerAgent, float defenderStunPeriod)
         {
             if (attackerAgent == Mission.Current.MainAgent)

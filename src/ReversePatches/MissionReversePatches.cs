@@ -6,56 +6,56 @@ using TaleWorlds.MountAndBlade;
 using System.Collections.Generic;
 using TaleWorlds.Engine;
 using static HarmonyLib.AccessTools;
+using GCO.Patches;
+using System.Reflection;
 
 namespace GCO.ReversePatches
-{
-    internal static class Foo
-    {
-        private static FieldRef<Mission, Dictionary<int, Mission.Missile>> accessTools_missiles = FieldRefAccess<Mission, Dictionary<int, Mission.Missile>>("_missiles");
-
-        internal static Dictionary<int, Mission.Missile> Get_missiles(ref Mission __instance)
-        {
-            return accessTools_missiles(__instance);
-        }
-    }
+{ 
 
     [HarmonyPatch]
     internal static class MissionReversePatches
     {
-        [HarmonyReversePatch]
-        [HarmonyPatch(typeof(Mission), "GetAttackCollisionResults"
-            ,
-            new Type[] {
-                typeof(Agent),
-                typeof(Agent),
-                typeof(GameEntity),
-                typeof(float),
-                typeof(AttackCollisionData),
-                typeof(bool),
-                typeof(bool),
-                typeof(WeaponComponent)
-            }, new ArgumentType[] {
-                ArgumentType.Normal,
-                ArgumentType.Normal,
-                ArgumentType.Normal,
-                ArgumentType.Normal,
-                ArgumentType.Ref,
-                ArgumentType.Normal,
-                ArgumentType.Normal,
-                ArgumentType.Out }
-            )]
-        internal static void GetAttackCollisionResults(this Mission __instance, 
-            Agent attacker, 
-            Agent victim, 
-            GameEntity hitObject, 
-            float momentumRemaining,
-            ref AttackCollisionData attackCollisionData, 
-            bool crushedThrough, 
-            bool cancelDamage, 
-            out WeaponComponentData shieldOnBack)
-        {
-            throw new NotImplementedException("Need to patch first");
-        }
+        //[HarmonyReversePatch]
+        //[HarmonyPatch(typeof(Mission), "GetAttackCollisionResults")]
+        //public static void GetAttackCollisionResults(float armorAmountFloat, WeaponComponentData shieldOnBack, AgentFlag victimAgentFlag, float victimAgentAbsorbedDamageRatio, float damageMultiplierOfBone, float combatDifficultyMultiplier, MissionWeapon victimShield, bool canGiveDamageToAgentShield, bool isVictimAgentLeftStance, bool isFriendlyFire, bool doesAttackerHaveMountAgent, bool doesVictimHaveMountAgent, Vec2 attackerAgentMovementVelocity, Vec3 attackerAgentMountMovementDirection, float attackerMovementDirectionAsAngle, Vec2 victimAgentMovementVelocity, Vec3 victimAgentMountMovementDirection, float victimMovementDirectionAsAngle, bool isVictimAgentSameWithAttackerAgent, bool isAttackerAgentMine, bool isAttackerAgentHasRiderAgent, bool isAttackerAgentRiderAgentIsMine, bool isAttackerAgentMount, bool isVictimAgentMine, bool isVictimAgentHasRiderAgent, bool isVictimAgentRiderAgentIsMine, bool isVictimAgentMount, bool isAttackerAgentNull, bool isAttackerAIControlled, BasicCharacterObject attackerAgentCharacter, BasicCharacterObject victimAgentCharacter, Vec3 attackerAgentMovementDirection, Vec3 attackerAgentVelocity, float attackerAgentMountChargeDamageProperty, Vec3 attackerAgentCurrentWeaponOffset, bool isAttackerAgentHuman, bool isAttackerAgentActive, bool isAttackerAgentCharging, bool isVictimAgentNull, float victimAgentScale, float victimAgentWeight, float victimAgentTotalEncumbrance, bool isVictimAgentHuman, Vec3 victimAgentVelocity, Vec3 victimAgentPosition, int weaponAttachBoneIndex, MissionWeapon offHandItem, bool isHeadShot, bool crushedThrough, bool IsVictimRiderAgentSameAsAttackerAgent, float momentumRemaining, ref AttackCollisionData attackCollisionData, bool cancelDamage, string victimAgentName, out CombatLogData combatLog)
+        //{
+        //    throw new NotImplementedException("Need to patch first");
+        //}
+
+        //[HarmonyReversePatch]  
+        //[HarmonyPatch(typeof(Mission), "GetAttackCollisionResults"
+        //    ,
+        //    new Type[] {
+        //        typeof(Agent),
+        //        typeof(Agent),
+        //        typeof(GameEntity),
+        //        typeof(float),
+        //        typeof(AttackCollisionData),
+        //        typeof(bool),
+        //        typeof(bool),
+        //        typeof(WeaponComponent)
+        //    }, new ArgumentType[] {
+        //        ArgumentType.Normal,
+        //        ArgumentType.Normal,
+        //        ArgumentType.Normal,
+        //        ArgumentType.Normal,
+        //        ArgumentType.Ref,
+        //        ArgumentType.Normal,
+        //        ArgumentType.Normal,
+        //        ArgumentType.Out }
+        //    )]
+        //internal static void GetAttackCollisionResults(this Mission __instance, 
+        //    Agent attacker, 
+        //    Agent victim, 
+        //    GameEntity hitObject, 
+        //    float momentumRemaining,
+        //    ref AttackCollisionData attackCollisionData, 
+        //    bool crushedThrough, 
+        //    bool cancelDamage, 
+        //    out WeaponComponentData shieldOnBack)
+        //{
+        //    throw new NotImplementedException("Need to patch first");
+        //}
 
         [HarmonyReversePatch]
         [HarmonyPatch(typeof(Mission), "CreateMissileBlow")]
@@ -113,11 +113,11 @@ namespace GCO.ReversePatches
             throw new NotImplementedException("Need to patch first");
         }
 
-        //[HarmonyReversePatch]
-        //[HarmonyPatch(typeof(Mission), "HitWithAnotherBone", new Type[] { typeof(AttackCollisionData), typeof(Agent) }, new ArgumentType[] { ArgumentType.Ref, ArgumentType.Normal })]
-        //internal static bool HitWithAnotherBone(this Mission __instance, ref AttackCollisionData collisionData, Agent attacker)
-        //{
-        //    throw new NotImplementedException("Need to patch first");
-        //}
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(Mission), "HitWithAnotherBone", new Type[] { typeof(AttackCollisionData), typeof(Agent) }, new ArgumentType[] { ArgumentType.Ref, ArgumentType.Normal })]
+        internal static bool HitWithAnotherBone(this Mission __instance, ref AttackCollisionData collisionData, Agent attacker)
+        {
+            throw new NotImplementedException("Need to patch first");
+        }
     }
 }

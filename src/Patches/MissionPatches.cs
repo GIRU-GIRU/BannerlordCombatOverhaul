@@ -22,7 +22,7 @@ namespace GCO.Patches
             }
             ItemObject itemFromWeaponKind = ItemObject.GetItemFromWeaponKind(collisionData.AffectorWeaponKind);
             WeaponComponentData w = (itemFromWeaponKind != null) ? itemFromWeaponKind.GetWeaponWithUsageIndex(collisionData.CurrentUsageIndex) : null;
-            bool flag = false;// __instance.HitWithAnotherBone(ref collisionData, attackerAgent);
+            bool flag = __instance.HitWithAnotherBone(ref collisionData, attackerAgent);
             if (collisionData.IsAlternativeAttack)
             {
                 blow.AttackType = ((itemFromWeaponKind != null) ? AgentAttackType.Bash : AgentAttackType.Kick);

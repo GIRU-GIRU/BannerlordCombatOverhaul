@@ -2,7 +2,7 @@
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <!-- Change below property to where you game directory is, but please try not to commit the change :D -->
-    <BannerlordPath>D:\Steam\steamapps\common\Mount &amp; Blade II Bannerlord</BannerlordPath>
+    <BannerlordPath>D:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord</BannerlordPath>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <PlatformTarget Condition=" '$(PlatformTarget)' == '' ">x64</PlatformTarget>
@@ -259,9 +259,9 @@
     <Compile Include="ModOptions\CompatibilitySettings.cs" />
     <Compile Include="ModOptions\Config.cs" />
     <Compile Include="ModOptions\ConfigSettings.cs" />
-    <Compile Include="CopiedLogic\MissionExtensions.cs" />
     <Compile Include="CopiedLogic\OrderControllerExtensions.cs" />
     <Compile Include="Patches\BanditsCampaignBehaviorPatches.cs" />
+    <Compile Include="ReversePatches\MissionAccessTools.cs" />
     <Compile Include="Utility\VoiceCommandQueue.cs" />
     <Compile Include="Features\PlayerCleaveLogic.cs" />
     <Compile Include="Features\ProjectileBalanceLogic.cs" />

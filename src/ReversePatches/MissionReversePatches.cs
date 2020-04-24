@@ -9,7 +9,7 @@ using GCO.Patches;
 using System.Reflection;
 
 namespace GCO.ReversePatches
-{ 
+{
 
     [HarmonyPatch]
     internal static class MissionReversePatches
@@ -55,6 +55,7 @@ namespace GCO.ReversePatches
         //{
         //    throw new NotImplementedException("Need to patch first");
         //}
+
 
         [HarmonyReversePatch]
         [HarmonyPatch(typeof(Mission), "CreateMissileBlow")]
@@ -118,5 +119,13 @@ namespace GCO.ReversePatches
         {
             throw new NotImplementedException("Need to patch first");
         }
+
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(Mission), "AddCombatLogSafe")]
+        internal static void AddCombatLogSafe(this Mission __instance, Agent attackerAgent, Agent victimAgent, GameEntity hitEntity, CombatLogData combatLog)
+        {
+            throw new NotImplementedException("Need to patch first");
+        }
+
     }
 }

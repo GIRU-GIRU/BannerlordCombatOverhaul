@@ -77,11 +77,14 @@ namespace GCO.ModOptions
 
         internal static void ProjectileBalancingEnabledPatch(ref Harmony harmony)
         {
-            var MissileHitCallback = typeof(Mission).GetMethod("MissileHitCallback", BindingFlags.NonPublic | BindingFlags.Instance);
-            var MissileHitCallbackPrefix = typeof(ProjectileBalanceLogic).GetMethod(nameof(ProjectileBalanceLogic.MissileHitCallbackPrefix), BindingFlags.NonPublic | BindingFlags.Static);
+            var missileHitCallback = typeof(Mission).GetMethod("MissileHitCallback", BindingFlags.NonPublic | BindingFlags.Instance);
+            var missileHitCallbackPrefix = typeof(ProjectileBalanceLogic).GetMethod(nameof(ProjectileBalanceLogic.MissileHitCallbackPrefix), BindingFlags.NonPublic | BindingFlags.Static);
+
+            //var getAttackCollisionResults = typeof(Mission).GetMethod("GetAttackCollisionResults", BindingFlags.NonPublic | BindingFlags.Instance);
+            //var getAttackCollisionResultsPrefix = typeof(ProjectileBalanceLogic).GetMethod(nameof(ProjectileBalanceLogic.GetAttackCollisionResultsPrefix), BindingFlags.NonPublic | BindingFlags.Static);
 
 
-            harmony.Patch(MissileHitCallback, new HarmonyMethod(MissileHitCallbackPrefix), null, null, null);
+            harmony.Patch(missileHitCallback, new HarmonyMethod(missileHitCallbackPrefix), null, null, null);
         }
 
         internal static void HyperArmorAndProjectileBalancing(ref Harmony harmony)

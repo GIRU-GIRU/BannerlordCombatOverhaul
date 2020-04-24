@@ -8,7 +8,7 @@ namespace GCO.CopiedLogic
     {
         internal static bool IsFormationSelectable(Formation formation, Agent selectorAgent)
         {
-            return (selectorAgent == null || formation.PlayerOwner == selectorAgent) && !formation.Units.IsEmpty();
+            return (selectorAgent == null || formation.PlayerOwner == selectorAgent) && formation.CountOfUnits > 0;
         }
 
         internal static readonly ActionIndexCache[] CheerActions = new ActionIndexCache[]

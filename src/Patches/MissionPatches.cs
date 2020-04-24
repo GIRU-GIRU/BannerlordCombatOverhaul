@@ -41,7 +41,7 @@ namespace GCO.Patches
             blow.AttackerStunPeriod = collisionData.AttackerStunPeriod;
             //blow.DefenderStunPeriod = collisionData.DefenderStunPeriod;
 
-            blow.DefenderStunPeriod = GCOToolbox.GCOGetStaticFlinchPeriod(attackerAgent, collisionData.DefenderStunPeriod);
+            blow.DefenderStunPeriod = GCOToolbox.MeleeBalance.GCOGetStaticFlinchPeriod(attackerAgent, collisionData.DefenderStunPeriod);
 
 
             blow.BlowFlag = BlowFlags.None;
@@ -184,14 +184,14 @@ namespace GCO.Patches
 
                     if (Config.ConfigSettings.HyperArmorEnabled)
                     {
-                        if (GCOToolbox.GCOCheckForPlayerAgent(defenderAgent)) GCOToolbox.CreateHyperArmorBuff(defenderAgent);
+                        if (GCOToolbox.GCOCheckForPlayerAgent(defenderAgent)) GCOToolbox.MeleeBalance.CreateHyperArmorBuff(defenderAgent);
                     }
                 }
                 else if (collisionResult == CombatCollisionResult.Blocked)
                 {
                     if (Config.ConfigSettings.HyperArmorEnabled)
                     {
-                        if (GCOToolbox.GCOCheckForPlayerAgent(defenderAgent)) GCOToolbox.CreateHyperArmorBuff(defenderAgent);
+                        if (GCOToolbox.GCOCheckForPlayerAgent(defenderAgent)) GCOToolbox.MeleeBalance.CreateHyperArmorBuff(defenderAgent);
                     }
                 }
                 else if (collisionResult == CombatCollisionResult.ChamberBlocked)
@@ -229,8 +229,8 @@ namespace GCO.Patches
 
                 if (GCOToolbox.GCOCheckForPlayerAgent(victim))
                 {
-                    GCOToolbox.CheckForProjectileFlinch(ref b, ref blow, collisionData, victim);
-                    GCOToolbox.CheckToAddHyperarmor(ref b, ref blow);
+                    GCOToolbox.ProjectileBalance.CheckForProjectileFlinch(ref b, ref blow, collisionData, victim);
+                    GCOToolbox.MeleeBalance.CheckToAddHyperarmor(ref b, ref blow);
                 }
 
                 if (collisionData.IsColliderAgent)

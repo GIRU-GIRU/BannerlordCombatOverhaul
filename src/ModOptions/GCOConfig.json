@@ -4,7 +4,7 @@
 
   "HPOnKillEnabled": true,
   "HPOnKillAmount": 20,
-  "HPOnKillMedicineLevelScalePersentage": 0.1, // default is 0.1 which is 10% of your medicine level
+  "HPOnKillMedicineLevelScalePercentage": 0.1, // default is 0.1 which is 10% of your medicine level
 
   "StandardizedFlinchOnEnemiesEnabled": true,
 

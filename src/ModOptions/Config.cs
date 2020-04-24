@@ -42,7 +42,7 @@ namespace GCO.ModOptions
                 CleaveEnabled = true,
                 ProjectileBalancingEnabled = true,
                 HPOnKillEnabled = true,
-                HPOnKillMedicineLevelScalePersentage = 0.1f,
+                HPOnKillMedicineLevelScalePercentage = 0.1f,
                 HyperArmorEnabled = true,
                 SimplifiedSurrenderLogic = true,
                 HPOnKillAmount = 20f,

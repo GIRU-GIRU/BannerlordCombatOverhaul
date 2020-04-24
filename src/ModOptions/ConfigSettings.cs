@@ -10,8 +10,8 @@ namespace GCO.ModOptions
         [JsonProperty("HPOnKillAmount")]
         public float HPOnKillAmount { get; set; }
 
-        [JsonProperty("HPOnKillMedicineLevelScalePersentage")]
-        public float HPOnKillMedicineLevelScalePersentage { get; set; }
+        [JsonProperty("HPOnKillMedicineLevelScalePercentage")]
+        public float HPOnKillMedicineLevelScalePercentage { get; set; }
 
         [JsonProperty("CleaveEnabled")]
         public bool CleaveEnabled { get; set; }

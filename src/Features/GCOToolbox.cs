@@ -28,10 +28,8 @@ namespace GCO.Features
 
             internal static void ApplyProjectileArmorResistance(float finputArmor, ref AttackCollisionData collisionData, Mission.Missile missile)
             {
-                var inflictedDamage = collisionData.InflictedDamage;
                 int inputArmor = (int)finputArmor;
                 bool multiplierHeadOrNeckShot = collisionData.VictimHitBodyPart == BoneBodyPartType.Head || collisionData.VictimHitBodyPart == BoneBodyPartType.Neck;
-
 
                 var type = missile.Weapon.CurrentUsageItem.WeaponClass;
                 switch (type)
@@ -55,9 +53,6 @@ namespace GCO.Features
                     default:
                         break;
                 }
-
-
-
             }
 
             private static void ApplyThrowableArmorPen(ref AttackCollisionData collisionData, int inputArmor, bool multiplierHeadOrNeckShot)
@@ -90,7 +85,7 @@ namespace GCO.Features
                 var inflictedDamage = collisionData.InflictedDamage;
 
                 inflictedDamage -= inputArmor;
-                inflictedDamage = Math.Max(inflictedDamage, 25);
+                inflictedDamage = Math.Max(inflictedDamage, 30);
 
                 if (multiplierHeadOrNeckShot)
                 {
@@ -115,7 +110,7 @@ namespace GCO.Features
                 var inflictedDamage = collisionData.InflictedDamage;
 
                 inflictedDamage -= inputArmor;
-                inflictedDamage = Math.Max(inflictedDamage, 15);
+                inflictedDamage = Math.Max(inflictedDamage, 20);
 
                 if (multiplierHeadOrNeckShot)
                 {
@@ -166,8 +161,6 @@ namespace GCO.Features
                 return defenderStunPeriod;
             }
 
-            
-
             internal static void CheckToAddHyperarmor(ref Blow b, ref Blow blow)
             {
                 if (IsHyperArmorActive())
@@ -187,10 +180,7 @@ namespace GCO.Features
                 }
             }
 
-          
-
             private static MissionTime _playerAgentHyperarmorActiveTime;
-
             private static void ApplyHyperArmor()
             {
                 _playerAgentHyperarmorActiveTime = MissionTime.SecondsFromNow(Config.ConfigSettings.HyperArmorDuration);
@@ -198,9 +188,7 @@ namespace GCO.Features
 
             private static bool IsHyperArmorActive()
             {
-                bool hyperArmorActive = !_playerAgentHyperarmorActiveTime.IsPast;
-
-                return hyperArmorActive;
+                return !_playerAgentHyperarmorActiveTime.IsPast;
             }
         }
     }

@@ -3,16 +3,44 @@ using TaleWorlds.Engine;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using GCO.ReversePatches;
+using System.Linq;
 using System;
+using GCO.CustomMissionLogic;
+using GCO.ModOptions;
 
 namespace GCO.Features
 {
-    //TODO: Refactor and cleanup after finishing feature
     internal class ProjectileBalanceLogic
     {
         internal static bool MissileHitCallbackPrefix(ref bool __result, ref Mission __instance, out int hitParticleIndex, ref AttackCollisionData collisionData, int missileIndex, Vec3 missileStartingPosition, Vec3 missilePosition, Vec3 missileAngularVelocity, Vec3 movementVelocity, MatrixFrame attachGlobalFrame, MatrixFrame affectedShieldGlobalFrame, int numDamagedAgents, Agent attacker, Agent victim, GameEntity hitEntity)
         {
             var _missiles = MissionAccessTools.Get_missiles(ref __instance);
+
+            bool isHorseArcher = false;
+            if (victim != null && !victim.IsMount && victim.WieldedWeapon.Weapons != null)
+            {
+                if (!victim.IsMainAgent)
+                {
+                    bool hasBowAndArrows = victim.WieldedWeapon.Weapons.Any(x =>
+                        x.AmmoClass == WeaponClass.Bow || x.AmmoClass == WeaponClass.Arrow);
+
+
+
+                    isHorseArcher = victim.HasMount && hasBowAndArrows; //victim.WieldedWeapon.Weapons.Any(x => x.IsRangedWeapon);
+                }
+            }
+
+            if (victim != null && victim.IsMount)
+            {
+                if (!victim.IsMainAgent)
+                {
+                    victim.AgentDrivenProperties.MountSpeed /= 8;
+                    victim.UpdateAgentStats();
+
+                    HorseCrippleLogic.horseCrippleQueue.Enqueue(Tuple.Create(victim.Index, MissionTime.SecondsFromNow(Config.ConfigSettings.HorseProjectileCrippleDuration)));
+                }
+            }
+
 
             Mission.Missile missile = _missiles[missileIndex];
             WeaponFlags weaponFlags = missile.Weapon.CurrentUsageItem.WeaponFlags;
@@ -20,7 +48,7 @@ namespace GCO.Features
             WeaponComponentData weaponComponentData = null;
             if (collisionData.AttackBlockedWithShield && weaponFlags.HasAnyFlag(WeaponFlags.CanPenetrateShield))
             {
-                GetAttackCollisionResultsPrefix(ref __instance, missile, attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
+                GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
                 EquipmentIndex wieldedItemIndex = victim.GetWieldedItemIndex(Agent.HandIndex.OffHand);
                 if ((float)collisionData.InflictedDamage > ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.ShieldPenetrationOffset) + ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.ShieldPenetrationFactor) * (float)victim.Equipment[wieldedItemIndex].GetShieldArmorForCurrentUsage())
                 {
@@ -35,9 +63,8 @@ namespace GCO.Features
             PhysicsMaterial fromIndex = PhysicsMaterial.GetFromIndex(collisionData.PhysicsMaterialIndex);
             int num1 = fromIndex.IsValid ? (int)fromIndex.GetFlags() : 0;
 
-            //bug
             bool flag2 = (weaponFlags & WeaponFlags.AmmoSticksWhenShot) > (WeaponFlags)0;
-            bool flag3 = (num1 & 1) == 0; 
+            bool flag3 = (num1 & 1) == 0;
             bool flag4 = (uint)(num1 & 8) > 0U;
 
             MissionObject missionObject = null;
@@ -79,7 +106,7 @@ namespace GCO.Features
             {
                 if (hitEntity != null)
                 {
-                    GetAttackCollisionResultsPrefix(ref __instance, missile, attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
+                    GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
                     Blow b = __instance.CreateMissileBlow(attacker, ref collisionData, missile, missilePosition, missileStartingPosition);
                     __instance.RegisterBlow(attacker, null, hitEntity, b, ref collisionData);
                 }
@@ -88,7 +115,7 @@ namespace GCO.Features
             }
             else if (collisionData.AttackBlockedWithShield)
             {
-                GetAttackCollisionResultsPrefix(ref __instance, missile, attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
+                GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
                 missileCollisionReaction = (collisionData.IsShieldBroken ? Mission.MissileCollisionReaction.BecomeInvisible : missileCollisionReaction2);
                 hitParticleIndex = 0;
             }
@@ -131,8 +158,7 @@ namespace GCO.Features
                 {
                     bool flag6 = (weaponFlags & WeaponFlags.MultiplePenetration) > (WeaponFlags)0UL;
 
-                    GetAttackCollisionResultsPrefix(ref __instance, missile, attacker, victim, null, num, ref collisionData, false, false, out weaponComponentData);
-
+                    GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, null, num, ref collisionData, false, false, out weaponComponentData);
 
                     Blow blow = __instance.CreateMissileBlow(attacker, ref collisionData, missile, missilePosition, missileStartingPosition);
 
@@ -237,7 +263,7 @@ namespace GCO.Features
 
 
 
-        internal static bool GetAttackCollisionResultsPrefix(ref Mission __instance, Mission.Missile missile, Agent attackerAgent, Agent victimAgent, GameEntity hitObject, float momentumRemaining, ref AttackCollisionData attackCollisionData, bool crushedThrough, bool cancelDamage, out WeaponComponentData shieldOnBack)
+        internal static bool GetAttackCollisionResultsPrefix(ref Mission __instance, bool isHorseArcher, Mission.Missile missile, Agent attackerAgent, Agent victimAgent, GameEntity hitObject, float momentumRemaining, ref AttackCollisionData attackCollisionData, bool crushedThrough, bool cancelDamage, out WeaponComponentData shieldOnBack)
         {
             bool flag = attackerAgent == null;
             bool flag2 = victimAgent == null;
@@ -423,7 +449,7 @@ namespace GCO.Features
             CombatLogData combatLog;
 
 
-            GetAttackCollisionResults(missile, armorAmountFloat, shieldOnBack, victimAgentFlag, victimAgentAbsorbedDamageRatio, num, combatDifficultyMultiplier, victimShield, canGiveDamageToAgentShield, isVictimAgentLeftStance, isFriendlyFire, doesAttackerHaveMountAgent, doesVictimHaveMountAgent, attackerAgentMovementVelocity, attackerAgentMountMovementDirection, attackerMovementDirectionAsAngle, victimAgentMovementVelocity, victimAgentMountMovementDirection, victimMovementDirectionAsAngle, flag3, isAttackerAgentMine, flag6, isAttackerAgentRiderAgentIsMine, isAttackerAgentMount, isVictimAgentMine, flag5, isVictimAgentRiderAgentIsMine, isVictimAgentMount, flag, isAttackerAIControlled, attackerAgentCharacter, victimAgentCharacter, attackerAgentMovementDirection, attackerAgentVelocity, attackerAgentMountChargeDamageProperty, attackerAgentCurrentWeaponOffset, isAttackerAgentHuman, flag7, isAttackerAgentCharging, flag2, victimAgentScale, victimAgentWeight, victimAgentTotalEncumbrance, isVictimAgentHuman, victimAgentVelocity, victimAgentPosition, weaponAttachBoneIndex, offHandItem, isHeadShot, crushedThrough, isVictimRiderAgentSameAsAttackerAgent, momentumRemaining, ref attackCollisionData, cancelDamage, victimAgentName, out combatLog);
+            GetAttackCollisionResults(missile, isHorseArcher, armorAmountFloat, shieldOnBack, victimAgentFlag, victimAgentAbsorbedDamageRatio, num, combatDifficultyMultiplier, victimShield, canGiveDamageToAgentShield, isVictimAgentLeftStance, isFriendlyFire, doesAttackerHaveMountAgent, doesVictimHaveMountAgent, attackerAgentMovementVelocity, attackerAgentMountMovementDirection, attackerMovementDirectionAsAngle, victimAgentMovementVelocity, victimAgentMountMovementDirection, victimMovementDirectionAsAngle, flag3, isAttackerAgentMine, flag6, isAttackerAgentRiderAgentIsMine, isAttackerAgentMount, isVictimAgentMine, flag5, isVictimAgentRiderAgentIsMine, isVictimAgentMount, flag, isAttackerAIControlled, attackerAgentCharacter, victimAgentCharacter, attackerAgentMovementDirection, attackerAgentVelocity, attackerAgentMountChargeDamageProperty, attackerAgentCurrentWeaponOffset, isAttackerAgentHuman, flag7, isAttackerAgentCharging, flag2, victimAgentScale, victimAgentWeight, victimAgentTotalEncumbrance, isVictimAgentHuman, victimAgentVelocity, victimAgentPosition, weaponAttachBoneIndex, offHandItem, isHeadShot, crushedThrough, isVictimRiderAgentSameAsAttackerAgent, momentumRemaining, ref attackCollisionData, cancelDamage, victimAgentName, out combatLog);
             combatLog.BodyPartHit = attackCollisionData.VictimHitBodyPart;
             combatLog.IsFatalDamage = (victimAgent != null && victimAgent.Health - (float)attackCollisionData.InflictedDamage <= 0f);
             combatLog.IsVictimEntity = (hitObject != null);
@@ -434,8 +460,8 @@ namespace GCO.Features
         }
 
 
-        public static void GetAttackCollisionResults(Mission.Missile missile, float armorAmountFloat, WeaponComponentData shieldOnBack, AgentFlag victimAgentFlag, float victimAgentAbsorbedDamageRatio, float damageMultiplierOfBone, float combatDifficultyMultiplier, MissionWeapon victimShield, bool canGiveDamageToAgentShield, bool isVictimAgentLeftStance, bool isFriendlyFire, bool doesAttackerHaveMountAgent, bool doesVictimHaveMountAgent, Vec2 attackerAgentMovementVelocity, Vec3 attackerAgentMountMovementDirection, float attackerMovementDirectionAsAngle, Vec2 victimAgentMovementVelocity, Vec3 victimAgentMountMovementDirection, float victimMovementDirectionAsAngle, bool isVictimAgentSameWithAttackerAgent, bool isAttackerAgentMine, bool isAttackerAgentHasRiderAgent, bool isAttackerAgentRiderAgentIsMine, bool isAttackerAgentMount, bool isVictimAgentMine, bool isVictimAgentHasRiderAgent, bool isVictimAgentRiderAgentIsMine, bool isVictimAgentMount, bool isAttackerAgentNull, bool isAttackerAIControlled, BasicCharacterObject attackerAgentCharacter, BasicCharacterObject victimAgentCharacter, Vec3 attackerAgentMovementDirection, Vec3 attackerAgentVelocity, float attackerAgentMountChargeDamageProperty, Vec3 attackerAgentCurrentWeaponOffset, bool isAttackerAgentHuman, bool isAttackerAgentActive, bool isAttackerAgentCharging, bool isVictimAgentNull, float victimAgentScale, float victimAgentWeight, float victimAgentTotalEncumbrance, bool isVictimAgentHuman, Vec3 victimAgentVelocity, Vec3 victimAgentPosition, int weaponAttachBoneIndex, MissionWeapon offHandItem, bool isHeadShot, bool crushedThrough, bool IsVictimRiderAgentSameAsAttackerAgent, float momentumRemaining, ref AttackCollisionData attackCollisionData, bool cancelDamage, string victimAgentName, out CombatLogData combatLog)
-         {
+        public static void GetAttackCollisionResults(Mission.Missile missile, bool isHorseArcher, float armorAmountFloat, WeaponComponentData shieldOnBack, AgentFlag victimAgentFlag, float victimAgentAbsorbedDamageRatio, float damageMultiplierOfBone, float combatDifficultyMultiplier, MissionWeapon victimShield, bool canGiveDamageToAgentShield, bool isVictimAgentLeftStance, bool isFriendlyFire, bool doesAttackerHaveMountAgent, bool doesVictimHaveMountAgent, Vec2 attackerAgentMovementVelocity, Vec3 attackerAgentMountMovementDirection, float attackerMovementDirectionAsAngle, Vec2 victimAgentMovementVelocity, Vec3 victimAgentMountMovementDirection, float victimMovementDirectionAsAngle, bool isVictimAgentSameWithAttackerAgent, bool isAttackerAgentMine, bool isAttackerAgentHasRiderAgent, bool isAttackerAgentRiderAgentIsMine, bool isAttackerAgentMount, bool isVictimAgentMine, bool isVictimAgentHasRiderAgent, bool isVictimAgentRiderAgentIsMine, bool isVictimAgentMount, bool isAttackerAgentNull, bool isAttackerAIControlled, BasicCharacterObject attackerAgentCharacter, BasicCharacterObject victimAgentCharacter, Vec3 attackerAgentMovementDirection, Vec3 attackerAgentVelocity, float attackerAgentMountChargeDamageProperty, Vec3 attackerAgentCurrentWeaponOffset, bool isAttackerAgentHuman, bool isAttackerAgentActive, bool isAttackerAgentCharging, bool isVictimAgentNull, float victimAgentScale, float victimAgentWeight, float victimAgentTotalEncumbrance, bool isVictimAgentHuman, Vec3 victimAgentVelocity, Vec3 victimAgentPosition, int weaponAttachBoneIndex, MissionWeapon offHandItem, bool isHeadShot, bool crushedThrough, bool IsVictimRiderAgentSameAsAttackerAgent, float momentumRemaining, ref AttackCollisionData attackCollisionData, bool cancelDamage, string victimAgentName, out CombatLogData combatLog)
+        {
             float distance = 0f;
             if (attackCollisionData.IsMissile)
             {
@@ -482,10 +508,10 @@ namespace GCO.Features
                     Mission.ComputeBlowDamage(armorAmountFloat, shieldOnBack, victimAgentFlag, victimAgentAbsorbedDamageRatio, damageMultiplierOfBone, combatDifficultyMultiplier, damageType, baseMagnitude, attackCollisionData.CollisionGlobalPosition, itemFromWeaponKind, attackCollisionData.AttackBlockedWithShield, attackCollisionData.CollidedWithShieldOnBack, speedBonus, cancelDamage, attackCollisionData.IsFallDamage, out attackCollisionData.InflictedDamage, out attackCollisionData.AbsorbedByArmor, out num);
                 }
 
-                
 
-                GCOToolbox.ProjectileBalance.ApplyProjectileArmorResistance(armorAmountFloat, ref attackCollisionData, missile);
-        
+
+                GCOToolbox.ProjectileBalance.ApplyProjectileArmorResistance(armorAmountFloat, ref attackCollisionData, missile, isHorseArcher);
+
 
                 combatLog.InflictedDamage = attackCollisionData.InflictedDamage;
                 combatLog.AbsorbedDamage = attackCollisionData.AbsorbedByArmor;

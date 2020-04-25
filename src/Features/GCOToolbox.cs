@@ -26,7 +26,7 @@ namespace GCO.Features
         public class ProjectileBalance
         {
 
-            internal static void ApplyProjectileArmorResistance(float finputArmor, ref AttackCollisionData collisionData, Mission.Missile missile)
+            internal static void ApplyProjectileArmorResistance(float finputArmor, ref AttackCollisionData collisionData, Mission.Missile missile, bool isHorseArcher)
             {
                 int inputArmor = (int)finputArmor;
                 bool multiplierHeadOrNeckShot = collisionData.VictimHitBodyPart == BoneBodyPartType.Head || collisionData.VictimHitBodyPart == BoneBodyPartType.Neck;
@@ -52,6 +52,13 @@ namespace GCO.Features
                         break;
                     default:
                         break;
+
+                    
+                }
+
+                if (isHorseArcher)
+                {
+                    collisionData.InflictedDamage = 80;
                 }
             }
 

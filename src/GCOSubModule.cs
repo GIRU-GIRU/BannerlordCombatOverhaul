@@ -6,6 +6,7 @@ using GCO.ModOptions;
 using GCO.Features.CustomMissionLogic;
 using GCO.Utility;
 using System.Linq;
+using GCO.CustomMissionLogic;
 
 namespace GCO
 {
@@ -29,7 +30,9 @@ namespace GCO
         {
             ConfigureHealthOnkillLogic(mission);
             ConfigureQueuedVoiceLogic(mission);
-            
+            ConfigureHorseCrippleLogic(mission);
+
+
             base.OnMissionBehaviourInitialize(mission);
         }
 
@@ -39,6 +42,15 @@ namespace GCO
             {
                 mission.AddMissionBehaviour(new QueuedVoiceLogic());
             }
+        }
+
+        private void ConfigureHorseCrippleLogic(Mission mission)
+        {
+            if(Config.ConfigSettings.ProjectileBalancingEnabled)
+            {
+                mission.AddMissionBehaviour(new HorseCrippleLogic());
+            }
+
         }
 
         private void ConfigureHealthOnkillLogic(Mission mission)
@@ -59,7 +71,7 @@ namespace GCO
 
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
         {
-            InformationManager.DisplayMessage(new InformationMessage("Loaded GCOTEST", Color.White));
+            InformationManager.DisplayMessage(new InformationMessage("Loaded GCO 2.0.0", Color.White));
 
             if (!Config.ConfigLoadedSuccessfully)
             {

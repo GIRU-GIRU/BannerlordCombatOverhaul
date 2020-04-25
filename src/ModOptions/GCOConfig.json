@@ -22,5 +22,6 @@
   "OrderVoiceCommandQueuing": true,
 
   "ProjectileBalancingEnabled": true,
-  "ProjectileStunPercentageThreshold": 40
+  "ProjectileStunPercentageThreshold": 40,
+  "HorseProjectileCrippleDuration": 2
 }

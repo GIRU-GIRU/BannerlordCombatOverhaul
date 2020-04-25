@@ -214,9 +214,6 @@
       <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.Network.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="TaleWorlds.ObjectSystem">
-      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.ObjectSystem.dll</HintPath>
-    </Reference>
     <Reference Include="TaleWorlds.PlatformService">
       <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.PlatformService.dll</HintPath>
       <Private>False</Private>
@@ -259,6 +256,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomMissionLogic\HorseCrippleLogic.cs" />
     <Compile Include="ModOptions\CompatibilitySettings.cs" />
     <Compile Include="ModOptions\Config.cs" />
     <Compile Include="ModOptions\ConfigSettings.cs" />

@@ -52,6 +52,9 @@ namespace GCO.ModOptions
         [JsonProperty("MurderEnabled")]
         public bool MurderEnabled { get; set; }
 
+        [JsonProperty("HorseProjectileCrippleEnabled")]
+        public bool HorseProjectileCrippleEnabled { get; set; }
+
         [JsonProperty("HorseProjectileCrippleDuration")]
         public float HorseProjectileCrippleDuration { get; internal set; }
     }

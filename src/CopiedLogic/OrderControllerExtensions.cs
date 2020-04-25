@@ -78,7 +78,7 @@ namespace GCO.CopiedLogic
                     VoiceCommandQueue.QueueItem("FormLine", 1200f);
                     return false;
                 case OrderType.ArrangementCloseOrder:
-                    VoiceCommandQueue.QueueItem("FormShieldWall", 1200f);
+                    VoiceCommandQueue.QueueItem("FormShieldWall", 1700f);
                     return false;
                 case OrderType.ArrangementLoose:
                     VoiceCommandQueue.QueueItem("FormLoose", 1200f);

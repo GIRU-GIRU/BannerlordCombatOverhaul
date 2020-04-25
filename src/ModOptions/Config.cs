@@ -52,6 +52,8 @@ namespace GCO.ModOptions
                 AdditionalCleaveForTroopsInShieldWall = true,
                 AdditionalCleaveForTroopsInShieldWallAngleRestriction = 60,
                 OrderVoiceCommandQueuing = true,
+                HorseProjectileCrippleEnabled = true,
+                HorseProjectileCrippleDuration = 2,
 
                 MurderEnabled = false,
                 TrueFriendlyFireEnabled = false,

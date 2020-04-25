@@ -12,36 +12,29 @@ namespace GCO.Features
 {
     internal class ProjectileBalanceLogic
     {
+        internal static int GetWeaponSkill(BasicCharacterObject character, WeaponComponentData equippedItem)
+        {
+            SkillObject skill = DefaultSkills.Athletics;
+            if (equippedItem != null)
+            {
+                skill = equippedItem.RelevantSkill;
+            }
+
+            var skillAmount = character.GetSkillValue(skill);
+            var amountToReturn = GCOToolbox.ProjectileBalance.IfCrossbowEmpowerStat(skillAmount, skill);
+
+            return amountToReturn;
+        }
+
         internal static bool MissileHitCallbackPrefix(ref bool __result, ref Mission __instance, out int hitParticleIndex, ref AttackCollisionData collisionData, int missileIndex, Vec3 missileStartingPosition, Vec3 missilePosition, Vec3 missileAngularVelocity, Vec3 movementVelocity, MatrixFrame attachGlobalFrame, MatrixFrame affectedShieldGlobalFrame, int numDamagedAgents, Agent attacker, Agent victim, GameEntity hitEntity)
         {
             var _missiles = MissionAccessTools.Get_missiles(ref __instance);
 
             bool isHorseArcher = false;
-            if (victim != null && !victim.IsMount && victim.WieldedWeapon.Weapons != null)
-            {
-                if (!victim.IsMainAgent)
-                {
-                    bool hasBowAndArrows = victim.WieldedWeapon.Weapons.Any(x =>
-                        x.AmmoClass == WeaponClass.Bow || x.AmmoClass == WeaponClass.Arrow);
+            
 
-
-
-                    isHorseArcher = victim.HasMount && hasBowAndArrows; //victim.WieldedWeapon.Weapons.Any(x => x.IsRangedWeapon);
-                }
-            }
-
-            if (victim != null && victim.IsMount)
-            {
-                if (!victim.IsMainAgent)
-                {
-                    victim.AgentDrivenProperties.MountSpeed /= 8;
-                    victim.UpdateAgentStats();
-
-                    HorseCrippleLogic.CrippleHorse(victim.Index, MissionTime.SecondsFromNow(Config.ConfigSettings.HorseProjectileCrippleDuration));
-                    //HorseCrippleLogic.horseCrippleQueue.Enqueue(Tuple.Create(victim.Index, MissionTime.SecondsFromNow(Config.ConfigSettings.HorseProjectileCrippleDuration)));
-                }
-            }
-
+            bool isHorseArcher = GCOToolbox.ProjectileBalance.CheckForHorseArcher(victim);
+            bool makesRear = GCOToolbox.ProjectileBalance.ApplyHorseCrippleLogic(victim, collisionData.VictimHitBodyPart);
 
             Mission.Missile missile = _missiles[missileIndex];
             WeaponFlags weaponFlags = missile.Weapon.CurrentUsageItem.WeaponFlags;
@@ -162,6 +155,7 @@ namespace GCO.Features
                     GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, null, num, ref collisionData, false, false, out weaponComponentData);
 
                     Blow blow = __instance.CreateMissileBlow(attacker, ref collisionData, missile, missilePosition, missileStartingPosition);
+                    if (makesRear) blow.BlowFlag = BlowFlags.MakesRear;
 
                     if (!collisionData.CollidedWithShieldOnBack && flag6 && numDamagedAgents > 0)
                     {

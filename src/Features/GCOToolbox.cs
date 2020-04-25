@@ -1,5 +1,7 @@
-﻿using GCO.ModOptions;
+﻿using GCO.CustomMissionLogic;
+using GCO.ModOptions;
 using System;
+using System.Linq;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
@@ -53,13 +55,71 @@ namespace GCO.Features
                     default:
                         break;
 
-                    
+
                 }
 
                 if (isHorseArcher)
                 {
                     collisionData.InflictedDamage = 80;
                 }
+            }
+
+            internal static bool CheckForHorseArcher(Agent victim)
+            {
+                bool isHorseArcher = false;
+
+                if (victim != null && !victim.IsMount && victim.WieldedWeapon.Weapons != null)
+                {
+                    if (!victim.IsMainAgent)
+                    {
+                        bool hasBowAndArrows = victim.WieldedWeapon.Weapons.Any(x =>
+                            x.AmmoClass == WeaponClass.Bow || x.AmmoClass == WeaponClass.Arrow);
+
+
+
+                        isHorseArcher = victim.HasMount && hasBowAndArrows;
+                    }
+                }
+
+                return isHorseArcher;
+            }
+
+            internal static bool ApplyHorseCrippleLogic(Agent victim, BoneBodyPartType victimHitBodyPart)
+            {
+                bool makesRear = false;
+
+                if (Config.ConfigSettings.HorseProjectileCrippleEnabled)
+                {
+                    if (victim != null && victim.IsMount)
+                    {
+                        if (victim.RiderAgent != null && !victim.RiderAgent.IsMainAgent)
+                        {
+                            if (victimHitBodyPart == BoneBodyPartType.Head || victimHitBodyPart == BoneBodyPartType.Neck)
+                            {
+                                makesRear = true;
+                            }
+                            else
+                            {
+                                victim.AgentDrivenProperties.MountSpeed /= 8;
+                                victim.UpdateAgentStats();
+
+                                HorseCrippleLogic.CrippleHorseNew(victim, MissionTime.SecondsFromNow(Config.ConfigSettings.HorseProjectileCrippleDuration));
+                            }
+                        }
+                    }
+                }
+                return makesRear;
+            }
+
+            internal static int IfCrossbowEmpowerStat(double skillAmount, SkillObject skill)
+            {
+
+                if (skill == DefaultSkills.Crossbow)
+                {
+                    skillAmount *= 1.3;
+                }
+
+                return (int)Math.Round(skillAmount);
             }
 
             private static void ApplyThrowableArmorPen(ref AttackCollisionData collisionData, int inputArmor, bool multiplierHeadOrNeckShot)

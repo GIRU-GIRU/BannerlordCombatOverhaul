@@ -68,6 +68,8 @@ namespace GCO.Patches
             foreach (Formation formation in _team.Formations.Where<Formation>((Func<Formation, bool>)(f => IsFormationSelectable(f, selectorAgent))))
                 _selectedFormations.Add(formation);
 
+            OrderControllerReversePatches.OnSelectedFormationsCollectionChanged(__instance);
+
             return false;
         }
 

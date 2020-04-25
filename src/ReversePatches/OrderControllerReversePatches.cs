@@ -1,20 +1,21 @@
 ﻿using HarmonyLib;
-using System.Collections.ObjectModel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using TaleWorlds.MountAndBlade;
 
 namespace GCO.ReversePatches
 {
-    // TODO: Rework with Harmony Reverse Patches
+    [HarmonyPatch]
     internal static class OrderControllerReversePatches
-    {
-        internal static ObservableCollection<Formation> GetSelectedFormations(this OrderController __instance)
+    {     
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(OrderController), "OnSelectedFormationsCollectionChanged")]
+        internal static void OnSelectedFormationsCollectionChanged(this OrderController __instance)
         {
-            return Traverse.Create(__instance).Field<ObservableCollection<Formation>>("selectedFormations").Value;
-        }
-
-        internal static Team GetTeam(this OrderController __instance)
-        {
-            return Traverse.Create(__instance).Field<Team>("team").Value;
+            throw new NotImplementedException("Need to patch first");
         }
     }
 }

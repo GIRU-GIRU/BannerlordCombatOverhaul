@@ -21,7 +21,6 @@ namespace GCO
             Config.InitConfig();
 
             harmony.PatchAll(typeof(GCOSubModule).Assembly);
-            var methodss = harmony.GetPatchedMethods().ToList();
             Config.ConfigureHarmonyPatches(ref harmony);
 
         }
@@ -57,7 +56,7 @@ namespace GCO
         {
             if (Config.ConfigSettings.HPOnKillEnabled)
             {
-                if (mission.Scene != null) // why is this needed?
+                if (mission.Scene != null)
                 {
                     bool isCombat = mission.CombatType == Mission.MissionCombatType.Combat;
                     bool isArenaCombat = mission.CombatType == Mission.MissionCombatType.ArenaCombat;

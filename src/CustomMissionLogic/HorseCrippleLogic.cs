@@ -15,38 +15,33 @@ namespace GCO.CustomMissionLogic
 
         }
 
-        public static Queue<Tuple<int, MissionTime>> horseCrippleQueue = new Queue<Tuple<int, MissionTime>>();
+        private static Queue<Tuple<int, MissionTime>> currentQueue = new Queue<Tuple<int, MissionTime>>();
 
-        //public static List<Queue<Tuple<int, MissionTime>>> list = new List<Queue<Tuple<int, MissionTime>>>();
-
-        // public static ConcurrentBag<Queue<Tuple<int, MissionTime>>> bag = new ConcurrentBag<Queue<Tuple<int, MissionTime>>>();
-
-        public static ConcurrentDictionary<Guid, Queue<Tuple<int, MissionTime>>> dictionary = new ConcurrentDictionary<Guid, Queue<Tuple<int, MissionTime>>>();
+        private static ConcurrentDictionary<Guid, Queue<Tuple<int, MissionTime>>> dictionary = new ConcurrentDictionary<Guid, Queue<Tuple<int, MissionTime>>>();
 
         public override void OnMissionTick(float dt)
         {
 
             if (dictionary.Count > 0)
             {
-                iterateDictionary();
+                IterateDictionary();
             }
             else
             {
-                iterateQueue();
+                IterateQueue();
             }
 
 
             base.OnMissionTick(dt);
         }
 
-        private void iterateQueue()
+        private void IterateQueue()
         {
-
-            if (horseCrippleQueue.Count > 0)
+            if (currentQueue.Count > 0)
             {
-                if (horseCrippleQueue.Peek().Item2.IsPast)
+                if (currentQueue.Peek().Item2.IsPast)
                 {
-                    var queueItem = horseCrippleQueue.Dequeue();
+                    var queueItem = currentQueue.Dequeue();
 
                     var agent = Mission.AllAgents.FirstOrDefault(x => x.Index == queueItem.Item1);
                     if (agent != null)
@@ -58,20 +53,19 @@ namespace GCO.CustomMissionLogic
             }
         }
 
-        private void iterateDictionary()
+        private void IterateDictionary()
         {
             if (!dictionary.IsEmpty)
             {
                 foreach (var item in dictionary)
                 {
-                    Queue<Tuple<int, MissionTime>> q;
-                    var success = dictionary.TryGetValue(item.Key, out q);
+                    var success = dictionary.TryGetValue(item.Key, out Queue<Tuple<int, MissionTime>> queue);
 
                     if (success)
                     {
-                        if (q.Count > 0)
+                        if (queue.Count > 0)
                         {
-                            var agentinfo = q.Dequeue();
+                            var agentinfo = queue.Dequeue();
 
                             var agent = Mission.AllAgents.FirstOrDefault(x => x.Index == agentinfo.Item1);
 
@@ -80,7 +74,6 @@ namespace GCO.CustomMissionLogic
                                 agent.AgentDrivenProperties.MountSpeed *= 8;
                                 agent.UpdateAgentStats();
                             }
-
                         }
                         else
                         {
@@ -92,22 +85,23 @@ namespace GCO.CustomMissionLogic
             }
 
         }
+
         internal static void CrippleHorse(int index, MissionTime missionTime)
         {
-            horseCrippleQueue.Enqueue(Tuple.Create(index, missionTime));
-
-            if (horseCrippleQueue.Count > 10)
+            if (currentQueue.Count < 10)
             {
-
+                currentQueue.Enqueue(Tuple.Create(index, missionTime));
+            }
+            else
+            {
+                var queue = new Queue<Tuple<int, MissionTime>>(currentQueue);
                 var notAdded = true;
 
                 while (notAdded)
                 {
-                    notAdded = !dictionary.TryAdd(Guid.NewGuid(), horseCrippleQueue);              
+                    notAdded = !dictionary.TryAdd(Guid.NewGuid(), queue);
                 }
-                horseCrippleQueue.Clear();
-
-
+                currentQueue = new Queue<Tuple<int, MissionTime>>();
             }
         }
     }

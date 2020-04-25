@@ -83,8 +83,11 @@ namespace GCO.ModOptions
             //var getAttackCollisionResults = typeof(Mission).GetMethod("GetAttackCollisionResults", BindingFlags.NonPublic | BindingFlags.Instance);
             //var getAttackCollisionResultsPrefix = typeof(ProjectileBalanceLogic).GetMethod(nameof(ProjectileBalanceLogic.GetAttackCollisionResultsPrefix), BindingFlags.NonPublic | BindingFlags.Static);
 
+            var getWeaponSkill = typeof(AgentStatCalculateModel).GetMethod("GetWeaponSkill", BindingFlags.NonPublic | BindingFlags.Instance);
+            var getWeaponSkillPostfix = typeof(ProjectileBalanceLogic).GetMethod(nameof(ProjectileBalanceLogic.GetWeaponSkillPostfix), BindingFlags.NonPublic | BindingFlags.Static);
 
             harmony.Patch(missileHitCallback, new HarmonyMethod(missileHitCallbackPrefix), null, null, null);
+            harmony.Patch(getWeaponSkill, null, new HarmonyMethod(getWeaponSkillPostfix), null, null);
         }
 
         internal static void HyperArmorAndProjectileBalancing(ref Harmony harmony)

@@ -17,8 +17,6 @@ namespace GCO.CustomMissionLogic
 
         public static Queue<Tuple<Agent, MissionTime>> horseCrippleQueue = new Queue<Tuple<Agent, MissionTime>>();
 
-        public static ConcurrentDictionary<Guid, Queue<Tuple<int, MissionTime>>> dictionary = new ConcurrentDictionary<Guid, Queue<Tuple<int, MissionTime>>>();
-
         public override void OnMissionTick(float dt)
         {
 

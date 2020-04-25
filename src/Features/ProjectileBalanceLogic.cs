@@ -37,7 +37,8 @@ namespace GCO.Features
                     victim.AgentDrivenProperties.MountSpeed /= 8;
                     victim.UpdateAgentStats();
 
-                    HorseCrippleLogic.horseCrippleQueue.Enqueue(Tuple.Create(victim.Index, MissionTime.SecondsFromNow(Config.ConfigSettings.HorseProjectileCrippleDuration)));
+                    HorseCrippleLogic.CrippleHorse(victim.Index, MissionTime.SecondsFromNow(Config.ConfigSettings.HorseProjectileCrippleDuration));
+                    //HorseCrippleLogic.horseCrippleQueue.Enqueue(Tuple.Create(victim.Index, MissionTime.SecondsFromNow(Config.ConfigSettings.HorseProjectileCrippleDuration)));
                 }
             }
 
@@ -467,7 +468,7 @@ namespace GCO.Features
             {
                 distance = (attackCollisionData.MissileStartingPosition - attackCollisionData.CollisionGlobalPosition).Length;
             }
-            combatLog = new CombatLogData(isVictimAgentSameWithAttackerAgent, isAttackerAgentHuman, isAttackerAgentMine, isAttackerAgentHasRiderAgent, isAttackerAgentRiderAgentIsMine, isAttackerAgentMount, isVictimAgentHuman, isVictimAgentMine, false, isVictimAgentHasRiderAgent, isVictimAgentRiderAgentIsMine, isVictimAgentMount, false, IsVictimRiderAgentSameAsAttackerAgent, false, false, victimAgentName, distance);
+            combatLog = new CombatLogData(isVictimAgentSameWithAttackerAgent, isAttackerAgentHuman, isAttackerAgentMine, isAttackerAgentHasRiderAgent, isAttackerAgentRiderAgentIsMine, isAttackerAgentMount, isVictimAgentHuman, isVictimAgentMine, false, isVictimAgentHasRiderAgent, isVictimAgentRiderAgentIsMine, isVictimAgentMount, false, IsVictimRiderAgentSameAsAttackerAgent, false, false, distance);
             ItemObject itemFromWeaponKind = ItemObject.GetItemFromWeaponKind(attackCollisionData.AffectorWeaponKind);
             WeaponComponentData weaponComponentData = (itemFromWeaponKind != null) ? itemFromWeaponKind.GetWeaponWithUsageIndex(attackCollisionData.CurrentUsageIndex) : null;
             bool flag = Extensions.HitWithAnotherBone(ref attackCollisionData, weaponAttachBoneIndex);

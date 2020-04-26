@@ -35,8 +35,19 @@ namespace GCO.CustomMissionLogic
 
                     if (queueItem.Item1 != null)
                     {
-                        queueItem.Item1.AgentDrivenProperties.MountSpeed *= 7;
-                        queueItem.Item1.UpdateAgentStats();
+                        try
+                        {
+                            if (queueItem.Item1.IsActive())
+                            {
+                                queueItem.Item1.AgentDrivenProperties.MountSpeed *= 8;
+                                queueItem.Item1.UpdateAgentStats();
+
+                            }
+                        }
+                        catch (Exception)
+                        {
+
+                        }
                     }
                 }
             }

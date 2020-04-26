@@ -78,7 +78,7 @@ namespace GCO.Patches
             return (selectorAgent == null || formation.PlayerOwner == selectorAgent) && formation.CountOfUnits > 0;
         }
 
-        internal static void ChooseWeaponToCheerWithCheerAndUpdateTimerPrefix(Agent cheerAgent, out bool resetTimer)
+        internal static bool ChooseWeaponToCheerWithCheerAndUpdateTimerPrefix(ref OrderController __instance, Agent cheerAgent, out bool resetTimer)
         {
             resetTimer = false;
             if (cheerAgent.GetCurrentActionType(1) != Agent.ActionCodeType.EquipUnequip)
@@ -118,8 +118,10 @@ namespace GCO.Patches
                     cheerAgent.SetActionChannel(1, OrderControllerExtensions.CheerActions[MBRandom.RandomInt(OrderControllerExtensions.CheerActions.Length)], false, 0UL, 0f, 1f, -0.2f, 0.4f, 0f, false, -0.2f, 0, true);
                     cheerAgent.MakeVoice(voiceType, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
                     resetTimer = true;
-                }
+                }              
             }
+
+            return false;
         }
         #endregion SelectAllFormations and Victory bugfix
 

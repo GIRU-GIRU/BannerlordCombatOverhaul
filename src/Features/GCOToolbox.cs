@@ -100,10 +100,20 @@ namespace GCO.Features
                             }
                             else
                             {
-                                victim.AgentDrivenProperties.MountSpeed /= 8;
-                                victim.UpdateAgentStats();
+                                try
+                                {
+                                    if (victim.IsActive())
+                                    {
+                                        victim.AgentDrivenProperties.MountSpeed /= 8;
+                                        victim.UpdateAgentStats();
 
-                                HorseCrippleLogic.CrippleHorseNew(victim, MissionTime.SecondsFromNow(Config.ConfigSettings.HorseProjectileCrippleDuration));
+                                        HorseCrippleLogic.CrippleHorseNew(victim, MissionTime.SecondsFromNow(Config.ConfigSettings.HorseProjectileCrippleDuration));
+                                    }
+                                }
+                                catch (Exception)
+                                {
+
+                                }
                             }
                         }
                     }

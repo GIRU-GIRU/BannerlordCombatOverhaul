@@ -16,13 +16,12 @@ namespace GCO
         {
             Harmony harmony = new Harmony("GIRUCombatOverhaul");
 
-            CompatibilityCheck.CheckAndApply();
-
             Config.InitConfig();
+
+            CompatibilityCheck.CheckAndApply();
 
             harmony.PatchAll(typeof(GCOSubModule).Assembly);
             Config.ConfigureHarmonyPatches(ref harmony);
-
         }
 
         public override void OnMissionBehaviourInitialize(Mission mission)
@@ -70,7 +69,7 @@ namespace GCO
 
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
         {
-            InformationManager.DisplayMessage(new InformationMessage("Loaded GCO 2.1.0", Color.White));
+            InformationManager.DisplayMessage(new InformationMessage("Loaded GCO 2.1.3", Color.White));
 
             if (!Config.ConfigLoadedSuccessfully)
             {

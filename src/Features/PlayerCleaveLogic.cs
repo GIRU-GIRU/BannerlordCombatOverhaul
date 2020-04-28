@@ -34,7 +34,7 @@ namespace GCO.Features
 
             if (attacker != null && defender != null)
             {
-                if (attacker.IsHero && !attacker.HasMount)
+                if (Config.ConfigSettings.CleaveEnabledForAllUnits || (attacker.IsHero && !attacker.HasMount))
                 {
                     if (!CancelsDamageAndBlocksAttackBecauseOfNonEnemyCase(__instance, attacker, defender))
                     {
@@ -60,7 +60,7 @@ namespace GCO.Features
 
             if (attacker != null && victim != null)
             {
-                if (attacker.IsHero)
+                if (attacker.IsHero || Config.ConfigSettings.CleaveEnabledForAllUnits)
                 {
                     if (!CancelsDamageAndBlocksAttackBecauseOfNonEnemyCase(__instance, attacker, victim))
                     {

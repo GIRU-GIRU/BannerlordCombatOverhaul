@@ -38,19 +38,25 @@ namespace GCO.Features.CustomMissionLogic
 
         public override void OnAgentHit(Agent affAgent1, Agent affAgent2, int damage, int weaponKind, int currentWeaponUsageIndex)
         {
-            if (!affAgent1.IsHuman) return;
-
-            float HPOnKillAmount = Config.ConfigSettings.HPOnKillAmount;
-            float healAmount = HPOnKillAmount + GetMedicineSkillCalculation();
-
-            bool valid = CheckPlayerAlive() && affAgent1.IsHuman && affAgent2 == Mission.MainAgent && damage > 0 && affAgent2 != affAgent1;
-
-            if (valid && affAgent1.Health <= 0f)
+            if (affAgent1.IsHuman && damage > 0 && affAgent2 != affAgent1)
             {
-                Mission.MainAgent.Health = Math.Min(Mission.MainAgent.Health + HPOnKillAmount, Mission.MainAgent.HealthLimit);
+                if (affAgent1.Health <= 0f)
+                {
+                    bool isMainAgent = CheckPlayerAlive() && affAgent2 == Mission.MainAgent;
 
-                InformationManager.DisplayMessage(new InformationMessage($"Healed {(int)healAmount} health!", Colors.White));
-            }
+                    if (isMainAgent)
+                    {
+                        float healAmount = Config.ConfigSettings.HPOnKillAmount + GetMedicineSkillCalculation();
+                        Mission.MainAgent.Health = Math.Min(Mission.MainAgent.Health + Config.ConfigSettings.HPOnKillAmount, Mission.MainAgent.HealthLimit);
+
+                        InformationManager.DisplayMessage(new InformationMessage($"Healed {(int)healAmount} health!", Colors.White));
+                    }
+                    else if(Config.ConfigSettings.HPOnKillForAI && affAgent2.IsActive())
+                    {
+                       affAgent2.Health = Math.Min(affAgent2.Health + Config.ConfigSettings.HPOnKillAmount, affAgent2.HealthLimit);
+                    }
+                }              
+            }           
         }
     }
 }

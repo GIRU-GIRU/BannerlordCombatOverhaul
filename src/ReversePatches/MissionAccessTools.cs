@@ -8,6 +8,10 @@ using TaleWorlds.Engine;
 using static HarmonyLib.AccessTools;
 using GCO.Patches;
 using System.Reflection;
+using TaleWorlds.CampaignSystem;
+using TaleWorlds.SaveSystem;
+using TaleWorlds.SaveSystem.Definition;
+using TaleWorlds.SaveSystem.Load;
 
 namespace GCO.ReversePatches
 {
@@ -18,6 +22,7 @@ namespace GCO.ReversePatches
         private static FieldRef<OrderController, List<Formation>> accessTools_selectedFormations = FieldRefAccess<OrderController, List<Formation>>("_selectedFormations");
 
         private static FieldRef<OrderController, Team> accessTools_team = FieldRefAccess<OrderController, Team>("_team");
+
         //private static MethodInfo accessTools_GetAttackCollisionResults = AccessTools.Method(typeof(Mission), "GetAttackCollisionResults", new Type[] {
         //            typeof(Agent),
         //            typeof(Agent),
@@ -39,6 +44,7 @@ namespace GCO.ReversePatches
         internal static Dictionary<int, Mission.Missile> Get_missiles(ref Mission __instance)
         {
             return accessTools_missiles(__instance);
+
         }
 
         internal static List<Formation> Get_selectedFormations(ref OrderController __instance)
@@ -49,6 +55,12 @@ namespace GCO.ReversePatches
         internal static Team Get_team(ref OrderController __instance)
         {
             return accessTools_team(__instance);
+        }
+
+        internal static FieldRef<VillageType, ValueTuple<ItemObject, float>[]> accessTools_productions = FieldRefAccess<VillageType, ValueTuple<ItemObject, float>[]>("_productions");
+        internal static ValueTuple<ItemObject, float>[] Get_productions(ref VillageType __instance)
+        {
+            return accessTools_productions(__instance);
         }
     }
 }

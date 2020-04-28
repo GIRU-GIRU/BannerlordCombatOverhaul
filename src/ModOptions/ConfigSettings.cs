@@ -10,11 +10,17 @@ namespace GCO.ModOptions
         [JsonProperty("HPOnKillAmount")]
         public float HPOnKillAmount { get; set; }
 
+        [JsonProperty("HPOnKillForAI")]
+        public bool HPOnKillForAI { get; set; }
+
         [JsonProperty("HPOnKillMedicineLevelScalePercentage")]
         public float HPOnKillMedicineLevelScalePercentage { get; set; }
 
-        [JsonProperty("CleaveEnabled")]
+        [JsonProperty("CleaveEnabledForHeros")]
         public bool CleaveEnabled { get; set; }
+
+        [JsonProperty("CleaveEnabledForAllUnits")]
+        public bool CleaveEnabledForAllUnits { get; set; }
 
         [JsonProperty("SimplifiedSurrenderLogic")]
         public bool SimplifiedSurrenderLogic { get; set; }

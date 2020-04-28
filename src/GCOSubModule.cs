@@ -69,7 +69,7 @@ namespace GCO
 
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
         {
-            InformationManager.DisplayMessage(new InformationMessage("Loaded GCO 2.1.3", Color.White));
+            InformationManager.DisplayMessage(new InformationMessage("Loaded GCO 2.2.0", Color.White));
 
             if (!Config.ConfigLoadedSuccessfully)
             {

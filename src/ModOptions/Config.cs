@@ -40,22 +40,28 @@ namespace GCO.ModOptions
             ConfigSettings = new ConfigSettings()
             {
                 CleaveEnabled = true,
-                ProjectileBalancingEnabled = true,
-                HPOnKillEnabled = true,
-                HPOnKillMedicineLevelScalePercentage = 0.1f,
-                HyperArmorEnabled = true,
-                SimplifiedSurrenderLogic = true,
-                HPOnKillAmount = 20f,
-                ProjectileStunPercentageThreshold = 40f,
-                HyperArmorDuration = 1f,
-                StandardizedFlinchOnEnemiesEnabled = true,
                 AdditionalCleaveForTroopsInShieldWall = true,
                 AdditionalCleaveForTroopsInShieldWallAngleRestriction = 60,
-                OrderVoiceCommandQueuing = true,
+                CleaveEnabledForAllUnits = true,
+
+                StandardizedFlinchOnEnemiesEnabled = true,
+
+                HyperArmorEnabled = true,
+                HyperArmorDuration = 1f,
+
+                HPOnKillEnabled = true,
+                HPOnKillForAI = true,
+                HPOnKillMedicineLevelScalePercentage = 0.1f,
+                HPOnKillAmount = 20f,
+                
+                ProjectileBalancingEnabled = true,
+                ProjectileStunPercentageThreshold = 40f,
                 HorseProjectileCrippleEnabled = true,
                 HorseProjectileCrippleDuration = 2,
 
+                OrderVoiceCommandQueuing = true,
                 MurderEnabled = false,
+                SimplifiedSurrenderLogic = true,
                 TrueFriendlyFireEnabled = false,
             };
         }

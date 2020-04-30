@@ -57,26 +57,34 @@ namespace GCO
         {
             if (Config.ConfigSettings.OrderControllerCameraImprovementsEnable)
             {
-                mission.AddMissionBehaviour(new CameraLogicExtensions());
-
-            }
-        }
-
-        private void ConfigureHealthOnkillLogic(Mission mission)
-        {
-            if (Config.ConfigSettings.HPOnKillEnabled)
-            {
                 if (mission.Scene != null)
                 {
                     bool isCombat = mission.CombatType == Mission.MissionCombatType.Combat;
                     bool isArenaCombat = mission.CombatType == Mission.MissionCombatType.ArenaCombat;
                     if (mission.IsFieldBattle || isCombat || isArenaCombat)
                     {
-                        mission.AddMissionBehaviour(new HealthOnKillLogic());
+                        mission.AddMissionBehaviour(new CameraLogic());
                     }
+
                 }
             }
         }
+
+            private void ConfigureHealthOnkillLogic(Mission mission)
+            {
+                if (Config.ConfigSettings.HPOnKillEnabled)
+                {
+                    if (mission.Scene != null)
+                    {
+                        bool isCombat = mission.CombatType == Mission.MissionCombatType.Combat;
+                        bool isArenaCombat = mission.CombatType == Mission.MissionCombatType.ArenaCombat;
+                        if (mission.IsFieldBattle || isCombat || isArenaCombat)
+                        {
+                            mission.AddMissionBehaviour(new HealthOnKillLogic());
+                        }
+                    }
+                }
+            }
 
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
         {

@@ -14,38 +14,8 @@ using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.View.Screen;
 
 namespace GCO.Features
-{
-    [HarmonyPatch]
-    public static class CameraLogic
-    {
-        [HarmonyPatch(typeof(MissionScreen), "UpdateCamera")]
-        [HarmonyPrefix]
-        internal static void UpdateCameraPrefix(ref MissionScreen __instance, ref float ____cameraSpecialTargetAddedBearing, ref Vec3 ____cameraSpecialTargetPositionToAdd, ref float ____cameraSpecialTargetDistanceToAdd, ref float ____cameraSpecialTargetAddedElevation)
-        {
-
-            var cle = __instance.Mission.GetMissionBehaviour<CameraLogicExtensions>();
-            if (cle != null)
-            {  
-                if (cle.ShouldOccur())
-                {
-
-                    if (__instance.OrderFlag.IsVisible)
-                    {
-                        ____cameraSpecialTargetDistanceToAdd = cle._distanceToAdd;
-                        ____cameraSpecialTargetPositionToAdd = new Vec3 { z = cle.HeightOffset(ref __instance) };
-                    }
-                    else
-                    {
-                        ____cameraSpecialTargetPositionToAdd = Vec3.Zero;
-                        ____cameraSpecialTargetDistanceToAdd = 0f;
-                        ____cameraSpecialTargetAddedElevation = 0f;
-                    }
-                }
-            }
-        }
-    }
-
-    internal class CameraLogicExtensions : MissionLogic
+{ 
+    internal class CameraLogic : MissionLogic
     {
         private const float _maxDistance = 200f;
         private const float _minDistance = 25f;
@@ -72,11 +42,12 @@ namespace GCO.Features
 
         internal bool ShouldOccur()
         {
+            bool notStartup = Mission.Mode != TaleWorlds.Core.MissionMode.StartUp;
             bool notConvo = Mission.Mode != TaleWorlds.Core.MissionMode.Conversation;
             bool notDuel = Mission.Mode != TaleWorlds.Core.MissionMode.Duel;
             bool notHideout = Mission.Mode != TaleWorlds.Core.MissionMode.Stealth;
 
-            return notConvo && notDuel && notHideout;
+            return notStartup && notConvo && notDuel && notHideout;
         }
 
         public float HeightOffset(ref MissionScreen __instance)

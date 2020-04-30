@@ -51,10 +51,6 @@ namespace GCO.Patches
         {
             var voiceType = new SkinVoiceType("Everyone");
 
-            var test = SkinVoiceManager.VoiceType.Everyone;
-
-           //ar test2 = OrderControllerReversePatches.SkinVoiceType("Everyone");
-
             if (GameNetwork.IsClient)
             {
                 GameNetwork.BeginModuleEventAsClient();
@@ -63,9 +59,7 @@ namespace GCO.Patches
             }
             if (uiFeedback && !GameNetwork.IsClientOrReplay && selectorAgent != null && Mission.Current.IsOrderShoutingAllowed())
             {
-                selectorAgent.MakeVoice(SkinVoiceManager.VoiceType.Everyone, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
-                TestClass.MakeVoice(selectorAgent, SkinVoiceManager.VoiceType.Everyone, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction); 
-                //electorAgent.MakeVoice(OrderControllerReversePatches.SkinVoiceType("Everyone"), SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
+                selectorAgent.MakeVoice(voiceType, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
             }
 
             var _selectedFormations = MissionAccessTools.Get_selectedFormations(ref __instance);

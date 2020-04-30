@@ -106,7 +106,10 @@ namespace GCO.ModOptions
                 HarmonyPatchesConfiguration.ProjectileBalancingEnabledPatch(ref harmony);
             }
 
-        
+            if (ConfigSettings.OrderControllerCameraImprovementsEnable)
+            {
+                HarmonyPatchesConfiguration.OrderControllerCameraImprovementsPatch(ref harmony);
+            }       
         }
     }
 }

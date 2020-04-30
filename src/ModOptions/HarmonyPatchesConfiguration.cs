@@ -1,10 +1,12 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using GCO.Features;
 using GCO.Patches;
 using HarmonyLib;
 using Helpers;
 using TaleWorlds.CampaignSystem.SandBox.CampaignBehaviors;
 using TaleWorlds.MountAndBlade;
+using TaleWorlds.MountAndBlade.View.Screen;
 
 namespace GCO.ModOptions
 {
@@ -73,6 +75,14 @@ namespace GCO.ModOptions
             harmony.Patch(selectAllFormations, new HarmonyMethod(selectAllFormationsPrefix), null, null, null);
             harmony.Patch(selectFormationMakeVoice, new HarmonyMethod(SelectFormationMakeVoicePrefix), null, null, null);
             harmony.Patch(afterSetOrderMakeVoice, new HarmonyMethod(afterSetOrderMakeVoicePrefix), null, null, null);
+        }
+
+        internal static void OrderControllerCameraImprovementsPatch(ref Harmony harmony)
+        {
+            var updateCamera = typeof(MissionScreen).GetMethod("UpdateCamera", BindingFlags.NonPublic | BindingFlags.Instance);
+            var updateCameraPrefix = typeof(MissionScreenPatches).GetMethod(nameof(MissionScreenPatches.UpdateCameraPrefix), BindingFlags.NonPublic | BindingFlags.Static);
+
+            harmony.Patch(updateCamera, new HarmonyMethod(updateCameraPrefix), null, null, null);
         }
 
         internal static void ProjectileBalancingEnabledPatch(ref Harmony harmony)

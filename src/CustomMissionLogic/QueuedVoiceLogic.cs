@@ -23,6 +23,7 @@ namespace GCO.Features.CustomMissionLogic
                 {
                     var queueItem = VoiceCommandQueue.GetNextQueueItem();
                     var voiceType = new SkinVoiceType(queueItem.VoiceTypeString);
+             
                     Agent.Main.MakeVoice(voiceType, CombatVoiceNetworkPredictionType.NoPrediction);
                     VoiceCommandQueue.ResetVoiceCommandTimer(queueItem.DelayAfter);
 

@@ -8,6 +8,7 @@ using System.Linq;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using TaleWorlds.MountAndBlade.View.Screen;
 using static TaleWorlds.MountAndBlade.SkinVoiceManager;
 
 namespace GCO.Patches
@@ -20,6 +21,7 @@ namespace GCO.Patches
             {
                 return false;
             }
+
             float delay = 800f;
             switch (formation.InitialClass)
             {
@@ -37,7 +39,7 @@ namespace GCO.Patches
                     VoiceCommandQueue.QueueItem("Cavalry", delay);
                     return false;
                 case FormationClass.HorseArcher:
-                    VoiceCommandQueue.QueueItem("HorseArchers", delay + 400f);
+                    VoiceCommandQueue.QueueItem("HorseArchers", delay + 800f);
                     return false;
                 default:
                     return false;
@@ -49,6 +51,10 @@ namespace GCO.Patches
         {
             var voiceType = new SkinVoiceType("Everyone");
 
+            var test = SkinVoiceManager.VoiceType.Everyone;
+
+           //ar test2 = OrderControllerReversePatches.SkinVoiceType("Everyone");
+
             if (GameNetwork.IsClient)
             {
                 GameNetwork.BeginModuleEventAsClient();
@@ -57,7 +63,9 @@ namespace GCO.Patches
             }
             if (uiFeedback && !GameNetwork.IsClientOrReplay && selectorAgent != null && Mission.Current.IsOrderShoutingAllowed())
             {
-                selectorAgent.MakeVoice(voiceType, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
+                selectorAgent.MakeVoice(SkinVoiceManager.VoiceType.Everyone, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
+                TestClass.MakeVoice(selectorAgent, SkinVoiceManager.VoiceType.Everyone, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction); 
+                //electorAgent.MakeVoice(OrderControllerReversePatches.SkinVoiceType("Everyone"), SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
             }
 
             var _selectedFormations = MissionAccessTools.Get_selectedFormations(ref __instance);

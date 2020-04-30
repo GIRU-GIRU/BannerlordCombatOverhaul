@@ -28,8 +28,11 @@ namespace GCO.ModOptions
         [JsonProperty("HyperArmorEnabled")]
         public bool HyperArmorEnabled { get; set; }
 
+        [JsonProperty("HyperArmorEnabledForAllUnits")]
+        public bool HyperArmorEnabledForAllUnits { get; set; }
+
         [JsonProperty("HyperArmorDuration")]
-        public float HyperArmorDuration { get; set; }
+        public double HyperArmorDuration { get; set; }
 
         [JsonProperty("ProjectileBalancingEnabled")]
         public bool ProjectileBalancingEnabled { get; set; }
@@ -63,5 +66,8 @@ namespace GCO.ModOptions
 
         [JsonProperty("HorseProjectileCrippleDuration")]
         public float HorseProjectileCrippleDuration { get; internal set; }
+
+        [JsonProperty("OrderControllerCameraImprovementsEnable")]
+        public bool OrderControllerCameraImprovementsEnable { get; set; }
     }
 }

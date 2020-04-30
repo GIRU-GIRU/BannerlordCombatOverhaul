@@ -57,6 +57,7 @@ namespace GCO.ReversePatches
         //}
 
 
+
         [HarmonyReversePatch]
         [HarmonyPatch(typeof(Mission), "CreateMissileBlow")]
         internal static Blow CreateMissileBlow(this Mission __instance, Agent attackerAgent, ref AttackCollisionData collisionData, Mission.Missile missile, Vec3 missilePosition, Vec3 missileStartingPosition)
@@ -127,5 +128,13 @@ namespace GCO.ReversePatches
             throw new NotImplementedException("Need to patch first");
         }
 
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(Mission), "SpeedGraphFunction")]
+        internal static float SpeedGraphFunction(this Mission current, StrikeType strikeType, Agent.UsageDirection attackDirection)
+        {
+            throw new NotImplementedException("Need to patch first");
+        }
     }
+
 }
+

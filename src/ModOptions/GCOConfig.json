@@ -1,5 +1,6 @@
 {
   "HyperArmorEnabled": true,
+  "HyperArmorEnabledForAllUnits": true,
   "HyperArmorDuration": 1,
 
   "HPOnKillEnabled": true,
@@ -10,7 +11,7 @@
   "StandardizedFlinchOnEnemiesEnabled": true,
 
   "CleaveEnabledForHeros": true,
-  "CleaveEnabledForAllUnits":  true,
+  "CleaveEnabledForAllUnits": true,
 
   "AdditionalCleaveForTroopsInShieldWall": true, // allows troops in the shield wall to cleave through each other
   "AdditionalCleaveForTroopsInShieldWallMomentumLoss": 0, // 0 to 100 value defining the percentage of possible damage lost because of cleaving through friendlies
@@ -22,6 +23,7 @@
   "SimplifiedSurrenderLogic": true,
 
   "OrderVoiceCommandQueuing": true,
+  "OrderControllerCameraImprovementsEnable": true,
 
   "ProjectileBalancingEnabled": true,
   "ProjectileStunPercentageThreshold": 40,

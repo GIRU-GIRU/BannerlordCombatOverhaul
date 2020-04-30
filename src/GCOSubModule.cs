@@ -7,6 +7,7 @@ using GCO.Features.CustomMissionLogic;
 using GCO.Utility;
 using System.Linq;
 using GCO.CustomMissionLogic;
+using GCO.Features;
 
 namespace GCO
 {
@@ -24,12 +25,13 @@ namespace GCO
             Config.ConfigureHarmonyPatches(ref harmony);
         }
 
+
         public override void OnMissionBehaviourInitialize(Mission mission)
         {
             ConfigureHealthOnkillLogic(mission);
             ConfigureQueuedVoiceLogic(mission);
             ConfigureHorseCrippleLogic(mission);
-
+            ConfigureCameraLogic(mission);
 
             base.OnMissionBehaviourInitialize(mission);
         }
@@ -44,11 +46,20 @@ namespace GCO
 
         private void ConfigureHorseCrippleLogic(Mission mission)
         {
-            if(Config.ConfigSettings.ProjectileBalancingEnabled)
+            if (Config.ConfigSettings.ProjectileBalancingEnabled)
             {
                 mission.AddMissionBehaviour(new HorseCrippleLogic());
             }
 
+        }
+
+        private void ConfigureCameraLogic(Mission mission)
+        {
+            if (Config.ConfigSettings.OrderControllerCameraImprovementsEnable)
+            {
+                mission.AddMissionBehaviour(new CameraLogicExtensions());
+
+            }
         }
 
         private void ConfigureHealthOnkillLogic(Mission mission)

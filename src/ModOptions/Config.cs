@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Reflection;
+using GCO.Features;
 using HarmonyLib;
 using Newtonsoft.Json;
 
@@ -47,19 +48,21 @@ namespace GCO.ModOptions
                 StandardizedFlinchOnEnemiesEnabled = true,
 
                 HyperArmorEnabled = true,
-                HyperArmorDuration = 1f,
+                HyperArmorEnabledForAllUnits = true,
+                HyperArmorDuration = 1,
 
                 HPOnKillEnabled = true,
                 HPOnKillForAI = true,
                 HPOnKillMedicineLevelScalePercentage = 0.1f,
                 HPOnKillAmount = 20f,
-                
+
                 ProjectileBalancingEnabled = true,
                 ProjectileStunPercentageThreshold = 40f,
                 HorseProjectileCrippleEnabled = true,
                 HorseProjectileCrippleDuration = 2,
 
                 OrderVoiceCommandQueuing = true,
+                OrderControllerCameraImprovementsEnable = true,
                 MurderEnabled = false,
                 SimplifiedSurrenderLogic = true,
                 TrueFriendlyFireEnabled = false,
@@ -102,6 +105,8 @@ namespace GCO.ModOptions
             {
                 HarmonyPatchesConfiguration.ProjectileBalancingEnabledPatch(ref harmony);
             }
+
+        
         }
     }
 }

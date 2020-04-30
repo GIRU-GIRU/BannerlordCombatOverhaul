@@ -7,6 +7,7 @@ using System.Linq;
 using System;
 using GCO.CustomMissionLogic;
 using GCO.ModOptions;
+using TaleWorlds.DotNet;
 
 namespace GCO.Features
 {
@@ -29,85 +30,67 @@ namespace GCO.Features
         internal static bool MissileHitCallbackPrefix(ref bool __result, ref Mission __instance, out int hitParticleIndex, ref AttackCollisionData collisionData, int missileIndex, Vec3 missileStartingPosition, Vec3 missilePosition, Vec3 missileAngularVelocity, Vec3 movementVelocity, MatrixFrame attachGlobalFrame, MatrixFrame affectedShieldGlobalFrame, int numDamagedAgents, Agent attacker, Agent victim, GameEntity hitEntity)
         {
             var _missiles = MissionAccessTools.Get_missiles(ref __instance);
-          
+            Mission.Missile missile = _missiles[missileIndex];
+
             bool isHorseArcher = GCOToolbox.ProjectileBalance.CheckForHorseArcher(victim);
             bool makesRear = GCOToolbox.ProjectileBalance.ApplyHorseCrippleLogic(victim, collisionData.VictimHitBodyPart);
 
-            Mission.Missile missile = _missiles[missileIndex];
-            WeaponFlags weaponFlags = missile.Weapon.CurrentUsageItem.WeaponFlags;
-            float num = 1f;
-            WeaponComponentData weaponComponentData = null;
-            if (collisionData.AttackBlockedWithShield && weaponFlags.HasAnyFlag(WeaponFlags.CanPenetrateShield))
+            WeaponFlags weaponFlags1 = missile.Weapon.CurrentUsageItem.WeaponFlags;
+            float momentumRemaining = 1f;
+            WeaponComponentData shieldOnBack = (WeaponComponentData)null;
+            if (collisionData.AttackBlockedWithShield && weaponFlags1.HasAnyFlag<WeaponFlags>(WeaponFlags.CanPenetrateShield))
             {
-                GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
+                GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, hitEntity, momentumRemaining, ref collisionData, false, false, out shieldOnBack);
                 EquipmentIndex wieldedItemIndex = victim.GetWieldedItemIndex(Agent.HandIndex.OffHand);
-                if ((float)collisionData.InflictedDamage > ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.ShieldPenetrationOffset) + ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.ShieldPenetrationFactor) * (float)victim.Equipment[wieldedItemIndex].GetShieldArmorForCurrentUsage())
+                if ((double)collisionData.InflictedDamage > (double)ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.ShieldPenetrationOffset) + (double)ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.ShieldPenetrationFactor) * (double)victim.Equipment[wieldedItemIndex].GetShieldArmorForCurrentUsage())
                 {
                     AttackCollisionData.UpdateDataForShieldPenetration(ref collisionData);
-                    num *= 0.4f + MBRandom.RandomFloat * 0.2f;
+                    momentumRemaining *= (float)(0.400000005960464 + (double)MBRandom.RandomFloat * 0.200000002980232);
                 }
             }
             hitParticleIndex = -1;
-            Mission.MissileCollisionReaction missileCollisionReaction = Mission.MissileCollisionReaction.BecomeInvisible; //  Mission.MissileCollisionReaction.Invalid;
-            bool flag = !GameNetwork.IsSessionActive;
+            bool flag1 = !GameNetwork.IsSessionActive;
             bool missileHasPhysics = collisionData.MissileHasPhysics;
             PhysicsMaterial fromIndex = PhysicsMaterial.GetFromIndex(collisionData.PhysicsMaterialIndex);
             int num1 = fromIndex.IsValid ? (int)fromIndex.GetFlags() : 0;
-
-            bool flag2 = (weaponFlags & WeaponFlags.AmmoSticksWhenShot) > (WeaponFlags)0;
+            bool flag2 = (weaponFlags1 & WeaponFlags.AmmoSticksWhenShot) > (WeaponFlags)0;
             bool flag3 = (num1 & 1) == 0;
             bool flag4 = (uint)(num1 & 8) > 0U;
-
-            MissionObject missionObject = null;
-            if (victim == null && hitEntity != null)
+            MissionObject attachedMissionObject = (MissionObject)null;
+            if (victim == null && (NativeObject)hitEntity != (NativeObject)null)
             {
                 GameEntity gameEntity = hitEntity;
                 do
                 {
-                    missionObject = gameEntity.GetFirstScriptOfType<MissionObject>();
+                    attachedMissionObject = gameEntity.GetFirstScriptOfType<MissionObject>();
                     gameEntity = gameEntity.Parent;
                 }
-                while (missionObject == null && gameEntity != null);
-                hitEntity = ((missionObject != null) ? missionObject.GameEntity : null);
+                while (attachedMissionObject == null && (NativeObject)gameEntity != (NativeObject)null);
+                hitEntity = attachedMissionObject?.GameEntity;
             }
-            Mission.MissileCollisionReaction missileCollisionReaction2;
-            if (flag4)
-            {
-                missileCollisionReaction2 = Mission.MissileCollisionReaction.PassThrough;
-            }
-            else if (weaponFlags.HasAnyFlag(WeaponFlags.Burning))
-            {
-                missileCollisionReaction2 = Mission.MissileCollisionReaction.BecomeInvisible;
-            }
-            else if (!flag3 || !flag2)
-            {
-                missileCollisionReaction2 = Mission.MissileCollisionReaction.BounceBack;
-            }
-            else
-            {
-                missileCollisionReaction2 = Mission.MissileCollisionReaction.Stick;
-            }
-            bool flag5 = false;
+            Mission.MissileCollisionReaction collisionReaction1 = !flag4 ? (!weaponFlags1.HasAnyFlag<WeaponFlags>(WeaponFlags.Burning) ? (!flag3 || !flag2 ? Mission.MissileCollisionReaction.BounceBack : Mission.MissileCollisionReaction.Stick) : Mission.MissileCollisionReaction.BecomeInvisible) : Mission.MissileCollisionReaction.PassThrough;
+            bool isCanceled = false;
+            Mission.MissileCollisionReaction collisionReaction2;
             if (collisionData.MissileGoneUnderWater)
             {
-                missileCollisionReaction = Mission.MissileCollisionReaction.BecomeInvisible;
+                collisionReaction2 = Mission.MissileCollisionReaction.BecomeInvisible;
                 hitParticleIndex = 0;
             }
             else if (victim == null)
             {
-                if (hitEntity != null)
+                if ((NativeObject)hitEntity != (NativeObject)null)
                 {
-                    GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
-                    Blow b = __instance.CreateMissileBlow(attacker, ref collisionData, missile, missilePosition, missileStartingPosition);
-                    __instance.RegisterBlow(attacker, null, hitEntity, b, ref collisionData);
+                    GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, hitEntity, momentumRemaining, ref collisionData, false, false, out shieldOnBack);
+                    Blow missileBlow = __instance.CreateMissileBlow(attacker, ref collisionData, missile, missilePosition, missileStartingPosition);
+                    __instance.RegisterBlow(attacker, (Agent)null, hitEntity, missileBlow, ref collisionData);
                 }
-                missileCollisionReaction = missileCollisionReaction2;
+                collisionReaction2 = collisionReaction1;
                 hitParticleIndex = 0;
             }
             else if (collisionData.AttackBlockedWithShield)
             {
-                GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, hitEntity, num, ref collisionData, false, false, out weaponComponentData);
-                missileCollisionReaction = (collisionData.IsShieldBroken ? Mission.MissileCollisionReaction.BecomeInvisible : missileCollisionReaction2);
+                GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, hitEntity, momentumRemaining, ref collisionData, false, false, out shieldOnBack);
+                collisionReaction2 = collisionData.IsShieldBroken ? Mission.MissileCollisionReaction.BecomeInvisible : collisionReaction1;
                 hitParticleIndex = 0;
             }
             else
@@ -116,144 +99,104 @@ namespace GCO.Features
                 {
                     if (!missileHasPhysics)
                     {
-                        if (flag)
+                        if (flag1)
                         {
                             if (attacker.Controller == Agent.ControllerType.AI)
-                            {
-                                flag5 = true;
-                            }
+                                isCanceled = true;
                         }
-                        else if ((MultiplayerOptions.OptionType.FriendlyFireDamageRangedFriendPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0 && MultiplayerOptions.OptionType.FriendlyFireDamageRangedSelfPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0) || Mission.Current.Mode == MissionMode.Duel)
-                        {
-                            flag5 = true;
-                        }
+                        else if (MultiplayerOptions.OptionType.FriendlyFireDamageRangedFriendPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0 && MultiplayerOptions.OptionType.FriendlyFireDamageRangedSelfPercent.GetIntValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions) <= 0 || __instance.Mode == MissionMode.Duel)
+                            isCanceled = true;
                     }
                 }
                 else if (victim.IsHuman && !attacker.IsEnemyOf(victim))
+                    isCanceled = true;
+                else if (flag1 && attacker != null && (attacker.Controller == Agent.ControllerType.AI && victim.RiderAgent != null) && attacker.IsFriendOf(victim.RiderAgent))
+                    isCanceled = true;
+                if (isCanceled)
                 {
-                    flag5 = true;
-                }
-                else if (flag && attacker != null && attacker.Controller == Agent.ControllerType.AI && victim.RiderAgent != null && attacker.IsFriendOf(victim.RiderAgent))
-                {
-                    flag5 = true;
-                }
-                if (flag5)
-                {
-                    if (flag && attacker == Agent.Main && attacker.IsFriendOf(victim))
-                    {
-                        InformationManager.DisplayMessage(new InformationMessage(GameTexts.FindText("ui_you_hit_a_friendly_troop", null).ToString(), Color.ConvertStringToColor("#D65252FF")));
-                    }
-                    missileCollisionReaction = Mission.MissileCollisionReaction.BecomeInvisible;
+                    if (flag1 && attacker == Agent.Main && attacker.IsFriendOf(victim))
+                        InformationManager.DisplayMessage(new InformationMessage(GameTexts.FindText("ui_you_hit_a_friendly_troop", (string)null).ToString(), Color.ConvertStringToColor("#D65252FF")));
+                    collisionReaction2 = Mission.MissileCollisionReaction.BecomeInvisible;
                 }
                 else
                 {
-                    bool flag6 = (weaponFlags & WeaponFlags.MultiplePenetration) > (WeaponFlags)0UL;
+                    bool flag5 = (weaponFlags1 & WeaponFlags.MultiplePenetration) > (WeaponFlags)0;
+                    GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, (GameEntity)null, momentumRemaining, ref collisionData, false, false, out shieldOnBack);
+                    Blow missileBlow = __instance.CreateMissileBlow(attacker, ref collisionData, missile, missilePosition, missileStartingPosition);
+                    if (makesRear) missileBlow.BlowFlag = BlowFlags.MakesRear;
 
-                    GetAttackCollisionResultsPrefix(ref __instance, isHorseArcher, missile, attacker, victim, null, num, ref collisionData, false, false, out weaponComponentData);
-
-                    Blow blow = __instance.CreateMissileBlow(attacker, ref collisionData, missile, missilePosition, missileStartingPosition);
-                    if (makesRear) blow.BlowFlag = BlowFlags.MakesRear;
-
-                    if (!collisionData.CollidedWithShieldOnBack && flag6 && numDamagedAgents > 0)
+                    if (!collisionData.CollidedWithShieldOnBack & flag5 && numDamagedAgents > 0)
                     {
-                        blow.InflictedDamage /= numDamagedAgents;
-                        blow.SelfInflictedDamage /= numDamagedAgents;
+                        missileBlow.InflictedDamage /= numDamagedAgents;
+                        missileBlow.SelfInflictedDamage /= numDamagedAgents;
                     }
-                    ManagedParametersEnum managedParameterEnum;
-                    if (blow.DamageType == DamageTypes.Cut)
-                    {
-                        managedParameterEnum = ManagedParametersEnum.DamageInterruptAttackThresholdCut;
-                    }
-                    else if (blow.DamageType == DamageTypes.Pierce)
-                    {
-                        managedParameterEnum = ManagedParametersEnum.DamageInterruptAttackThresholdPierce;
-                    }
-                    else
-                    {
-                        managedParameterEnum = ManagedParametersEnum.DamageInterruptAttackThresholdBlunt;
-                    }
-                    float managedParameter = ManagedParameters.Instance.GetManagedParameter(managedParameterEnum);
-                    if ((float)collisionData.InflictedDamage <= managedParameter)
-                    {
-                        blow.BlowFlag |= BlowFlags.ShrugOff;
-                    }
+                    float managedParameter1 = ManagedParameters.Instance.GetManagedParameter(missileBlow.DamageType != DamageTypes.Cut ? (missileBlow.DamageType != DamageTypes.Pierce ? ManagedParametersEnum.DamageInterruptAttackThresholdBlunt : ManagedParametersEnum.DamageInterruptAttackThresholdPierce) : ManagedParametersEnum.DamageInterruptAttackThresholdCut);
+                    if ((double)collisionData.InflictedDamage <= (double)managedParameter1)
+                        missileBlow.BlowFlag |= BlowFlags.ShrugOff;
                     if (victim.State == AgentState.Active)
-                    {
-                        __instance.RegisterBlow(attacker, victim, null, blow, ref collisionData);
-                    }
+                        __instance.RegisterBlow(attacker, victim, (GameEntity)null, missileBlow, ref collisionData);
                     hitParticleIndex = ParticleSystemManager.GetRuntimeIdByName("psys_game_blood_sword_enter");
-                    if (flag6 && numDamagedAgents < 3)
+                    if (flag5 && numDamagedAgents < 3)
                     {
-                        missileCollisionReaction = Mission.MissileCollisionReaction.PassThrough;
+                        collisionReaction2 = Mission.MissileCollisionReaction.PassThrough;
                     }
                     else
                     {
-                        if (missileCollisionReaction2 == Mission.MissileCollisionReaction.Stick && !collisionData.CollidedWithShieldOnBack)
+                        collisionReaction2 = collisionReaction1;
+                        if (collisionReaction1 == Mission.MissileCollisionReaction.Stick && !collisionData.CollidedWithShieldOnBack)
                         {
-                            bool flag7 = __instance.CombatType == Mission.MissionCombatType.Combat;
-                            if (flag7)
+                            bool flag6 = __instance.CombatType == Mission.MissionCombatType.Combat;
+                            if (flag6)
                             {
-                                bool flag8 = victim.IsHuman && collisionData.VictimHitBodyPart == BoneBodyPartType.Head;
-                                flag7 = (victim.State != AgentState.Active || !flag8);
+                                bool flag7 = victim.IsHuman && collisionData.VictimHitBodyPart == BoneBodyPartType.Head;
+                                flag6 = victim.State != AgentState.Active || !flag7;
                             }
-                            if (flag7)
+                            if (flag6)
                             {
                                 float managedParameter2 = ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.MissileMinimumDamageToStick);
                                 float num2 = 2f * managedParameter2;
-                                if (!GameNetwork.IsClientOrReplay && (float)blow.InflictedDamage < managedParameter2 && blow.AbsorbedByArmor > num2)
-                                {
-                                    missileCollisionReaction = Mission.MissileCollisionReaction.BounceBack;
-                                }
+                                if (!GameNetwork.IsClientOrReplay && (double)missileBlow.InflictedDamage < (double)managedParameter2 && (double)missileBlow.AbsorbedByArmor > (double)num2)
+                                    collisionReaction2 = Mission.MissileCollisionReaction.BounceBack;
                             }
                             else
-                            {
-                                missileCollisionReaction = Mission.MissileCollisionReaction.BecomeInvisible;
-                            }
+                                collisionReaction2 = Mission.MissileCollisionReaction.BecomeInvisible;
                         }
                     }
                 }
             }
-            if (collisionData.CollidedWithShieldOnBack && weaponComponentData != null && victim != null && victim.IsMainAgent)
-            {
-                InformationManager.DisplayMessage(new InformationMessage(GameTexts.FindText("ui_hit_shield_on_back", null).ToString(), Color.ConvertStringToColor("#FFFFFFFF")));
-            }
+            if (collisionData.CollidedWithShieldOnBack && shieldOnBack != null && (victim != null && victim.IsMainAgent))
+                InformationManager.DisplayMessage(new InformationMessage(GameTexts.FindText("ui_hit_shield_on_back", (string)null).ToString(), Color.ConvertStringToColor("#FFFFFFFF")));
             MatrixFrame attachLocalFrame;
             if (!collisionData.MissileHasPhysics && !collisionData.MissileGoneUnderWater)
             {
-                bool shouldMissilePenetrate = missileCollisionReaction == Mission.MissileCollisionReaction.Stick;
+                bool shouldMissilePenetrate = collisionReaction2 == Mission.MissileCollisionReaction.Stick;
                 attachLocalFrame = __instance.CalculateAttachedLocalFrame(ref attachGlobalFrame, collisionData, missile.Weapon.CurrentUsageItem, victim, hitEntity, movementVelocity, missileAngularVelocity, affectedShieldGlobalFrame, shouldMissilePenetrate);
             }
             else
             {
                 attachLocalFrame = attachGlobalFrame;
-                missionObject = null;
+                attachedMissionObject = (MissionObject)null;
             }
-            Vec3 zero = Vec3.Zero;
-            Vec3 zero2 = Vec3.Zero;
-            if (missileCollisionReaction == Mission.MissileCollisionReaction.BounceBack)
+            Vec3 velocity = Vec3.Zero;
+            Vec3 angularVelocity = Vec3.Zero;
+            if (collisionReaction2 == Mission.MissileCollisionReaction.BounceBack)
             {
-                WeaponFlags weaponFlags2 = weaponFlags & WeaponFlags.AmmoBreakOnBounceBackMask;
-                if ((weaponFlags2 == WeaponFlags.AmmoCanBreakOnBounceBack && collisionData.MissileVelocity.Length > ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.BreakableProjectileMinimumBreakSpeed)) || weaponFlags2 == WeaponFlags.AmmoBreaksOnBounceBack)
+                WeaponFlags weaponFlags2 = weaponFlags1 & WeaponFlags.AmmoBreakOnBounceBackMask;
+                if (weaponFlags2 == WeaponFlags.AmmoCanBreakOnBounceBack && (double)collisionData.MissileVelocity.Length > (double)ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.BreakableProjectileMinimumBreakSpeed) || weaponFlags2 == WeaponFlags.AmmoBreaksOnBounceBack)
                 {
-                    missileCollisionReaction = Mission.MissileCollisionReaction.BecomeInvisible;
+                    collisionReaction2 = Mission.MissileCollisionReaction.BecomeInvisible;
                     hitParticleIndex = ParticleSystemManager.GetRuntimeIdByName("psys_game_broken_arrow");
                 }
                 else
-                {
-                    missile.CalculateBounceBackVelocity(missileAngularVelocity, collisionData, out zero, out zero2);
-                }
+                    missile.CalculateBounceBackVelocity(missileAngularVelocity, collisionData, out velocity, out angularVelocity);
             }
-            __instance.HandleMissileCollisionReaction(missileIndex, missileCollisionReaction, attachLocalFrame, attacker, victim, collisionData.AttackBlockedWithShield, collisionData.CollisionBoneIndex, missionObject, zero, zero2, -1);
+            __instance.HandleMissileCollisionReaction(missileIndex, collisionReaction2, attachLocalFrame, attacker, victim, collisionData.AttackBlockedWithShield, collisionData.CollisionBoneIndex, attachedMissionObject, velocity, angularVelocity, -1);
             foreach (MissionBehaviour missionBehaviour in __instance.MissionBehaviours)
-            {
-                missionBehaviour.OnMissileHit(attacker, victim, flag5);
-            }
-            __result = missileCollisionReaction != Mission.MissileCollisionReaction.PassThrough;
+                missionBehaviour.OnMissileHit(attacker, victim, isCanceled);
+            __result = collisionReaction2 != Mission.MissileCollisionReaction.PassThrough;
 
             return false;
         }
-
-
 
         internal static bool GetAttackCollisionResultsPrefix(ref Mission __instance, bool isHorseArcher, Mission.Missile missile, Agent attackerAgent, Agent victimAgent, GameEntity hitObject, float momentumRemaining, ref AttackCollisionData attackCollisionData, bool crushedThrough, bool cancelDamage, out WeaponComponentData shieldOnBack)
         {

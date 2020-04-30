@@ -81,6 +81,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -261,6 +262,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomMissionLogic\HorseCrippleLogic.cs" />
+    <Compile Include="Features\CameraLogic.cs" />
     <Compile Include="ModOptions\CompatibilitySettings.cs" />
     <Compile Include="ModOptions\Config.cs" />
     <Compile Include="ModOptions\ConfigSettings.cs" />

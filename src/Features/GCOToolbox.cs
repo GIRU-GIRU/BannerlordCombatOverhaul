@@ -1,6 +1,7 @@
 ﻿using GCO.CustomMissionLogic;
 using GCO.ModOptions;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
@@ -10,13 +11,15 @@ namespace GCO.Features
 {
     internal static class GCOToolbox
     {
-        internal static bool GCOCheckForPlayerAgent(Agent agent)
+
+
+        private static bool GCOCheckForHero(Agent agent)
         {
             bool isPlayer = false;
 
             if (agent != null)
             {
-                if (agent.IsPlayerControlled && agent.IsHuman && agent.IsHero)
+                if (agent.IsHuman && agent.IsHero)
                 {
                     isPlayer = true;
                 }
@@ -68,7 +71,7 @@ namespace GCO.Features
             {
                 bool isHorseArcher = false;
 
-                if (victim != null && !victim.IsMount && victim.WieldedWeapon.Weapons != null)
+                if (victim != null && !victim.IsMount && !victim.WieldedWeapon.IsEmpty && victim.WieldedWeapon.Weapons != null)
                 {
                     if (!victim.IsMainAgent)
                     {
@@ -210,16 +213,19 @@ namespace GCO.Features
 
             internal static void CheckForProjectileFlinch(ref Blow b, ref Blow blow, AttackCollisionData collisionData, Agent victim)
             {
-                if (victim != null && b.IsMissile())
+                if (Config.ConfigSettings.ProjectileBalancingEnabled && GCOCheckForHero(victim))
                 {
-                    if (collisionData.VictimHitBodyPart != BoneBodyPartType.Head && collisionData.VictimHitBodyPart != BoneBodyPartType.Neck)
+                    if (victim != null && b.IsMissile())
                     {
-                        var projStunThresholdMultiplier = Config.ConfigSettings.ProjectileStunPercentageThreshold / 100;
-
-                        if (b.InflictedDamage < (victim.HealthLimit * projStunThresholdMultiplier))
+                        if (collisionData.VictimHitBodyPart != BoneBodyPartType.Head && collisionData.VictimHitBodyPart != BoneBodyPartType.Neck)
                         {
-                            b.BlowFlag |= BlowFlags.ShrugOff;
-                            blow.BlowFlag |= BlowFlags.ShrugOff;
+                            var projStunThresholdMultiplier = Config.ConfigSettings.ProjectileStunPercentageThreshold / 100;
+
+                            if (b.InflictedDamage < (victim.HealthLimit * projStunThresholdMultiplier))
+                            {
+                                b.BlowFlag |= BlowFlags.ShrugOff;
+                                blow.BlowFlag |= BlowFlags.ShrugOff;
+                            }
                         }
                     }
                 }
@@ -228,6 +234,19 @@ namespace GCO.Features
 
         public class MeleeBalance
         {
+            internal static bool GCOCheckHyperArmorConfiguration(Agent agent)
+            {
+                if (Config.ConfigSettings.HyperArmorEnabled && agent != null)
+                {
+                    {
+                        return Config.ConfigSettings.HyperArmorEnabledForAllUnits || GCOCheckForHero(agent);
+                    }
+                }
+
+                return false;
+            }
+
+
 
             internal static float GCOGetStaticFlinchPeriod(Agent attackerAgent, float defenderStunPeriod)
             {
@@ -239,34 +258,40 @@ namespace GCO.Features
                 return defenderStunPeriod;
             }
 
-            internal static void CheckToAddHyperarmor(ref Blow b, ref Blow blow)
+            private static ConcurrentDictionary<Agent, MissionTime> hyperArmorCollection = new ConcurrentDictionary<Agent, MissionTime>();
+            internal static void CreateHyperArmorBuff(Agent defenderAgent)
             {
-                if (IsHyperArmorActive())
+                if (defenderAgent != null && defenderAgent.IsActive())
+                {
+                    hyperArmorCollection[defenderAgent] = MissionTime.MillisecondsFromNow((float)Config.ConfigSettings.HyperArmorDuration * 1000);
+                }
+            }
+
+            internal static void CheckToAddHyperarmor(Agent agent, ref Blow b, ref Blow blow)
+            {
+                if (IsHyperArmorActive(agent))
                 {
                     b.BlowFlag |= BlowFlags.ShrugOff;
                     blow.BlowFlag |= BlowFlags.ShrugOff;
-                    InformationManager.DisplayMessage(
-                         new InformationMessage("Player hyperarmor prevented flinch!", Colors.White));
+                    if (agent == Mission.Current.MainAgent)
+                    {
+                        InformationManager.DisplayMessage(
+                        new InformationMessage("Player hyperarmor prevented flinch!", Colors.White));
+                    }
                 }
             }
 
-            internal static void CreateHyperArmorBuff(Agent defenderAgent)
+            private static bool IsHyperArmorActive(Agent agent)
             {
-                if (defenderAgent.IsPlayerControlled)
+                if (hyperArmorCollection.ContainsKey(agent))
                 {
-                    ApplyHyperArmor();
+                    if (hyperArmorCollection.TryGetValue(agent, out MissionTime hyperArmorDuration))
+                    {
+                        return !hyperArmorDuration.IsPast;
+                    }
                 }
-            }
 
-            private static MissionTime _playerAgentHyperarmorActiveTime;
-            private static void ApplyHyperArmor()
-            {
-                _playerAgentHyperarmorActiveTime = MissionTime.SecondsFromNow(Config.ConfigSettings.HyperArmorDuration);
-            }
-
-            private static bool IsHyperArmorActive()
-            {
-                return !_playerAgentHyperarmorActiveTime.IsPast;
+                return false;
             }
         }
     }

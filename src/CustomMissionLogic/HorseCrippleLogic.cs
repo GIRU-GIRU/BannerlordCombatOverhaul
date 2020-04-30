@@ -41,7 +41,6 @@ namespace GCO.CustomMissionLogic
                             {
                                 queueItem.Item1.AgentDrivenProperties.MountSpeed *= 8;
                                 queueItem.Item1.UpdateAgentStats();
-
                             }
                         }
                         catch (Exception)

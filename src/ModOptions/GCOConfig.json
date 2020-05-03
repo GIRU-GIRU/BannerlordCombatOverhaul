@@ -28,5 +28,5 @@
   "ProjectileBalancingEnabled": true,
   "ProjectileStunPercentageThreshold": 40,
   "HorseProjectileCrippleEnabled": true,
-  "HorseProjectileCrippleDuration": 2
+  "HorseProjectileCrippleDuration": 1
 }

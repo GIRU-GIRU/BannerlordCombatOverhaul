@@ -1,8 +1,9 @@
 ﻿using System.IO;
 using System.Reflection;
-using GCO.Features;
+using GCO.GCOToolbox;
 using HarmonyLib;
 using Newtonsoft.Json;
+using static GCO.ModOptions.SubModuleInfo;
 
 namespace GCO.ModOptions
 {
@@ -18,12 +19,17 @@ namespace GCO.ModOptions
 
         public static CompatibilitySettings CompatibilitySettings { get; private set; }
 
-        public static void InitConfig()
+        public static SubModuleContents SubModuleInfoContents { get; private set; }
+
+    public static void InitConfig()
         {
             CompatibilitySettings = new CompatibilitySettings()
             {
                 XorbarexCleaveExists = false,
             };
+
+            SubModuleInfo info = new SubModuleInfo();
+            SubModuleInfoContents = info.DeserializeSubModule();
 
             if (configExists)
             {
@@ -67,6 +73,8 @@ namespace GCO.ModOptions
                 SimplifiedSurrenderLogic = true,
                 TrueFriendlyFireEnabled = false,
             };
+
+            
         }
 
         public static void ConfigureHarmonyPatches(ref Harmony harmony)

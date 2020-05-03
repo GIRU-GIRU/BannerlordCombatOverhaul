@@ -5,13 +5,14 @@ using TaleWorlds.MountAndBlade;
 using GCO.ReversePatches;
 using System.Linq;
 using System;
-using GCO.CustomMissionLogic;
+using GCO.GCOMissionLogic;
 using GCO.ModOptions;
 using TaleWorlds.DotNet;
+using GCO.GCOToolbox;
 
-namespace GCO.Features
+namespace GCO.Patches
 {
-    internal class ProjectileBalanceLogic
+    class MissionPatchesProjectile
     {
         internal static void GetWeaponSkillPostfix(ref int __result, BasicCharacterObject character, WeaponComponentData equippedItem)
         {
@@ -22,9 +23,9 @@ namespace GCO.Features
             }
 
             var skillAmount = character.GetSkillValue(skill);
-            var amountToReturn = GCOToolbox.ProjectileBalance.IfCrossbowEmpowerStat(skillAmount, skill);
+            var amountToReturn = GCOToolbox.GCOToolbox.ProjectileBalance.IfCrossbowEmpowerStat(skillAmount, skill);
 
-            __result = amountToReturn;      
+            __result = amountToReturn;
         }
 
         internal static bool MissileHitCallbackPrefix(ref bool __result, ref Mission __instance, out int hitParticleIndex, ref AttackCollisionData collisionData, int missileIndex, Vec3 missileStartingPosition, Vec3 missilePosition, Vec3 missileAngularVelocity, Vec3 movementVelocity, MatrixFrame attachGlobalFrame, MatrixFrame affectedShieldGlobalFrame, int numDamagedAgents, Agent attacker, Agent victim, GameEntity hitEntity)
@@ -32,8 +33,8 @@ namespace GCO.Features
             var _missiles = MissionAccessTools.Get_missiles(ref __instance);
             Mission.Missile missile = _missiles[missileIndex];
 
-            bool isHorseArcher = GCOToolbox.ProjectileBalance.CheckForHorseArcher(victim);
-            bool makesRear = GCOToolbox.ProjectileBalance.ApplyHorseCrippleLogic(victim, collisionData.VictimHitBodyPart);
+            bool isHorseArcher = GCOToolbox.GCOToolbox.ProjectileBalance.CheckForHorseArcher(victim);
+            bool makesRear = GCOToolbox.GCOToolbox.ProjectileBalance.ApplyHorseCrippleLogic(victim, collisionData.VictimHitBodyPart);
 
             WeaponFlags weaponFlags1 = missile.Weapon.CurrentUsageItem.WeaponFlags;
             float momentumRemaining = 1f;
@@ -445,7 +446,7 @@ namespace GCO.Features
 
 
 
-                GCOToolbox.ProjectileBalance.ApplyProjectileArmorResistance(armorAmountFloat, ref attackCollisionData, missile, isHorseArcher);
+                GCOToolbox.GCOToolbox.ProjectileBalance.ApplyProjectileArmorResistance(armorAmountFloat, ref attackCollisionData, missile, isHorseArcher);
 
 
                 combatLog.InflictedDamage = attackCollisionData.InflictedDamage;
@@ -475,7 +476,7 @@ namespace GCO.Features
         }
     }
 
-    internal static class Extensions
+     static class Extensions
     {
         internal static float GetEntityDamageMultiplier(bool isAttackerAgentCharging, WeaponComponentData weapon, DamageTypes damageType, bool isWoodenBody)
         {
@@ -558,3 +559,4 @@ namespace GCO.Features
         }
     }
 }
+

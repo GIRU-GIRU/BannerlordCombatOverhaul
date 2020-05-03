@@ -1,4 +1,4 @@
-﻿using GCO.CopiedLogic;
+﻿using GCO.GCOMissionLogic;
 using GCO.ReversePatches;
 using GCO.Utility;
 using NetworkMessages.FromClient;
@@ -117,7 +117,7 @@ namespace GCO.Patches
                 if (flag)
                 {
                     var voiceType = new SkinVoiceType("Victory");
-                    cheerAgent.SetActionChannel(1, OrderControllerExtensions.CheerActions[MBRandom.RandomInt(OrderControllerExtensions.CheerActions.Length)], false, 0UL, 0f, 1f, -0.2f, 0.4f, 0f, false, -0.2f, 0, true);
+                    cheerAgent.SetActionChannel(1, OrderControllerLogic.CheerActions[MBRandom.RandomInt(OrderControllerLogic.CheerActions.Length)], false, 0UL, 0f, 1f, -0.2f, 0.4f, 0f, false, -0.2f, 0, true);
                     cheerAgent.MakeVoice(voiceType, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
                     resetTimer = true;
                 }              
@@ -129,7 +129,7 @@ namespace GCO.Patches
 
         internal static bool AfterSetOrderMakeVoicePrefix(OrderType orderType, Agent agent)
         {
-            OrderControllerExtensions.AfterSetOrderMakeVoice(orderType, agent);
+            OrderControllerLogic.AfterSetOrderMakeVoice(orderType, agent);
 
             return false;
         }

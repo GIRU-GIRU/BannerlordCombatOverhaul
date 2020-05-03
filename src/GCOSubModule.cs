@@ -3,11 +3,10 @@ using TaleWorlds.Core;
 using HarmonyLib;
 using TaleWorlds.Library;
 using GCO.ModOptions;
-using GCO.Features.CustomMissionLogic;
+using GCO.GCOMissionLogic;
 using GCO.Utility;
 using System.Linq;
-using GCO.CustomMissionLogic;
-using GCO.Features;
+using GCO.GCOToolbox;
 
 namespace GCO
 {
@@ -70,25 +69,25 @@ namespace GCO
             }
         }
 
-            private void ConfigureHealthOnkillLogic(Mission mission)
+        private void ConfigureHealthOnkillLogic(Mission mission)
+        {
+            if (Config.ConfigSettings.HPOnKillEnabled)
             {
-                if (Config.ConfigSettings.HPOnKillEnabled)
+                if (mission.Scene != null)
                 {
-                    if (mission.Scene != null)
+                    bool isCombat = mission.CombatType == Mission.MissionCombatType.Combat;
+                    bool isArenaCombat = mission.CombatType == Mission.MissionCombatType.ArenaCombat;
+                    if (mission.IsFieldBattle || isCombat || isArenaCombat)
                     {
-                        bool isCombat = mission.CombatType == Mission.MissionCombatType.Combat;
-                        bool isArenaCombat = mission.CombatType == Mission.MissionCombatType.ArenaCombat;
-                        if (mission.IsFieldBattle || isCombat || isArenaCombat)
-                        {
-                            mission.AddMissionBehaviour(new HealthOnKillLogic());
-                        }
+                        mission.AddMissionBehaviour(new HealthOnKillLogic());
                     }
                 }
             }
+        }
 
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
         {
-            InformationManager.DisplayMessage(new InformationMessage("Loaded GCO 2.2.0", Color.White));
+            InformationManager.DisplayMessage(new InformationMessage($"Loaded GCO {Config.SubModuleInfoContents.Version.value}", Color.White));
 
             if (!Config.ConfigLoadedSuccessfully)
             {

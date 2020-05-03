@@ -6,15 +6,10 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
-namespace GCO.Features.CustomMissionLogic
+namespace GCO.GCOMissionLogic
 {
     public class HealthOnKillLogic : MissionLogic
     {
-        public HealthOnKillLogic() : base()
-        {
-
-        }
-
         public bool CheckPlayerAlive()
         {
             return Mission.MainAgent != null && Mission.MainAgent.IsActive();

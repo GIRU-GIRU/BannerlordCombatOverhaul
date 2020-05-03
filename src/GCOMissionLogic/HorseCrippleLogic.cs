@@ -6,20 +6,17 @@ using System.Text;
 using System.Threading.Tasks;
 using TaleWorlds.MountAndBlade;
 
-namespace GCO.CustomMissionLogic
+namespace GCO.GCOMissionLogic
 {
     public class HorseCrippleLogic : MissionLogic
     {
-        public HorseCrippleLogic() : base()
-        {
-
-        }
+  
+        private static ConcurrentDictionary<Agent, MissionTime> crippledHorseCollection = new ConcurrentDictionary<Agent, MissionTime>();
 
         public static Queue<Tuple<Agent, MissionTime>> horseCrippleQueue = new Queue<Tuple<Agent, MissionTime>>();
 
         public override void OnMissionTick(float dt)
         {
-
             iterateQueue();
 
             base.OnMissionTick(dt);
@@ -39,8 +36,10 @@ namespace GCO.CustomMissionLogic
                         {
                             if (queueItem.Item1.IsActive())
                             {
-                                queueItem.Item1.AgentDrivenProperties.MountSpeed *= 8;
+                                var test = queueItem.Item1.AgentDrivenProperties.MountSpeed;
                                 queueItem.Item1.UpdateAgentStats();
+                               // queueItem.Item1.AgentDrivenProperties.MountSpeed = 100;
+                               // queueItem.Item1.UpdateAgentStats();
                             }
                         }
                         catch (Exception)
@@ -52,9 +51,25 @@ namespace GCO.CustomMissionLogic
             }
         }
 
+        internal static bool CheckHorseCrippled(Agent agent)
+        {
+            if (crippledHorseCollection.ContainsKey(agent))
+            {
+                if (crippledHorseCollection.TryGetValue(agent, out MissionTime horseCrippleDuration))
+                {
+                    return !horseCrippleDuration.IsPast;
+                }
+            }
+
+            return false;
+        }
         internal static void CrippleHorseNew(Agent victim, MissionTime missionTime)
         {
-            horseCrippleQueue.Enqueue(Tuple.Create(victim, missionTime));
+            if (victim != null && victim.IsActive())
+            {
+                horseCrippleQueue.Enqueue(Tuple.Create(victim, missionTime));
+                crippledHorseCollection[victim] = missionTime;
+            }
         }
     }
 }

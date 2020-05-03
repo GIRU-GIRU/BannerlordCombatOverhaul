@@ -2,9 +2,9 @@
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 
-namespace GCO.CopiedLogic
+namespace GCO.GCOMissionLogic
 {
-    internal static class OrderControllerExtensions
+    internal static class OrderControllerLogic
     {
         internal static bool IsFormationSelectable(Formation formation, Agent selectorAgent)
         {

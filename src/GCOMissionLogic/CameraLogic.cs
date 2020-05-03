@@ -13,7 +13,7 @@ using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.View.Screen;
 
-namespace GCO.Features
+namespace GCO.GCOMissionLogic
 { 
     internal class CameraLogic : MissionLogic
     {
@@ -64,19 +64,19 @@ namespace GCO.Features
             var playerAgent = Mission.Agents.Where(x => x.IsPlayerControlled).FirstOrDefault();
             var playerTeamCount = Mission.Agents.Where(x => x.Team == playerAgent.Team).Count();
 
-            if (playerTeamCount < 50)
+            if (playerTeamCount < 70)
             {
                 _maxHeight = 1.8f;
                 _distanceToAdd = 2f;
             }
 
-            if (playerTeamCount >= 50)
+            if (playerTeamCount >= 70)
             {
                 _maxHeight = 5.5f;
-                _distanceToAdd = 3f;
+                _distanceToAdd = 2f;
             }
 
-            if (playerTeamCount >= 100)
+            if (playerTeamCount >= 130)
             {
                 _maxHeight = 8.5f;
                 _distanceToAdd = 5f;
@@ -85,8 +85,10 @@ namespace GCO.Features
 
         private float CalculateOffset(float bannerDistance)
         {
-            var result = (bannerDistance / _maxDistance) * 10f;
-            return _maxHeight < result ? _maxHeight : result;
+            // var result = (bannerDistance / _maxDistance) * 10f;
+            // return _maxHeight < result ? _maxHeight : result;
+
+            return _maxHeight;
         }
     }
 }

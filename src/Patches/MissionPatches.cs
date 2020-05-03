@@ -4,8 +4,8 @@ using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.Engine;
 using GCO.ReversePatches;
-using GCO.Features;
-using GCO.CopiedLogic;
+using GCO.GCOToolbox;
+using GCO.GCOMissionLogic;
 using GCO.ModOptions;
 
 namespace GCO.Patches
@@ -41,7 +41,7 @@ namespace GCO.Patches
             blow.AttackerStunPeriod = collisionData.AttackerStunPeriod;
             //blow.DefenderStunPeriod = collisionData.DefenderStunPeriod;
 
-            blow.DefenderStunPeriod = GCOToolbox.MeleeBalance.GCOGetStaticFlinchPeriod(attackerAgent, collisionData.DefenderStunPeriod);
+            blow.DefenderStunPeriod = GCOToolbox.GCOToolbox.MeleeBalance.GCOGetStaticFlinchPeriod(attackerAgent, collisionData.DefenderStunPeriod);
 
 
             blow.BlowFlag = BlowFlags.None;
@@ -183,17 +183,17 @@ namespace GCO.Patches
                     num5 += ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.StunDefendWeaponWeightBonusActiveBlocked);
 
 
-                    if (GCOToolbox.MeleeBalance.GCOCheckHyperArmorConfiguration(defenderAgent))
+                    if (GCOToolbox.GCOToolbox.MeleeBalance.GCOCheckHyperArmorConfiguration(defenderAgent))
                     {
-                        GCOToolbox.MeleeBalance.CreateHyperArmorBuff(defenderAgent);
+                        GCOToolbox.GCOToolbox.MeleeBalance.CreateHyperArmorBuff(defenderAgent);
                     }
 
                 }
                 else if (collisionResult == CombatCollisionResult.Blocked)
                 {
-                    if (GCOToolbox.MeleeBalance.GCOCheckHyperArmorConfiguration(defenderAgent))
+                    if (GCOToolbox.GCOToolbox.MeleeBalance.GCOCheckHyperArmorConfiguration(defenderAgent))
                     {
-                        GCOToolbox.MeleeBalance.CreateHyperArmorBuff(defenderAgent);
+                        GCOToolbox.GCOToolbox.MeleeBalance.CreateHyperArmorBuff(defenderAgent);
                     }
 
                 }
@@ -230,11 +230,11 @@ namespace GCO.Patches
             {
                 Blow blow = attacker.CreateBlowFromBlowAsReflection(b);
 
-                if (GCOToolbox.MeleeBalance.GCOCheckHyperArmorConfiguration(victim))
+                if (GCOToolbox.GCOToolbox.MeleeBalance.GCOCheckHyperArmorConfiguration(victim))
                 {
-                    GCOToolbox.MeleeBalance.CheckToAddHyperarmor(victim, ref b, ref blow);
+                    GCOToolbox.GCOToolbox.MeleeBalance.CheckToAddHyperarmor(victim, ref b, ref blow);
                 }
-                GCOToolbox.ProjectileBalance.CheckForProjectileFlinch(ref b, ref blow, collisionData, victim);
+                GCOToolbox.GCOToolbox.ProjectileBalance.CheckForProjectileFlinch(ref b, ref blow, collisionData, victim);
 
                 if (collisionData.IsColliderAgent)
                 {
@@ -277,7 +277,7 @@ namespace GCO.Patches
         {
             if (!Config.CompatibilitySettings.XorbarexCleaveExists)
             {
-                if (PlayerCleaveLogic.CheckApplyCleave(__instance, attacker, defender, registeredBlow, isShruggedOff))
+                if (GCOToolbox.GCOToolbox.MeleeBalance.CheckApplyCleave(__instance, attacker, defender, registeredBlow, isShruggedOff))
                 {
                     colReaction = MeleeCollisionReaction.SlicedThrough;
                 }
@@ -311,13 +311,13 @@ namespace GCO.Patches
         {
             if (!Config.CompatibilitySettings.XorbarexCleaveExists)
             {
-                if (PlayerCleaveLogic.CheckApplyCleave(__instance, attacker, victim, colReaction))
+                if (GCOToolbox.GCOToolbox.MeleeBalance.CheckApplyCleave(__instance, attacker, victim, colReaction))
                 {
                     if (attacker.HasMount)
                     {
                         inOutMomentumRemaining = momentumRemainingToComputeDamage * 0.25f;
                     }
-                    else if (PlayerCleaveLogic.IsDefenderAFriendlyInShieldFormation(attacker, victim))
+                    else if (GCOToolbox.GCOToolbox.MeleeBalance.IsDefenderAFriendlyInShieldFormation(attacker, victim))
                     {
                         inOutMomentumRemaining = momentumRemainingToComputeDamage * (Config.ConfigSettings.AdditionalCleaveForTroopsInShieldWallMomentumLoss * 0.01f);
                     }

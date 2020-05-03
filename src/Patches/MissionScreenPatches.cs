@@ -1,4 +1,5 @@
-﻿using GCO.Features;
+﻿using GCO.GCOToolbox;
+using GCO.GCOMissionLogic;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -33,10 +34,11 @@ namespace GCO.Patches
                             ____cameraSpecialTargetAddedElevation = 0f;
                         }
                     }
-
                 }
             }
         }
+
+
     }
 }
 

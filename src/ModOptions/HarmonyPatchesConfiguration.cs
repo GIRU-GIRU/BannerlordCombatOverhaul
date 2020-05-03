@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using GCO.Features;
+using GCO.GCOToolbox;
 using GCO.Patches;
 using HarmonyLib;
 using Helpers;
@@ -88,13 +88,13 @@ namespace GCO.ModOptions
         internal static void ProjectileBalancingEnabledPatch(ref Harmony harmony)
         {
             var missileHitCallback = typeof(Mission).GetMethod("MissileHitCallback", BindingFlags.NonPublic | BindingFlags.Instance);
-            var missileHitCallbackPrefix = typeof(ProjectileBalanceLogic).GetMethod(nameof(ProjectileBalanceLogic.MissileHitCallbackPrefix), BindingFlags.NonPublic | BindingFlags.Static);
+            var missileHitCallbackPrefix = typeof(MissionPatchesProjectile).GetMethod(nameof(MissionPatchesProjectile.MissileHitCallbackPrefix), BindingFlags.NonPublic | BindingFlags.Static);
 
             //var getAttackCollisionResults = typeof(Mission).GetMethod("GetAttackCollisionResults", BindingFlags.NonPublic | BindingFlags.Instance);
             //var getAttackCollisionResultsPrefix = typeof(ProjectileBalanceLogic).GetMethod(nameof(ProjectileBalanceLogic.GetAttackCollisionResultsPrefix), BindingFlags.NonPublic | BindingFlags.Static);
 
             var getWeaponSkill = typeof(AgentStatCalculateModel).GetMethod("GetWeaponSkill", BindingFlags.NonPublic | BindingFlags.Instance);
-            var getWeaponSkillPostfix = typeof(ProjectileBalanceLogic).GetMethod(nameof(ProjectileBalanceLogic.GetWeaponSkillPostfix), BindingFlags.NonPublic | BindingFlags.Static);
+            var getWeaponSkillPostfix = typeof(MissionPatchesProjectile).GetMethod(nameof(MissionPatchesProjectile.GetWeaponSkillPostfix), BindingFlags.NonPublic | BindingFlags.Static);
 
             harmony.Patch(missileHitCallback, new HarmonyMethod(missileHitCallbackPrefix), null, null, null);
             harmony.Patch(getWeaponSkill, null, new HarmonyMethod(getWeaponSkillPostfix), null, null);

@@ -1,9 +1,9 @@
 {
-  "HyperArmorEnabled": true,
+  "HyperArmorEnabledForHeros": true,
   "HyperArmorEnabledForAllUnits": true,
   "HyperArmorDuration": 1,
 
-  "HPOnKillEnabled": true,
+  "HPOnKillEnabledForHeros": true,
   "HPOnKillAmount": 20,
   "HPOnKillForAI": true,
   "HPOnKillMedicineLevelScalePercentage": 0.1, // default is 0.1 which is 10% of your medicine level

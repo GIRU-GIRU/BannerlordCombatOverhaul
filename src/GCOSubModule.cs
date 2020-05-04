@@ -82,7 +82,7 @@ namespace GCO
 
         private void ConfigureHealthOnkillLogic(Mission mission)
         {
-            if (Config.ConfigSettings.HPOnKillEnabled)
+            if (Config.ConfigSettings.HPOnKillEnabledForHeros)
             {
                 if (mission.Scene != null)
                 {

@@ -53,11 +53,11 @@ namespace GCO.ModOptions
 
                 StandardizedFlinchOnEnemiesEnabled = true,
 
-                HyperArmorEnabled = true,
+                HyperArmorEnabledForHeros = true,
                 HyperArmorEnabledForAllUnits = true,
                 HyperArmorDuration = 1,
 
-                HPOnKillEnabled = true,
+                HPOnKillEnabledForHeros = true,
                 HPOnKillForAI = true,
                 HPOnKillMedicineLevelScalePercentage = 0.1f,
                 HPOnKillAmount = 20f,
@@ -79,7 +79,7 @@ namespace GCO.ModOptions
 
         public static void ConfigureHarmonyPatches(Harmony harmony)
         {
-            if (ConfigSettings.HyperArmorEnabled || ConfigSettings.ProjectileBalancingEnabled)
+            if (ConfigSettings.HyperArmorEnabledForHeros || ConfigSettings.ProjectileBalancingEnabled)
             {
                 HarmonyPatchesConfiguration.HyperArmorAndProjectileBalancing(harmony);
             }

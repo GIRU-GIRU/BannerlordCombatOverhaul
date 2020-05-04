@@ -4,8 +4,8 @@ namespace GCO.ModOptions
 {
     public class ConfigSettings
     {
-        [JsonProperty("HPOnKillEnabled")]
-        public bool HPOnKillEnabled { get; set; }
+        [JsonProperty("HPOnKillEnabledForHeros")]
+        public bool HPOnKillEnabledForHeros { get; set; }
 
         [JsonProperty("HPOnKillAmount")]
         public float HPOnKillAmount { get; set; }
@@ -25,8 +25,8 @@ namespace GCO.ModOptions
         [JsonProperty("SimplifiedSurrenderLogic")]
         public bool SimplifiedSurrenderLogic { get; set; }
 
-        [JsonProperty("HyperArmorEnabled")]
-        public bool HyperArmorEnabled { get; set; }
+        [JsonProperty("HyperArmorEnabledForHeros")]
+        public bool HyperArmorEnabledForHeros { get; set; }
 
         [JsonProperty("HyperArmorEnabledForAllUnits")]
         public bool HyperArmorEnabledForAllUnits { get; set; }

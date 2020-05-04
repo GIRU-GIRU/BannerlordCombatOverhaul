@@ -16,7 +16,7 @@ namespace GCO.GCOToolbox
         {
             internal static bool GCOCheckHyperArmorConfiguration(Agent agent)
             {
-                if (Config.ConfigSettings.HyperArmorEnabled && agent != null)
+                if (Config.ConfigSettings.HyperArmorEnabledForHeros && agent != null)
                 {
                     {
                         return Config.ConfigSettings.HyperArmorEnabledForAllUnits || CheckIfAliveHero(agent);

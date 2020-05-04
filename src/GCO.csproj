@@ -302,8 +302,8 @@
   </ItemGroup>
   <ItemGroup>
     <ContentWithTargetPath Include="ModOptions\SubModule.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <TargetPath>..\..\SubModule.xml</TargetPath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </ContentWithTargetPath>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

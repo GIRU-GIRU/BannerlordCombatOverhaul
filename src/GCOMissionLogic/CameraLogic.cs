@@ -14,30 +14,69 @@ using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.View.Screen;
 
 namespace GCO.GCOMissionLogic
-{ 
+{
     internal class CameraLogic : MissionLogic
     {
-        private const float _maxDistance = 200f;
-        private const float _minDistance = 25f;
-        public float _distanceToAdd { get; private set; }
-        private float _maxHeight { get; set; }
-        private bool _MissionSizeNotSet = true;
+        private TeamSizeEnum _PlayerTeamSize;
+
+        private float _distanceToAdd;
+        private float _maxHeight;
+        private float _minDistance;
+        private bool _battleSizeNotDetermined = true;
 
 
         public override void OnMissionTick(float dt)
         {
-            if (_MissionSizeNotSet)
+            if (_battleSizeNotDetermined)
             {
                 if (Mission.AllAgents.Count > 0)
                 {
                     DetermineBattleSize();
-                    _MissionSizeNotSet = false;
+                    _battleSizeNotDetermined = false;
                 }
                 else
                 {
-                    _MissionSizeNotSet = true;
+                    _battleSizeNotDetermined = true;
                 }
             }
+        }
+
+        internal void ApplyCamReturnSpeed(ref Vec3 cameraSpecialTargetPositionToAdd, ref float cameraSpecialTargetDistanceToAdd, ref float cameraSpecialTargetAddedElevation)
+        {
+            switch (_PlayerTeamSize)
+            {
+                case TeamSizeEnum.Small:
+                    CalculateCameraSpeedSmall(ref cameraSpecialTargetPositionToAdd, ref cameraSpecialTargetDistanceToAdd, ref cameraSpecialTargetAddedElevation);
+                    break;
+                case TeamSizeEnum.Medium:
+                    CalculateCameraSpeedMedium(ref cameraSpecialTargetPositionToAdd, ref cameraSpecialTargetDistanceToAdd, ref cameraSpecialTargetAddedElevation);
+                    break;
+                case TeamSizeEnum.Large:
+                    CalculateCameraSpeedLarge(ref cameraSpecialTargetPositionToAdd, ref cameraSpecialTargetDistanceToAdd, ref cameraSpecialTargetAddedElevation);
+                    break;
+                default:
+                    CalculateCameraSpeedSmall(ref cameraSpecialTargetPositionToAdd, ref cameraSpecialTargetDistanceToAdd, ref cameraSpecialTargetAddedElevation);
+                    break;
+            }
+        }
+
+        internal void ApplyCamHeight(ref MissionScreen __instance, ref Vec3 cameraSpecialTargetPositionToAdd)
+        {
+
+            cameraSpecialTargetPositionToAdd = new Vec3 { z = _maxHeight };
+            //var bannerPosition = __instance.GetOrderFlagPosition();
+            //var playerPosition = __instance.Mission.MainAgent.Position;
+            //var bannerDistance = playerPosition.Distance(bannerPosition);
+
+
+            //if (true)
+            //{
+            //     CalcHeightOffset(ref cameraSpecialTargetPositionToAdd);
+            //}
+            //else
+            //{
+            //    cameraSpecialTargetPositionToAdd = Vec3.Zero;
+            //}
         }
 
         internal bool ShouldOccur()
@@ -50,14 +89,43 @@ namespace GCO.GCOMissionLogic
             return notStartup && notConvo && notDuel && notHideout;
         }
 
-        public float HeightOffset(ref MissionScreen __instance)
+        internal void ApplyCamDistance(ref float ____cameraSpecialTargetDistanceToAdd)
         {
-            var bannerPosition = __instance.GetOrderFlagPosition();
-            var playerPosition = __instance.Mission.MainAgent.Position;
-            var bannerDistance = playerPosition.Distance(bannerPosition);
-
-            return bannerDistance < _minDistance ? 0f : CalculateOffset(bannerDistance);
+            ____cameraSpecialTargetDistanceToAdd = _distanceToAdd;
         }
+
+        private void CalcHeightOffset(ref Vec3 cameraSpecialTargetPositionToAdd)
+        {
+            var currentZ = cameraSpecialTargetPositionToAdd.z;
+            if (currentZ == 0)
+            {
+                cameraSpecialTargetPositionToAdd = new Vec3 { z = Math.Min(currentZ + 5f, _maxHeight) };
+            }
+        }
+
+        private void CalculateCameraSpeedLarge(ref Vec3 cameraSpecialTargetPositionToAdd, ref float cameraSpecialTargetDistanceToAdd, ref float cameraSpecialTargetAddedElevation)
+        {
+            cameraSpecialTargetPositionToAdd = new Vec3 { z = Math.Max(cameraSpecialTargetPositionToAdd.z - 0.2f, 0) };
+            cameraSpecialTargetDistanceToAdd = Math.Max(cameraSpecialTargetDistanceToAdd - 0.2f, 0);
+            cameraSpecialTargetAddedElevation = Math.Max(cameraSpecialTargetAddedElevation - 0.2f, 0f);
+        }
+
+        private void CalculateCameraSpeedMedium(ref Vec3 cameraSpecialTargetPositionToAdd, ref float cameraSpecialTargetDistanceToAdd, ref float cameraSpecialTargetAddedElevation)
+        {
+            cameraSpecialTargetPositionToAdd = new Vec3 { z = Math.Max(cameraSpecialTargetPositionToAdd.z - 1f, 0) };
+            cameraSpecialTargetDistanceToAdd = Math.Max(cameraSpecialTargetDistanceToAdd - 1f, 0);
+            cameraSpecialTargetAddedElevation = Math.Max(cameraSpecialTargetAddedElevation - 1f, 0f);
+        }
+
+        private void CalculateCameraSpeedSmall(ref Vec3 cameraSpecialTargetPositionToAdd, ref float cameraSpecialTargetDistanceToAdd, ref float cameraSpecialTargetAddedElevation)
+        {
+            cameraSpecialTargetPositionToAdd = Vec3.Zero;
+            cameraSpecialTargetDistanceToAdd = 0f;
+            cameraSpecialTargetAddedElevation = 0f;
+        }
+
+
+
 
         private void DetermineBattleSize()
         {
@@ -66,29 +134,36 @@ namespace GCO.GCOMissionLogic
 
             if (playerTeamCount < 70)
             {
+                _PlayerTeamSize = TeamSizeEnum.Small;
                 _maxHeight = 1.8f;
                 _distanceToAdd = 2f;
+                _minDistance = 25f;
             }
 
             if (playerTeamCount >= 70)
             {
+                _PlayerTeamSize = TeamSizeEnum.Medium;
                 _maxHeight = 5.5f;
-                _distanceToAdd = 2f;
+                _distanceToAdd = 8.5f;
+                _minDistance = 20f;
             }
 
             if (playerTeamCount >= 130)
             {
+                _PlayerTeamSize = TeamSizeEnum.Large;
                 _maxHeight = 8.5f;
-                _distanceToAdd = 5f;
+                _distanceToAdd = 11.5f;
+                _minDistance = 10f;
             }
         }
 
-        private float CalculateOffset(float bannerDistance)
-        {
-            // var result = (bannerDistance / _maxDistance) * 10f;
-            // return _maxHeight < result ? _maxHeight : result;
 
-            return _maxHeight;
+
+        internal enum TeamSizeEnum
+        {
+            Small = 0,
+            Medium = 1,
+            Large = 2,
         }
     }
 }

@@ -77,46 +77,43 @@ namespace GCO.ModOptions
             
         }
 
-        public static void ConfigureHarmonyPatches(ref Harmony harmony)
+        public static void ConfigureHarmonyPatches(Harmony harmony)
         {
             if (ConfigSettings.HyperArmorEnabled || ConfigSettings.ProjectileBalancingEnabled)
             {
-                HarmonyPatchesConfiguration.HyperArmorAndProjectileBalancing(ref harmony);
+                HarmonyPatchesConfiguration.HyperArmorAndProjectileBalancing(harmony);
             }
 
-            if (ConfigSettings.OrderVoiceCommandQueuing)
-            {
-                HarmonyPatchesConfiguration.OrderVoiceCommandQueuingPatch(ref harmony);
-            }
+            //ConfigureQueuedVoiceLogic in SubModuleMain due to static class initializing incorrectly
 
             if (ConfigSettings.StandardizedFlinchOnEnemiesEnabled)
             {
-                HarmonyPatchesConfiguration.StandardizedFlinchOnEnemiesEnablePatch(ref harmony);
+                HarmonyPatchesConfiguration.StandardizedFlinchOnEnemiesEnablePatch(harmony);
             }
 
             if (ConfigSettings.TrueFriendlyFireEnabled || ConfigSettings.MurderEnabled)
             {
-                HarmonyPatchesConfiguration.KillFriendliesPatch(ref harmony);
+                HarmonyPatchesConfiguration.KillFriendliesPatch(harmony);
             }
 
             if (ConfigSettings.CleaveEnabled)
             {
-                HarmonyPatchesConfiguration.CleaveEnabledPatch(ref harmony);
+                HarmonyPatchesConfiguration.CleaveEnabledPatch(harmony);
             }
 
             if (ConfigSettings.SimplifiedSurrenderLogic)
             {
-                HarmonyPatchesConfiguration.SimplifiedSurrenderLogicEnabledPatch(ref harmony);
+                HarmonyPatchesConfiguration.SimplifiedSurrenderLogicEnabledPatch(harmony);
             }
 
             if (ConfigSettings.ProjectileBalancingEnabled)
             {
-                HarmonyPatchesConfiguration.ProjectileBalancingEnabledPatch(ref harmony);
+                HarmonyPatchesConfiguration.ProjectileBalancingEnabledPatch(harmony);
             }
 
             if (ConfigSettings.OrderControllerCameraImprovementsEnable)
             {
-                HarmonyPatchesConfiguration.OrderControllerCameraImprovementsPatch(ref harmony);
+                HarmonyPatchesConfiguration.OrderControllerCameraImprovementsPatch(harmony);
             }       
         }
     }

@@ -7,30 +7,40 @@ using GCO.GCOMissionLogic;
 using GCO.Utility;
 using System.Linq;
 using GCO.GCOToolbox;
+using System;
 
 namespace GCO
 {
     public class GCOSubModule : MBSubModuleBase
     {
+        private Harmony _harmony;
+        private bool _orderConfigPatched = false;
         protected override void OnSubModuleLoad()
         {
-            Harmony harmony = new Harmony("GIRUCombatOverhaul");
+            _harmony = new Harmony("GIRUCombatOverhaul");
 
             Config.InitConfig();
-
             CompatibilityCheck.CheckAndApply();
 
-            harmony.PatchAll(typeof(GCOSubModule).Assembly);
-            Config.ConfigureHarmonyPatches(ref harmony);
+            _harmony.PatchAll(typeof(GCOSubModule).Assembly);
+            Config.ConfigureHarmonyPatches(_harmony);
         }
 
 
         public override void OnMissionBehaviourInitialize(Mission mission)
         {
+
             ConfigureHealthOnkillLogic(mission);
             ConfigureQueuedVoiceLogic(mission);
             ConfigureHorseCrippleLogic(mission);
             ConfigureCameraLogic(mission);
+
+            if (!_orderConfigPatched)
+            {
+                HarmonyPatchesConfiguration.OrderVoiceCommandQueuingPatch(_harmony);
+                _orderConfigPatched = true;
+            }
+
 
             base.OnMissionBehaviourInitialize(mission);
         }
@@ -40,6 +50,7 @@ namespace GCO
             if (Config.ConfigSettings.OrderVoiceCommandQueuing && mission.IsOrderShoutingAllowed())
             {
                 mission.AddMissionBehaviour(new QueuedVoiceLogic());
+
             }
         }
 

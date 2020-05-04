@@ -24,15 +24,16 @@ namespace GCO.Patches
                     {
                         if (__instance.OrderFlag.IsVisible)
                         {
-                            ____cameraSpecialTargetDistanceToAdd = cameraLogic._distanceToAdd;
-                            ____cameraSpecialTargetPositionToAdd = new Vec3 { z = cameraLogic.HeightOffset(ref __instance) };
+                            cameraLogic.ApplyCamDistance(ref ____cameraSpecialTargetDistanceToAdd);
+                            cameraLogic.ApplyCamHeight(ref __instance, ref ____cameraSpecialTargetPositionToAdd);
                         }
                         else
                         {
-                            ____cameraSpecialTargetPositionToAdd = Vec3.Zero;
-                            ____cameraSpecialTargetDistanceToAdd = 0f;
-                            ____cameraSpecialTargetAddedElevation = 0f;
+                            cameraLogic.ApplyCamReturnSpeed(ref ____cameraSpecialTargetPositionToAdd,
+                                                                        ref ____cameraSpecialTargetDistanceToAdd,
+                                                                             ref ____cameraSpecialTargetAddedElevation);
                         }
+                        
                     }
                 }
             }

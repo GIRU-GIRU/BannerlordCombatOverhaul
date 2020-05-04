@@ -136,7 +136,7 @@ namespace GCO.GCOMissionLogic
             {
                 _PlayerTeamSize = TeamSizeEnum.Small;
                 _maxHeight = 1.8f;
-                _distanceToAdd = 2f;
+                _distanceToAdd = 2.5f;
                 _minDistance = 25f;
             }
 
@@ -144,11 +144,11 @@ namespace GCO.GCOMissionLogic
             {
                 _PlayerTeamSize = TeamSizeEnum.Medium;
                 _maxHeight = 5.5f;
-                _distanceToAdd = 8.5f;
+                _distanceToAdd = 6.5f;
                 _minDistance = 20f;
             }
 
-            if (playerTeamCount >= 130)
+            if (playerTeamCount >= 150)
             {
                 _PlayerTeamSize = TeamSizeEnum.Large;
                 _maxHeight = 8.5f;

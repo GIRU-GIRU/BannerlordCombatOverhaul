@@ -24,7 +24,9 @@ namespace GCO.Patches
                     {
                         if (__instance.OrderFlag.IsVisible)
                         {
-                            cameraLogic.ApplyCamDistance(ref ____cameraSpecialTargetDistanceToAdd);
+    
+
+                            cameraLogic.ApplyCamDistance(ref ____cameraSpecialTargetDistanceToAdd, __instance.CameraResultDistanceToTarget);
                             cameraLogic.ApplyCamHeight(ref __instance, ref ____cameraSpecialTargetPositionToAdd);
                         }
                         else

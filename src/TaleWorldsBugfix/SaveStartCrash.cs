@@ -45,13 +45,83 @@ namespace GCO.TaleWorldsBugfix
         [HarmonyPatch(typeof(TournamentManager), "GetTournamentGame")]
         [HarmonyPrefix]
         public static void GetTournamentGamePrefix(TournamentManager __instance, ref List<TournamentGame> ____activeTournaments, Town town)
-        {           
+        {
             if (____activeTournaments != null)
             {
                 ____activeTournaments.RemoveAll(x => x == null);
-            } 
+            }
+        }    
+    }
+
+
+    [HarmonyPatch]
+    class DisperseArmyBug
+    {
+        [HarmonyPatch(typeof(Army), "DisperseArmy")]
+        [HarmonyPrefix]
+        public static bool DisperseArmy(ref Army __instance, ref bool ____armyIsDispersing, ref List<MobileParty> ____parties, ref MBCampaignEvent ____hourlyTickEvent,  Army.ArmyDispersionReason reason = Army.ArmyDispersionReason.Unknown)
+        {
+            try
+            {
+                if (____armyIsDispersing)
+                {
+                    return false;
+                }
+                CampaignEventDispatcher.Instance.OnArmyDispersed(__instance, reason, __instance.Parties.Contains(MobileParty.MainParty));
+                ____armyIsDispersing = true;
+                int num = 0;
+                for (int i = __instance.Parties.Count - 1; i >= num; i--)
+                {
+                    __instance.Parties[i].Army = null;
+                }
+                ____parties.Clear();
+                __instance.Kingdom = null;
+                if (__instance.LeaderParty == MobileParty.MainParty)
+                {
+                    MapState mapState = Game.Current.GameStateManager.ActiveState as MapState;
+                    if (mapState != null)
+                    {
+                        mapState.OnDispersePlayerLeadedArmy();
+                    }
+                }
+                Campaign.Current.DeletePeriodicEvent(____hourlyTickEvent);
+                ____armyIsDispersing = false;
+
+            }
+            catch (Exception ex) 
+            {
+                InformationManager.DisplayMessage(new InformationMessage($"GCO prevented crash with error {ex.Message}"));
+            }
+           
+            return false;
         }
     }
+
+    [HarmonyPatch]
+    class QuestFailedCrashBug
+    {
+        [HarmonyPatch(typeof(CampaignEvents), "OnQuestStarted")]
+        [HarmonyPrefix]
+        public static bool DisperseArmy(ref CampaignEvents __instance, ref MbEvent<QuestBase> ____onQuestStartedEvent, QuestBase quest)
+        {
+            try
+            {
+                if (____onQuestStartedEvent != null)
+                {
+                    ____onQuestStartedEvent.Invoke(quest);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                InformationManager.DisplayMessage(new InformationMessage($"GCO prevented quest crash with error {ex.Message}"));
+            }
+        
+           
+            return false;
+        }
+    }
+}
 
 
     //[HarmonyPatch(typeof(TournamentCampaignBehavior), "ConsiderStartOrEndTournament")]
@@ -80,4 +150,4 @@ namespace GCO.TaleWorldsBugfix
 
 
 
-}
+

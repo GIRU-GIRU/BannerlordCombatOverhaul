@@ -89,9 +89,9 @@ namespace GCO.GCOMissionLogic
             return notStartup && notConvo && notDuel && notHideout;
         }
 
-        internal void ApplyCamDistance(ref float ____cameraSpecialTargetDistanceToAdd)
+        internal void ApplyCamDistance(ref float ____cameraSpecialTargetDistanceToAdd, float currentCameraDistance)
         {
-            ____cameraSpecialTargetDistanceToAdd = _distanceToAdd;
+            ____cameraSpecialTargetDistanceToAdd = _distanceToAdd - currentCameraDistance;
         }
 
         private void CalcHeightOffset(ref Vec3 cameraSpecialTargetPositionToAdd)
@@ -112,9 +112,9 @@ namespace GCO.GCOMissionLogic
 
         private void CalculateCameraSpeedMedium(ref Vec3 cameraSpecialTargetPositionToAdd, ref float cameraSpecialTargetDistanceToAdd, ref float cameraSpecialTargetAddedElevation)
         {
-            cameraSpecialTargetPositionToAdd = new Vec3 { z = Math.Max(cameraSpecialTargetPositionToAdd.z - 1f, 0) };
-            cameraSpecialTargetDistanceToAdd = Math.Max(cameraSpecialTargetDistanceToAdd - 1f, 0);
-            cameraSpecialTargetAddedElevation = Math.Max(cameraSpecialTargetAddedElevation - 1f, 0f);
+            cameraSpecialTargetPositionToAdd = new Vec3 { z = Math.Max(cameraSpecialTargetPositionToAdd.z - 0.2f, 0) };
+            cameraSpecialTargetDistanceToAdd = Math.Max(cameraSpecialTargetDistanceToAdd - 0.2f, 0);
+            cameraSpecialTargetAddedElevation = Math.Max(cameraSpecialTargetAddedElevation - 0.2f, 0f);
         }
 
         private void CalculateCameraSpeedSmall(ref Vec3 cameraSpecialTargetPositionToAdd, ref float cameraSpecialTargetDistanceToAdd, ref float cameraSpecialTargetAddedElevation)
@@ -135,16 +135,16 @@ namespace GCO.GCOMissionLogic
             if (playerTeamCount < 70)
             {
                 _PlayerTeamSize = TeamSizeEnum.Small;
-                _maxHeight = 1.8f;
-                _distanceToAdd = 2.5f;
+                _maxHeight = 1.7f;
+                _distanceToAdd = 5.3f;
                 _minDistance = 25f;
             }
 
             if (playerTeamCount >= 70)
             {
                 _PlayerTeamSize = TeamSizeEnum.Medium;
-                _maxHeight = 5.5f;
-                _distanceToAdd = 6.5f;
+                _maxHeight = 3.5f;
+                _distanceToAdd = 9.33f;
                 _minDistance = 20f;
             }
 
@@ -152,7 +152,7 @@ namespace GCO.GCOMissionLogic
             {
                 _PlayerTeamSize = TeamSizeEnum.Large;
                 _maxHeight = 8.5f;
-                _distanceToAdd = 11.5f;
+                _distanceToAdd = 14.33f;
                 _minDistance = 10f;
             }
         }

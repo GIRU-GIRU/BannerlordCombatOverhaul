@@ -8,40 +8,53 @@ using System.Text;
 using System.Threading.Tasks;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade.View.Screen;
+using GCO.ReversePatches;
+using GCO.Utility;
 
 namespace GCO.Patches
 {
     internal static class MissionScreenPatches
     {
-        internal static void UpdateCameraPrefix(ref MissionScreen __instance, ref float ____cameraSpecialTargetAddedBearing, ref Vec3 ____cameraSpecialTargetPositionToAdd, ref float ____cameraSpecialTargetDistanceToAdd, ref float ____cameraSpecialTargetAddedElevation)
+        private static bool ShoulderCamExists = false;
+
+        [HarmonyBefore("xorberax.shouldercam")]
+        internal static bool UpdateCameraPrefix(ref MissionScreen __instance, ref float ____cameraSpecialTargetAddedBearing, ref Vec3 ____cameraSpecialTargetPositionToAdd, ref float ____cameraSpecialTargetDistanceToAdd, ref float ____cameraSpecialTargetAddedElevation, ref float dt)
         {
             var cameraLogic = __instance.Mission.GetMissionBehaviour<CameraLogic>();
             if (cameraLogic != null)
             {
                 if (cameraLogic.ShouldOccur())
                 {
-                    if (__instance.OrderFlag != null)
+                    if (__instance.OrderFlag != null && __instance.OrderFlag.IsVisible)
                     {
-                        if (__instance.OrderFlag.IsVisible)
-                        {
-    
 
-                            cameraLogic.ApplyCamDistance(ref ____cameraSpecialTargetDistanceToAdd, __instance.CameraResultDistanceToTarget);
-                            cameraLogic.ApplyCamHeight(ref __instance, ref ____cameraSpecialTargetPositionToAdd);
-                        }
-                        else
-                        {
-                            cameraLogic.ApplyCamReturnSpeed(ref ____cameraSpecialTargetPositionToAdd,
-                                                                        ref ____cameraSpecialTargetDistanceToAdd,
-                                                                             ref ____cameraSpecialTargetAddedElevation);
-                        }
-                        
+                        cameraLogic.ApplyCamDistance(ref ____cameraSpecialTargetDistanceToAdd, __instance.CameraResultDistanceToTarget);
+                        cameraLogic.ApplyCamHeight(ref __instance, ref ____cameraSpecialTargetPositionToAdd);
+
+                        MissionScreenReversePatches.UpdateCamera(__instance, dt);
+
+                        return false;
+
                     }
+                    else if (!CompatibilityCheck.XorbShoulderCamDetected)
+                    {
+                        cameraLogic.ApplyCamReturnSpeed(ref ____cameraSpecialTargetPositionToAdd,
+                                                                    ref ____cameraSpecialTargetDistanceToAdd,
+                                                                        ref ____cameraSpecialTargetAddedElevation);
+                    }
+
                 }
             }
+
+
+            return true;
         }
 
 
+
     }
+
+
 }
+
 

@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using GCO.Utility;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,6 +33,7 @@ namespace GCO.GCOMissionLogic
                 if (Mission.AllAgents.Count > 0)
                 {
                     DetermineBattleSize();
+                    CompatibilityCheck.CheckForShoulderCam();
                     _battleSizeNotDetermined = false;
                 }
                 else
@@ -129,32 +131,43 @@ namespace GCO.GCOMissionLogic
 
         private void DetermineBattleSize()
         {
-            var playerAgent = Mission.Agents.Where(x => x.IsPlayerControlled).FirstOrDefault();
-            var playerTeamCount = Mission.Agents.Where(x => x.Team == playerAgent.Team).Count();
-
-            if (playerTeamCount < 70)
+            try
             {
-                _PlayerTeamSize = TeamSizeEnum.Small;
-                _maxHeight = 1.7f;
-                _distanceToAdd = 5.3f;
-                _minDistance = 25f;
-            }
+                var playerAgent = Mission.Agents.Where(x => x.IsPlayerControlled).FirstOrDefault();
 
-            if (playerTeamCount >= 70)
-            {
-                _PlayerTeamSize = TeamSizeEnum.Medium;
-                _maxHeight = 3.5f;
-                _distanceToAdd = 9.33f;
-                _minDistance = 20f;
-            }
+                if (playerAgent != null)
+                {
+                    var playerTeamCount = Mission.Agents.Count(x => x.Team == playerAgent.Team);
 
-            if (playerTeamCount >= 150)
-            {
-                _PlayerTeamSize = TeamSizeEnum.Large;
-                _maxHeight = 8.5f;
-                _distanceToAdd = 14.33f;
-                _minDistance = 10f;
+                    if (playerTeamCount < 70)
+                    {
+                        _PlayerTeamSize = TeamSizeEnum.Small;
+                        _maxHeight = 1.7f;
+                        _distanceToAdd = 5.3f;
+                        _minDistance = 25f;
+                    }
+
+                    if (playerTeamCount >= 70)
+                    {
+                        _PlayerTeamSize = TeamSizeEnum.Medium;
+                        _maxHeight = 3.5f;
+                        _distanceToAdd = 9.33f;
+                        _minDistance = 20f;
+                    }
+
+                    if (playerTeamCount >= 150)
+                    {
+                        _PlayerTeamSize = TeamSizeEnum.Large;
+                        _maxHeight = 8.5f;
+                        _distanceToAdd = 14.33f;
+                        _minDistance = 10f;
+                    }
+                }
             }
+            catch (Exception)
+            {
+                
+            }           
         }
 
 

@@ -20,7 +20,7 @@ namespace GCO
             _harmony = new Harmony("GIRUCombatOverhaul");
 
             Config.InitConfig();
-            CompatibilityCheck.CheckAndApply();
+            CompatibilityCheck.CheckAndApplyCleaveCompatibility();
 
             _harmony.PatchAll(typeof(GCOSubModule).Assembly);
             Config.ConfigureHarmonyPatches(_harmony);

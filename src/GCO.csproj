@@ -277,6 +277,7 @@
     <Compile Include="Patches\MissionScreenPatches.cs" />
     <Compile Include="Patches\SandboxAgentStatCalculateModelPatches.cs" />
     <Compile Include="ReversePatches\ArmyReversePatches.cs" />
+    <Compile Include="ReversePatches\MissionScreenReversePatches.cs" />
     <Compile Include="ReversePatches\SandboxAgentStatCalculateModelReversePatches.cs" />
     <Compile Include="ReversePatches\MissionAccessTools.cs" />
     <Compile Include="ReversePatches\OrderControllerReversePatches.cs" />

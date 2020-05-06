@@ -65,7 +65,7 @@ namespace GCO.ModOptions
 
             var selectAllFormations = typeof(OrderController).GetMethod("SelectAllFormations", BindingFlags.NonPublic | BindingFlags.Instance);
             var selectAllFormationsPrefix = typeof(OrderControllerPatches).GetMethod(nameof(OrderControllerPatches.SelectAllFormationsPrefix), BindingFlags.NonPublic | BindingFlags.Static);
-   
+
             harmony.Patch(selectAllFormations, new HarmonyMethod(selectAllFormationsPrefix), null, null, null);
             harmony.Patch(selectFormationMakeVoice, new HarmonyMethod(SelectFormationMakeVoicePrefix), null, null, null);
             harmony.Patch(afterSetOrderMakeVoice, new HarmonyMethod(afterSetOrderMakeVoicePrefix), null, null, null);
@@ -77,6 +77,11 @@ namespace GCO.ModOptions
             var updateCameraPrefix = typeof(MissionScreenPatches).GetMethod(nameof(MissionScreenPatches.UpdateCameraPrefix), BindingFlags.NonPublic | BindingFlags.Static);
 
             harmony.Patch(updateCamera, new HarmonyMethod(updateCameraPrefix), null, null, null);
+
+            //var updateCamera = typeof(MissionScreen).GetMethod("UpdateCamera", BindingFlags.NonPublic | BindingFlags.Instance);
+            //var updateCameraPostfix = typeof(MissionScreenPatches).GetMethod(nameof(MissionScreenPatches.UpdateCameraPrefix), BindingFlags.NonPublic | BindingFlags.Static);
+
+            //harmony.Patch(updateCamera, null, new HarmonyMethod(updateCameraPostfix), null, null);
         }
 
         internal static void ProjectileBalancingEnabledPatch(Harmony harmony)
@@ -92,7 +97,12 @@ namespace GCO.ModOptions
 
             harmony.Patch(missileHitCallback, new HarmonyMethod(missileHitCallbackPrefix), null, null, null);
             harmony.Patch(getWeaponSkill, null, new HarmonyMethod(getWeaponSkillPostfix), null, null);
+
+
+
         }
+
+    
 
         internal static void HyperArmorAndProjectileBalancing(Harmony harmony)
         {

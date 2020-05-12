@@ -69,5 +69,8 @@ namespace GCO.ModOptions
 
         [JsonProperty("OrderControllerCameraImprovementsEnable")]
         public bool OrderControllerCameraImprovementsEnable { get; set; }
+
+        [JsonProperty("HorseHeadshotRearingEnabled")]
+        public bool HorseHeadshotRearingEnabled { get; set; }
     }
 }

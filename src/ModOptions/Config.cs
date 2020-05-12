@@ -65,16 +65,15 @@ namespace GCO.ModOptions
                 ProjectileBalancingEnabled = true,
                 ProjectileStunPercentageThreshold = 40f,
                 HorseProjectileCrippleEnabled = true,
-                HorseProjectileCrippleDuration = 2,
+                HorseHeadshotRearingEnabled = true,
+                HorseProjectileCrippleDuration = 1,
 
                 OrderVoiceCommandQueuing = true,
                 OrderControllerCameraImprovementsEnable = true,
                 MurderEnabled = false,
                 SimplifiedSurrenderLogic = true,
                 TrueFriendlyFireEnabled = false,
-            };
-
-            
+            };            
         }
 
         public static void ConfigureHarmonyPatches(Harmony harmony)

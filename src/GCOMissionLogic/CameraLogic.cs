@@ -30,7 +30,7 @@ namespace GCO.GCOMissionLogic
         {
             if (_battleSizeNotDetermined)
             {
-                if (Mission.AllAgents.Count > 0)
+                if (Mission.AllAgents != null && Mission.AllAgents.Count > 0)
                 {
                     DetermineBattleSize();
                     CompatibilityCheck.CheckForShoulderCam();

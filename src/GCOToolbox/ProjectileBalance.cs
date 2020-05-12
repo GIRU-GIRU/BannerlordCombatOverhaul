@@ -45,7 +45,7 @@ namespace GCO.GCOToolbox
 
                 if (isHorseArcher)
                 {
-                    collisionData.InflictedDamage = 80;
+                    collisionData.InflictedDamage *= 2;
                 }
             }
 
@@ -53,16 +53,28 @@ namespace GCO.GCOToolbox
             {
                 bool isHorseArcher = false;
 
-                if (victim != null && !victim.IsMount && !victim.WieldedWeapon.IsEmpty && victim.WieldedWeapon.Weapons != null)
+                try
                 {
-                    if (!victim.IsMainAgent)
+                    if (victim != null && !victim.IsMount)
                     {
-                        bool hasBowAndArrows = victim.WieldedWeapon.Weapons.Any(x =>
-                            x.AmmoClass == WeaponClass.Bow || x.AmmoClass == WeaponClass.Arrow);
+                        if (victim.HasWeapon() && !victim.WieldedWeapon.IsEmpty && victim.WieldedWeapon.Weapons != null)
+                        {
+                            if (!victim.IsMainAgent)
+                            {
+                                bool hasBowAndArrows = victim.WieldedWeapon.Weapons.Any(x =>
+                                    x.AmmoClass == WeaponClass.Bow || x.AmmoClass == WeaponClass.Arrow);
 
-                        isHorseArcher = victim.HasMount && hasBowAndArrows;
+                                isHorseArcher = victim.HasMount && hasBowAndArrows;
+                            }
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    InformationManager.DisplayMessage(
+                   new InformationMessage("CheckForHorseArcher Error " + ex.Message, Colors.White));
+                }
+               
 
                 return isHorseArcher;
             }
@@ -79,7 +91,8 @@ namespace GCO.GCOToolbox
                         {
                             if (victimHitBodyPart == BoneBodyPartType.Head || victimHitBodyPart == BoneBodyPartType.Neck)
                             {
-                                makesRear = true;
+                                
+                                makesRear = Config.ConfigSettings.HorseHeadshotRearingEnabled;
                             }
                             else
                             {

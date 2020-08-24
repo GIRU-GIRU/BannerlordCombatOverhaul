@@ -1,16 +1,18 @@
-﻿using System.Reflection;
-using GCO.Features;
+﻿using System;
+using System.Reflection;
+using GCO.GCOToolbox;
 using GCO.Patches;
 using HarmonyLib;
 using Helpers;
 using TaleWorlds.CampaignSystem.SandBox.CampaignBehaviors;
 using TaleWorlds.MountAndBlade;
+using TaleWorlds.MountAndBlade.View.Screen;
 
 namespace GCO.ModOptions
 {
     internal static class HarmonyPatchesConfiguration
     {
-        internal static void CleaveEnabledPatch(ref Harmony harmony)
+        internal static void CleaveEnabledPatch(Harmony harmony)
         {
             var decideWeaponCollisionReaction = typeof(Mission).GetMethod("DecideWeaponCollisionReaction", BindingFlags.NonPublic | BindingFlags.Instance);
             var DecideWeaponCollisionReactionPostfix = typeof(MissionPatches).GetMethod(nameof(MissionPatches.DecideWeaponCollisionReactionPostfix), BindingFlags.NonPublic | BindingFlags.Static);
@@ -22,7 +24,7 @@ namespace GCO.ModOptions
             harmony.Patch(meleeHitCallback, null, new HarmonyMethod(meleeHitCallbackPostfix), null);
         }
 
-        internal static void SimplifiedSurrenderLogicEnabledPatch(ref Harmony harmony)
+        internal static void SimplifiedSurrenderLogicEnabledPatch(Harmony harmony)
         {
             var doesSurrenderIsLogicalForParty = typeof(PartyBaseHelper).GetMethod("DoesSurrenderIsLogicalForParty");
             var doesSurrenderIsLogicalForPartyPostfix = typeof(PartyBaseHelperPatches).GetMethod(nameof(PartyBaseHelperPatches.DoesSurrenderIsLogicalForPartyPostfix), BindingFlags.NonPublic | BindingFlags.Static);
@@ -36,7 +38,7 @@ namespace GCO.ModOptions
                 new HarmonyMethod(conversation_bandits_will_join_player_on_conditionPostfix), null);
         }
 
-        internal static void StandardizedFlinchOnEnemiesEnablePatch(ref Harmony harmony)
+        internal static void StandardizedFlinchOnEnemiesEnablePatch(Harmony harmony)
         {
             var createBlow = typeof(Mission).GetMethod("CreateBlow", BindingFlags.NonPublic | BindingFlags.Instance);
             var createBlowPrefix = typeof(MissionPatches).GetMethod(nameof(MissionPatches.CreateBlowPrefix), BindingFlags.NonPublic | BindingFlags.Static);
@@ -44,7 +46,7 @@ namespace GCO.ModOptions
             harmony.Patch(createBlow, new HarmonyMethod(createBlowPrefix), null, null, null);
         }
 
-        internal static void KillFriendliesPatch(ref Harmony harmony)
+        internal static void KillFriendliesPatch(Harmony harmony)
         {
             var cancelsDamageAndBlocksAttackBecauseOfNonEnemyCase = typeof(Mission).GetMethod("CancelsDamageAndBlocksAttackBecauseOfNonEnemyCase", BindingFlags.NonPublic | BindingFlags.Instance);
             var cancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix = typeof(MissionPatches).GetMethod(nameof(MissionPatches.CancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix), BindingFlags.NonPublic | BindingFlags.Static);
@@ -53,7 +55,7 @@ namespace GCO.ModOptions
                 new HarmonyMethod(cancelsDamageAndBlocksAttackBecauseOfNonEnemyCasePrefix), null, null, null);
         }
 
-        internal static void OrderVoiceCommandQueuingPatch(ref Harmony harmony)
+        internal static void OrderVoiceCommandQueuingPatch(Harmony harmony)
         {
             var selectFormationMakeVoice = typeof(OrderController).GetMethod("SelectFormationMakeVoice", BindingFlags.NonPublic | BindingFlags.Static);
             var SelectFormationMakeVoicePrefix = typeof(OrderControllerPatches).GetMethod(nameof(OrderControllerPatches.SelectFormationMakeVoicePrefix), BindingFlags.NonPublic | BindingFlags.Static);
@@ -64,30 +66,45 @@ namespace GCO.ModOptions
             var selectAllFormations = typeof(OrderController).GetMethod("SelectAllFormations", BindingFlags.NonPublic | BindingFlags.Instance);
             var selectAllFormationsPrefix = typeof(OrderControllerPatches).GetMethod(nameof(OrderControllerPatches.SelectAllFormationsPrefix), BindingFlags.NonPublic | BindingFlags.Static);
 
-            var ChooseWeaponToCheerWithCheerAndUpdateTimer = typeof(AgentVictoryLogic)
-                .GetMethod("ChooseWeaponToCheerWithCheerAndUpdateTimer", BindingFlags.NonPublic | BindingFlags.Instance);
-            var chooseWeaponToCheerWithCheerAndUpdateTimerPrefix = typeof(OrderControllerPatches)
-                .GetMethod(nameof(OrderControllerPatches.ChooseWeaponToCheerWithCheerAndUpdateTimerPrefix), BindingFlags.NonPublic | BindingFlags.Static);
-
-            harmony.Patch(ChooseWeaponToCheerWithCheerAndUpdateTimer, new HarmonyMethod(chooseWeaponToCheerWithCheerAndUpdateTimerPrefix), null, null, null);
             harmony.Patch(selectAllFormations, new HarmonyMethod(selectAllFormationsPrefix), null, null, null);
             harmony.Patch(selectFormationMakeVoice, new HarmonyMethod(SelectFormationMakeVoicePrefix), null, null, null);
             harmony.Patch(afterSetOrderMakeVoice, new HarmonyMethod(afterSetOrderMakeVoicePrefix), null, null, null);
         }
 
-        internal static void ProjectileBalancingEnabledPatch(ref Harmony harmony)
+        internal static void OrderControllerCameraImprovementsPatch(Harmony harmony)
+        {
+            var updateCamera = typeof(MissionScreen).GetMethod("UpdateCamera", BindingFlags.NonPublic | BindingFlags.Instance);
+            var updateCameraPrefix = typeof(MissionScreenPatches).GetMethod(nameof(MissionScreenPatches.UpdateCameraPrefix), BindingFlags.NonPublic | BindingFlags.Static);
+
+            harmony.Patch(updateCamera, new HarmonyMethod(updateCameraPrefix), null, null, null);
+
+            //var updateCamera = typeof(MissionScreen).GetMethod("UpdateCamera", BindingFlags.NonPublic | BindingFlags.Instance);
+            //var updateCameraPostfix = typeof(MissionScreenPatches).GetMethod(nameof(MissionScreenPatches.UpdateCameraPrefix), BindingFlags.NonPublic | BindingFlags.Static);
+
+            //harmony.Patch(updateCamera, null, new HarmonyMethod(updateCameraPostfix), null, null);
+        }
+
+        internal static void ProjectileBalancingEnabledPatch(Harmony harmony)
         {
             var missileHitCallback = typeof(Mission).GetMethod("MissileHitCallback", BindingFlags.NonPublic | BindingFlags.Instance);
-            var missileHitCallbackPrefix = typeof(ProjectileBalanceLogic).GetMethod(nameof(ProjectileBalanceLogic.MissileHitCallbackPrefix), BindingFlags.NonPublic | BindingFlags.Static);
+            var missileHitCallbackPrefix = typeof(MissionPatchesProjectile).GetMethod(nameof(MissionPatchesProjectile.MissileHitCallbackPrefix), BindingFlags.NonPublic | BindingFlags.Static);
 
             //var getAttackCollisionResults = typeof(Mission).GetMethod("GetAttackCollisionResults", BindingFlags.NonPublic | BindingFlags.Instance);
             //var getAttackCollisionResultsPrefix = typeof(ProjectileBalanceLogic).GetMethod(nameof(ProjectileBalanceLogic.GetAttackCollisionResultsPrefix), BindingFlags.NonPublic | BindingFlags.Static);
 
+            var getWeaponSkill = typeof(AgentStatCalculateModel).GetMethod("GetWeaponSkill", BindingFlags.NonPublic | BindingFlags.Instance);
+            var getWeaponSkillPostfix = typeof(MissionPatchesProjectile).GetMethod(nameof(MissionPatchesProjectile.GetWeaponSkillPostfix), BindingFlags.NonPublic | BindingFlags.Static);
 
             harmony.Patch(missileHitCallback, new HarmonyMethod(missileHitCallbackPrefix), null, null, null);
+            harmony.Patch(getWeaponSkill, null, new HarmonyMethod(getWeaponSkillPostfix), null, null);
+
+
+
         }
 
-        internal static void HyperArmorAndProjectileBalancing(ref Harmony harmony)
+    
+
+        internal static void HyperArmorAndProjectileBalancing(Harmony harmony)
         {
             var getDefendCollisionResultsAux = typeof(Mission).GetMethod("GetDefendCollisionResultsAux", BindingFlags.NonPublic | BindingFlags.Static);
             var getDefendCollisionResultsAuxPrefix = typeof(MissionPatches).GetMethod(nameof(MissionPatches.GetDefendCollisionResultsAuxPrefix), BindingFlags.NonPublic | BindingFlags.Static);

@@ -4,8 +4,8 @@ using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.Engine;
 using GCO.ReversePatches;
-using GCO.Features;
-using GCO.CopiedLogic;
+using GCO.GCOToolbox;
+using GCO.GCOMissionLogic;
 using GCO.ModOptions;
 
 namespace GCO.Patches
@@ -41,7 +41,7 @@ namespace GCO.Patches
             blow.AttackerStunPeriod = collisionData.AttackerStunPeriod;
             //blow.DefenderStunPeriod = collisionData.DefenderStunPeriod;
 
-            blow.DefenderStunPeriod = GCOToolbox.MeleeBalance.GCOGetStaticFlinchPeriod(attackerAgent, collisionData.DefenderStunPeriod);
+            blow.DefenderStunPeriod = GCOToolbox.GCOToolbox.MeleeBalance.GCOGetStaticFlinchPeriod(attackerAgent, collisionData.DefenderStunPeriod);
 
 
             blow.BlowFlag = BlowFlags.None;
@@ -137,11 +137,11 @@ namespace GCO.Patches
                 float num4;
                 if (strikeType == StrikeType.Thrust)
                 {
-                    num4 = CombatStatCalculator.CalculateBaseBlowMagnitudeForThrust((float)itemFromWeaponKind.PrimaryWeapon.ThrustSpeed / 11.7647057f * __instance.SpeedGraphFunction(attackProgress, strikeType, attackDirection), itemFromWeaponKind.Weight, exraLinearSpeed);
+                    num4 = CombatStatCalculator.CalculateBaseBlowMagnitudeForThrust((float)itemFromWeaponKind.PrimaryWeapon.ThrustSpeed / 11.7647057f * MissionReversePatches.SpeedGraphFunction(Mission.Current, attackProgress, strikeType, attackDirection), itemFromWeaponKind.Weight, exraLinearSpeed);
                 }
                 else
                 {
-                    num4 = CombatStatCalculator.CalculateBaseBlowMagnitudeForSwing((float)itemFromWeaponKind.PrimaryWeapon.SwingSpeed / 4.5454545f * __instance.SpeedGraphFunction(attackProgress, strikeType, attackDirection), weaponComponentData.GetRealWeaponLength(), itemFromWeaponKind.Weight, weaponComponentData.Inertia, weaponComponentData.CenterOfMass, num2, exraLinearSpeed);
+                    num4 = CombatStatCalculator.CalculateBaseBlowMagnitudeForSwing((float)itemFromWeaponKind.PrimaryWeapon.SwingSpeed / 4.5454545f * MissionReversePatches.SpeedGraphFunction(Mission.Current, strikeType, attackDirection), weaponComponentData.GetRealWeaponLength(), itemFromWeaponKind.Weight, weaponComponentData.Inertia, weaponComponentData.CenterOfMass, num2, exraLinearSpeed);
                 }
                 if (strikeType == StrikeType.Thrust)
                 {
@@ -182,17 +182,20 @@ namespace GCO.Patches
                     attackerStunPeriod += 0.1f;
                     num5 += ManagedParameters.Instance.GetManagedParameter(ManagedParametersEnum.StunDefendWeaponWeightBonusActiveBlocked);
 
-                    if (Config.ConfigSettings.HyperArmorEnabled)
+
+                    if (GCOToolbox.GCOToolbox.MeleeBalance.GCOCheckHyperArmorConfiguration(defenderAgent))
                     {
-                        if (GCOToolbox.GCOCheckForPlayerAgent(defenderAgent)) GCOToolbox.MeleeBalance.CreateHyperArmorBuff(defenderAgent);
+                        GCOToolbox.GCOToolbox.MeleeBalance.CreateHyperArmorBuff(defenderAgent);
                     }
+
                 }
                 else if (collisionResult == CombatCollisionResult.Blocked)
                 {
-                    if (Config.ConfigSettings.HyperArmorEnabled)
+                    if (GCOToolbox.GCOToolbox.MeleeBalance.GCOCheckHyperArmorConfiguration(defenderAgent))
                     {
-                        if (GCOToolbox.GCOCheckForPlayerAgent(defenderAgent)) GCOToolbox.MeleeBalance.CreateHyperArmorBuff(defenderAgent);
+                        GCOToolbox.GCOToolbox.MeleeBalance.CreateHyperArmorBuff(defenderAgent);
                     }
+
                 }
                 else if (collisionResult == CombatCollisionResult.ChamberBlocked)
                 {
@@ -227,11 +230,11 @@ namespace GCO.Patches
             {
                 Blow blow = attacker.CreateBlowFromBlowAsReflection(b);
 
-                if (GCOToolbox.GCOCheckForPlayerAgent(victim))
+                if (GCOToolbox.GCOToolbox.MeleeBalance.GCOCheckHyperArmorConfiguration(victim))
                 {
-                    GCOToolbox.ProjectileBalance.CheckForProjectileFlinch(ref b, ref blow, collisionData, victim);
-                    GCOToolbox.MeleeBalance.CheckToAddHyperarmor(ref b, ref blow);
+                    GCOToolbox.GCOToolbox.MeleeBalance.CheckToAddHyperarmor(victim, ref b, ref blow);
                 }
+                GCOToolbox.GCOToolbox.ProjectileBalance.CheckForProjectileFlinch(ref b, ref blow, collisionData, victim);
 
                 if (collisionData.IsColliderAgent)
                 {
@@ -253,7 +256,7 @@ namespace GCO.Patches
                 else if (collisionData.EntityExists)
                 {
 
-                    __instance.OnEntityHit(realHitEntity, attacker, b.InflictedDamage, (DamageTypes)collisionData.DamageType, b.Position, b.SwingDirection, collisionData.AffectorWeaponKind, collisionData.CurrentUsageIndex);
+                    MissionReversePatches.OnEntityHit(Mission.Current, realHitEntity, attacker, b.InflictedDamage, (DamageTypes)collisionData.DamageType, b.Position, b.SwingDirection, collisionData.AffectorWeaponKind, collisionData.CurrentUsageIndex);
 
                     if (b.SelfInflictedDamage > 0)
                     {
@@ -261,7 +264,8 @@ namespace GCO.Patches
                     }
                 }
             }
-            foreach (MissionBehaviour missionBehaviour in __instance.MissionBehaviours)
+
+            foreach (MissionBehaviour missionBehaviour in Mission.Current.MissionBehaviours)
             {
                 missionBehaviour.OnRegisterBlow(attacker, victim, realHitEntity, b, ref collisionData);
             }
@@ -273,7 +277,7 @@ namespace GCO.Patches
         {
             if (!Config.CompatibilitySettings.XorbarexCleaveExists)
             {
-                if (PlayerCleaveLogic.CheckApplyCleave(__instance, attacker, defender, registeredBlow, isShruggedOff))
+                if (GCOToolbox.GCOToolbox.MeleeBalance.CheckApplyCleave(__instance, attacker, defender, registeredBlow, isShruggedOff))
                 {
                     colReaction = MeleeCollisionReaction.SlicedThrough;
                 }
@@ -303,17 +307,17 @@ namespace GCO.Patches
             return false;
         }
 
-        internal static void MeleeHitCallbackPostfix(Mission __instance, ref AttackCollisionData collisionData, Agent attacker, Agent victim, GameEntity realHitEntity, float momentumRemainingToComputeDamage, ref float inOutMomentumRemaining, ref MeleeCollisionReaction colReaction, CrushThroughState cts, Vec3 blowDir, Vec3 swingDir, bool crushedThroughWithoutAgentCollision)
+        internal static void MeleeHitCallbackPostfix(ref Mission __instance, ref AttackCollisionData collisionData, Agent attacker, Agent victim, GameEntity realHitEntity, float momentumRemainingToComputeDamage, ref float inOutMomentumRemaining, ref MeleeCollisionReaction colReaction, CrushThroughState cts, Vec3 blowDir, Vec3 swingDir, bool crushedThroughWithoutAgentCollision)
         {
             if (!Config.CompatibilitySettings.XorbarexCleaveExists)
             {
-                if (PlayerCleaveLogic.CheckApplyCleave(__instance, attacker, victim, colReaction))
+                if (GCOToolbox.GCOToolbox.MeleeBalance.CheckApplyCleave(__instance, attacker, victim, colReaction))
                 {
                     if (attacker.HasMount)
                     {
                         inOutMomentumRemaining = momentumRemainingToComputeDamage * 0.25f;
                     }
-                    else if (PlayerCleaveLogic.IsDefenderAFriendlyInShieldFormation(attacker, victim))
+                    else if (GCOToolbox.GCOToolbox.MeleeBalance.IsDefenderAFriendlyInShieldFormation(attacker, victim))
                     {
                         inOutMomentumRemaining = momentumRemainingToComputeDamage * (Config.ConfigSettings.AdditionalCleaveForTroopsInShieldWallMomentumLoss * 0.01f);
                     }

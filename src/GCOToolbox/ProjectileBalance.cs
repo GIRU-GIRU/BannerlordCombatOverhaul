@@ -1,31 +1,20 @@
-﻿using GCO.ModOptions;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using GCO.GCOMissionLogic;
+using GCO.ModOptions;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
-namespace GCO.Features
+namespace GCO.GCOToolbox
 {
-    internal static class GCOToolbox
+    partial class GCOToolbox
     {
-        internal static bool GCOCheckForPlayerAgent(Agent agent)
+        public partial class ProjectileBalance
         {
-            bool isPlayer = false;
-
-            if (agent != null)
-            {
-                if (agent.IsPlayerControlled && agent.IsHuman && agent.IsHero)
-                {
-                    isPlayer = true;
-                }
-            }
-
-            return isPlayer;
-        }
-
-        public class ProjectileBalance
-        {
-
             internal static void ApplyProjectileArmorResistance(float finputArmor, ref AttackCollisionData collisionData, Mission.Missile missile, bool isHorseArcher)
             {
                 int inputArmor = (int)finputArmor;
@@ -52,14 +41,92 @@ namespace GCO.Features
                         break;
                     default:
                         break;
-
-                    
                 }
 
                 if (isHorseArcher)
                 {
-                    collisionData.InflictedDamage = 80;
+                    collisionData.InflictedDamage *= 2;
                 }
+            }
+
+            internal static bool CheckForHorseArcher(Agent victim)
+            {
+                bool isHorseArcher = false;
+
+                try
+                {
+                    if (victim != null && !victim.IsMount)
+                    {
+                        if (victim.HasWeapon() && !victim.WieldedWeapon.IsEmpty && victim.WieldedWeapon.Weapons != null)
+                        {
+                            if (!victim.IsMainAgent)
+                            {
+                                bool hasBowAndArrows = victim.WieldedWeapon.Weapons.Any(x =>
+                                    x.AmmoClass == WeaponClass.Bow || x.AmmoClass == WeaponClass.Arrow);
+
+                                isHorseArcher = victim.HasMount && hasBowAndArrows;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    InformationManager.DisplayMessage(
+                   new InformationMessage("CheckForHorseArcher Error " + ex.Message, Colors.White));
+                }
+               
+
+                return isHorseArcher;
+            }
+
+            internal static bool ApplyHorseCrippleLogic(Agent victim, BoneBodyPartType victimHitBodyPart)
+            {
+                bool makesRear = false;
+
+                if (Config.ConfigSettings.HorseProjectileCrippleEnabled)
+                {
+                    if (victim != null && victim.IsMount)
+                    {
+                        if (victim.RiderAgent != null && !victim.RiderAgent.IsMainAgent)
+                        {
+                            if (victimHitBodyPart == BoneBodyPartType.Head || victimHitBodyPart == BoneBodyPartType.Neck)
+                            {
+                                
+                                makesRear = Config.ConfigSettings.HorseHeadshotRearingEnabled;
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    if (victim.IsActive())
+                                    {
+
+                                        victim.RiderAgent.AgentDrivenProperties.MountSpeed = 0f;                                    
+                                        HorseCrippleLogic.CrippleHorseNew(victim, MissionTime.SecondsFromNow((float)Config.ConfigSettings.HorseProjectileCrippleDuration));
+                                        victim.UpdateAgentStats();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    InformationManager.DisplayMessage(
+                                     new InformationMessage("Cripple Horse Error " + ex.Message, Colors.White));
+                                }
+                            }
+                        }
+                    }
+                }
+                return makesRear;
+            }
+
+            internal static int IfCrossbowEmpowerStat(double skillAmount, SkillObject skill)
+            {
+
+                if (skill == DefaultSkills.Crossbow)
+                {
+                    skillAmount *= 1.3;
+                }
+
+                return (int)Math.Round(skillAmount);
             }
 
             private static void ApplyThrowableArmorPen(ref AttackCollisionData collisionData, int inputArmor, bool multiplierHeadOrNeckShot)
@@ -140,63 +207,22 @@ namespace GCO.Features
 
             internal static void CheckForProjectileFlinch(ref Blow b, ref Blow blow, AttackCollisionData collisionData, Agent victim)
             {
-                if (victim != null && b.IsMissile())
+                if (Config.ConfigSettings.ProjectileBalancingEnabled && GCOToolbox.CheckIfAliveHero(victim))
                 {
-                    if (collisionData.VictimHitBodyPart != BoneBodyPartType.Head && collisionData.VictimHitBodyPart != BoneBodyPartType.Neck)
+                    if (victim != null && b.IsMissile())
                     {
-                        var projStunThresholdMultiplier = Config.ConfigSettings.ProjectileStunPercentageThreshold / 100;
-
-                        if (b.InflictedDamage < (victim.HealthLimit * projStunThresholdMultiplier))
+                        if (collisionData.VictimHitBodyPart != BoneBodyPartType.Head && collisionData.VictimHitBodyPart != BoneBodyPartType.Neck)
                         {
-                            b.BlowFlag |= BlowFlags.ShrugOff;
-                            blow.BlowFlag |= BlowFlags.ShrugOff;
+                            var projStunThresholdMultiplier = Config.ConfigSettings.ProjectileStunPercentageThreshold / 100;
+
+                            if (b.InflictedDamage < (victim.HealthLimit * projStunThresholdMultiplier))
+                            {
+                                b.BlowFlag |= BlowFlags.ShrugOff;
+                                blow.BlowFlag |= BlowFlags.ShrugOff;
+                            }
                         }
                     }
                 }
-            }
-        }
-
-        public class MeleeBalance
-        {
-
-            internal static float GCOGetStaticFlinchPeriod(Agent attackerAgent, float defenderStunPeriod)
-            {
-                if (attackerAgent == Mission.Current.MainAgent)
-                {
-                    return 0.6f;
-                };
-
-                return defenderStunPeriod;
-            }
-
-            internal static void CheckToAddHyperarmor(ref Blow b, ref Blow blow)
-            {
-                if (IsHyperArmorActive())
-                {
-                    b.BlowFlag |= BlowFlags.ShrugOff;
-                    blow.BlowFlag |= BlowFlags.ShrugOff;
-                    InformationManager.DisplayMessage(
-                         new InformationMessage("Player hyperarmor prevented flinch!", Colors.White));
-                }
-            }
-
-            internal static void CreateHyperArmorBuff(Agent defenderAgent)
-            {
-                if (defenderAgent.IsPlayerControlled)
-                {
-                    ApplyHyperArmor();
-                }
-            }
-
-            private static MissionTime _playerAgentHyperarmorActiveTime;
-            private static void ApplyHyperArmor()
-            {
-                _playerAgentHyperarmorActiveTime = MissionTime.SecondsFromNow(Config.ConfigSettings.HyperArmorDuration);
-            }
-
-            private static bool IsHyperArmorActive()
-            {
-                return !_playerAgentHyperarmorActiveTime.IsPast;
             }
         }
     }

@@ -4,17 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaleWorlds.MountAndBlade;
-using static TaleWorlds.MountAndBlade.SkinVoiceManager;
+using TaleWorlds.CampaignSystem;
 
 namespace GCO.ReversePatches
 {
     [HarmonyPatch]
-    public static class OrderControllerReversePatches
+    public static class ArmyReversePatches
     {
+
         [HarmonyReversePatch]
-        [HarmonyPatch(typeof(OrderController), "OnSelectedFormationsCollectionChanged")]
-        internal static void OnSelectedFormationsCollectionChanged(this OrderController __instance)
+        [HarmonyPatch(typeof(CampaignEventDispatcher), "OnArmyDispersed")]
+        internal static void OnArmyDispersed(this CampaignEventDispatcher __instance, Army army, Army.ArmyDispersionReason reason, bool isPlayersArmy)
         {
             throw new NotImplementedException("Need to patch first");
         }

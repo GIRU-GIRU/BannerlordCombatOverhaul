@@ -5,14 +5,13 @@ using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.Engine;
 using static HarmonyLib.AccessTools;
-using GCO.Patches;
 using System.Reflection;
 
 namespace GCO.ReversePatches
 {
 
     [HarmonyPatch]
-    internal static class MissionReversePatches
+    public static class MissionReversePatches
     {
         //[HarmonyReversePatch]
         //[HarmonyPatch(typeof(Mission), "GetAttackCollisionResults")]
@@ -56,6 +55,13 @@ namespace GCO.ReversePatches
         //    throw new NotImplementedException("Need to patch first");
         //}
 
+
+        //[HarmonyReversePatch]
+        //[HarmonyPatch(typeof(Agent), "CreateMissileBlow")]
+        //public static UIntPtr GetPtr(this Agent __instance)
+        //{
+        //    throw new NotImplementedException("Need to patch first");
+        //}
 
         [HarmonyReversePatch]
         [HarmonyPatch(typeof(Mission), "CreateMissileBlow")]
@@ -127,5 +133,13 @@ namespace GCO.ReversePatches
             throw new NotImplementedException("Need to patch first");
         }
 
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(Mission), "SpeedGraphFunction")]
+        internal static float SpeedGraphFunction(this Mission current, StrikeType strikeType, Agent.UsageDirection attackDirection)
+        {
+            throw new NotImplementedException("Need to patch first");
+        }
     }
+
 }
+

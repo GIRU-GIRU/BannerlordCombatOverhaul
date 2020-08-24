@@ -1,7 +1,7 @@
 ﻿<Module>
   <Name value="GIRU's Combat Overhaul"/>
   <Id value="GCO"/>
-  <Version value="v1.0.0"/>
+  <Version value="v2.2.3"/>
   <SingleplayerModule value="true"/>
   <MultiplayerModule value="false"/>
   <DependedModules>

@@ -1,23 +1,24 @@
 ﻿using HarmonyLib;
+using SandBox;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TaleWorlds.MountAndBlade;
-using static TaleWorlds.MountAndBlade.SkinVoiceManager;
 
 namespace GCO.ReversePatches
 {
+
     [HarmonyPatch]
-    public static class OrderControllerReversePatches
+    internal static class SandboxAgentStatCalculateModelReversePatches
     {
         [HarmonyReversePatch]
-        [HarmonyPatch(typeof(OrderController), "OnSelectedFormationsCollectionChanged")]
-        internal static void OnSelectedFormationsCollectionChanged(this OrderController __instance)
+        [HarmonyPatch(typeof(SandboxAgentStatCalculateModel), "UpdateHumanStats")]
+        internal static void UpdateHumanStats(this SandboxAgentStatCalculateModel model, Agent agent, AgentDrivenProperties agentDrivenProperties)
         {
             throw new NotImplementedException("Need to patch first");
         }
-
+      
     }
 }

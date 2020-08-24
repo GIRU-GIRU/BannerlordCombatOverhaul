@@ -3,7 +3,7 @@ using System;
 using TaleWorlds.MountAndBlade;
 using static TaleWorlds.MountAndBlade.SkinVoiceManager;
 
-namespace GCO.Features.CustomMissionLogic
+namespace GCO.GCOMissionLogic
 {
     internal class QueuedVoiceLogic : MissionLogic
     {
@@ -23,6 +23,7 @@ namespace GCO.Features.CustomMissionLogic
                 {
                     var queueItem = VoiceCommandQueue.GetNextQueueItem();
                     var voiceType = new SkinVoiceType(queueItem.VoiceTypeString);
+             
                     Agent.Main.MakeVoice(voiceType, CombatVoiceNetworkPredictionType.NoPrediction);
                     VoiceCommandQueue.ResetVoiceCommandTimer(queueItem.DelayAfter);
 

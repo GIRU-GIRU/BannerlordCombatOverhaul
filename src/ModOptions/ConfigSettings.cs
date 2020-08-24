@@ -4,26 +4,35 @@ namespace GCO.ModOptions
 {
     public class ConfigSettings
     {
-        [JsonProperty("HPOnKillEnabled")]
-        public bool HPOnKillEnabled { get; set; }
+        [JsonProperty("HPOnKillEnabledForHeros")]
+        public bool HPOnKillEnabledForHeros { get; set; }
 
         [JsonProperty("HPOnKillAmount")]
         public float HPOnKillAmount { get; set; }
 
+        [JsonProperty("HPOnKillForAI")]
+        public bool HPOnKillForAI { get; set; }
+
         [JsonProperty("HPOnKillMedicineLevelScalePercentage")]
         public float HPOnKillMedicineLevelScalePercentage { get; set; }
 
-        [JsonProperty("CleaveEnabled")]
+        [JsonProperty("CleaveEnabledForHeros")]
         public bool CleaveEnabled { get; set; }
+
+        [JsonProperty("CleaveEnabledForAllUnits")]
+        public bool CleaveEnabledForAllUnits { get; set; }
 
         [JsonProperty("SimplifiedSurrenderLogic")]
         public bool SimplifiedSurrenderLogic { get; set; }
 
-        [JsonProperty("HyperArmorEnabled")]
-        public bool HyperArmorEnabled { get; set; }
+        [JsonProperty("HyperArmorEnabledForHeros")]
+        public bool HyperArmorEnabledForHeros { get; set; }
+
+        [JsonProperty("HyperArmorEnabledForAllUnits")]
+        public bool HyperArmorEnabledForAllUnits { get; set; }
 
         [JsonProperty("HyperArmorDuration")]
-        public float HyperArmorDuration { get; set; }
+        public double HyperArmorDuration { get; set; }
 
         [JsonProperty("ProjectileBalancingEnabled")]
         public bool ProjectileBalancingEnabled { get; set; }
@@ -52,7 +61,16 @@ namespace GCO.ModOptions
         [JsonProperty("MurderEnabled")]
         public bool MurderEnabled { get; set; }
 
+        [JsonProperty("HorseProjectileCrippleEnabled")]
+        public bool HorseProjectileCrippleEnabled { get; set; }
+
         [JsonProperty("HorseProjectileCrippleDuration")]
         public float HorseProjectileCrippleDuration { get; internal set; }
+
+        [JsonProperty("OrderControllerCameraImprovementsEnable")]
+        public bool OrderControllerCameraImprovementsEnable { get; set; }
+
+        [JsonProperty("HorseHeadshotRearingEnabled")]
+        public bool HorseHeadshotRearingEnabled { get; set; }
     }
 }

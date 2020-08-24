@@ -81,6 +81,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -214,6 +215,10 @@
       <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.Network.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="TaleWorlds.ObjectSystem">
+      <HintPath>D:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\TaleWorlds.ObjectSystem.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="TaleWorlds.PlatformService">
       <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.PlatformService.dll</HintPath>
       <Private>False</Private>
@@ -256,28 +261,39 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CustomMissionLogic\HorseCrippleLogic.cs" />
+    <Compile Include="GCOMissionLogic\HorseCrippleLogic.cs" />
+    <Compile Include="GCOMissionLogic\CameraLogic.cs" />
+    <Compile Include="GCOToolbox\MeleeBalanceInitiative.cs" />
+    <Compile Include="GCOToolbox\MeleeBalanceCleave.cs" />
+    <Compile Include="GCOToolbox\ProjectileBalance.cs" />
     <Compile Include="ModOptions\CompatibilitySettings.cs" />
     <Compile Include="ModOptions\Config.cs" />
     <Compile Include="ModOptions\ConfigSettings.cs" />
-    <Compile Include="CopiedLogic\OrderControllerExtensions.cs" />
+    <Compile Include="GCOMissionLogic\OrderControllerLogic.cs" />
+    <Compile Include="ModOptions\SubModuleInfo.cs" />
+    <Compile Include="ModOptions\SubModuleContents.cs" />
     <Compile Include="Patches\BanditsCampaignBehaviorPatches.cs" />
+    <Compile Include="Patches\MissionPatchesProjectile.cs" />
+    <Compile Include="Patches\MissionScreenPatches.cs" />
+    <Compile Include="Patches\SandboxAgentStatCalculateModelPatches.cs" />
+    <Compile Include="ReversePatches\ArmyReversePatches.cs" />
+    <Compile Include="ReversePatches\MissionScreenReversePatches.cs" />
+    <Compile Include="ReversePatches\SandboxAgentStatCalculateModelReversePatches.cs" />
     <Compile Include="ReversePatches\MissionAccessTools.cs" />
+    <Compile Include="ReversePatches\OrderControllerReversePatches.cs" />
+    <Compile Include="TaleWorldsBugfix\SaveStartCrash.cs" />
     <Compile Include="Utility\VoiceCommandQueue.cs" />
-    <Compile Include="Features\PlayerCleaveLogic.cs" />
-    <Compile Include="Features\ProjectileBalanceLogic.cs" />
-    <Compile Include="CustomMissionLogic\QueuedVoiceLogic.cs" />
+    <Compile Include="GCOMissionLogic\QueuedVoiceLogic.cs" />
     <Compile Include="GCOSubModule.cs" />
-    <Compile Include="Features\GCOToolbox.cs" />
+    <Compile Include="GCOToolbox\Helpers.cs" />
     <Compile Include="Patches\PartyBaseHelperPatches.cs" />
-    <Compile Include="CustomMissionLogic\HealthOnKillLogic.cs" />
+    <Compile Include="GCOMissionLogic\HealthOnKillLogic.cs" />
     <Compile Include="Utility\CompatibilityCheck.cs" />
     <Compile Include="ModOptions\HarmonyPatchesConfiguration.cs" />
     <Compile Include="Patches\MissionPatches.cs" />
     <Compile Include="Patches\OrderControllerPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReversePatches\MissionReversePatches.cs" />
-    <Compile Include="ReversePatches\OrderControllerReversePatches.cs" />
     <Compile Include="Utility\VoiceCommandQueueItem.cs" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -287,12 +303,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SubModule.xml" />
+    <ContentWithTargetPath Include="ModOptions\SubModule.xml">
+      <TargetPath>..\..\SubModule.xml</TargetPath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ContentWithTargetPath>
   </ItemGroup>
-  <ItemGroup />
-  <PropertyGroup>
-    <PostBuildEvent>xcopy /d /y "$(MSBuildProjectDirectory)\SubModule.xml" "$(BannerlordPath)\Modules\GCO"</PostBuildEvent>
-  </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

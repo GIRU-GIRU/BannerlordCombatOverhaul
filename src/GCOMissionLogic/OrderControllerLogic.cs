@@ -2,13 +2,13 @@
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 
-namespace GCO.CopiedLogic
+namespace GCO.GCOMissionLogic
 {
-    internal static class OrderControllerExtensions
+    internal static class OrderControllerLogic
     {
         internal static bool IsFormationSelectable(Formation formation, Agent selectorAgent)
         {
-            return (selectorAgent == null || formation.PlayerOwner == selectorAgent) && formation.Units.Count > 0;
+            return (selectorAgent == null || formation.PlayerOwner == selectorAgent) && formation.CountOfUnits > 0;
         }
 
         internal static readonly ActionIndexCache[] CheerActions = new ActionIndexCache[]
@@ -78,7 +78,7 @@ namespace GCO.CopiedLogic
                     VoiceCommandQueue.QueueItem("FormLine", 1200f);
                     return false;
                 case OrderType.ArrangementCloseOrder:
-                    VoiceCommandQueue.QueueItem("FormShieldWall", 1200f);
+                    VoiceCommandQueue.QueueItem("FormShieldWall", 1700f);
                     return false;
                 case OrderType.ArrangementLoose:
                     VoiceCommandQueue.QueueItem("FormLoose", 1200f);

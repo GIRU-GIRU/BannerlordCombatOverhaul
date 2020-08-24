@@ -1,4 +1,4 @@
-﻿using GCO.CopiedLogic;
+﻿using GCO.GCOMissionLogic;
 using GCO.ReversePatches;
 using GCO.Utility;
 using NetworkMessages.FromClient;
@@ -8,6 +8,7 @@ using System.Linq;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using TaleWorlds.MountAndBlade.View.Screen;
 using static TaleWorlds.MountAndBlade.SkinVoiceManager;
 
 namespace GCO.Patches
@@ -20,6 +21,7 @@ namespace GCO.Patches
             {
                 return false;
             }
+
             float delay = 800f;
             switch (formation.InitialClass)
             {
@@ -37,16 +39,18 @@ namespace GCO.Patches
                     VoiceCommandQueue.QueueItem("Cavalry", delay);
                     return false;
                 case FormationClass.HorseArcher:
-                    VoiceCommandQueue.QueueItem("HorseArchers", delay + 400f);
+                    VoiceCommandQueue.QueueItem("HorseArchers", delay + 800f);
                     return false;
                 default:
                     return false;
             }
         }
 
-        #region SelectAllFormations and Victory bugfix
+
+        //transpiler method investigate
         internal static bool SelectAllFormationsPrefix(ref OrderController __instance, Agent selectorAgent, bool uiFeedback)
         {
+
             if (GameNetwork.IsClient)
             {
                 GameNetwork.BeginModuleEventAsClient();
@@ -55,73 +59,31 @@ namespace GCO.Patches
             }
             if (uiFeedback && !GameNetwork.IsClientOrReplay && selectorAgent != null && Mission.Current.IsOrderShoutingAllowed())
             {
-                var voiceType = new SkinVoiceType("Everyone");
-                selectorAgent.MakeVoice(voiceType, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
+                VoiceCommandQueue.QueueItem("Everyone", 800f);
             }
-            __instance.GetSelectedFormations().Clear();
 
-            IEnumerable<Formation> formations = __instance.GetTeam().Formations;
+            var _selectedFormations = MissionAccessTools.Get_selectedFormations(ref __instance);
+            _selectedFormations.Clear();
 
-            var thisFormations = __instance.GetSelectedFormations();
-            foreach (var formation in formations.Where((Func<Formation, bool>)
-                (f => OrderControllerExtensions.IsFormationSelectable(f, selectorAgent))))
-            {
-                thisFormations.Add(formation);
-            };
+            var _team = MissionAccessTools.Get_team(ref __instance);
+            IEnumerable<Formation> formations = _team.Formations;
+            foreach (Formation formation in _team.Formations.Where<Formation>((Func<Formation, bool>)(f => IsFormationSelectable(f, selectorAgent))))
+                _selectedFormations.Add(formation);
+
+            OrderControllerReversePatches.OnSelectedFormationsCollectionChanged(__instance);
 
             return false;
         }
 
-        internal static bool ChooseWeaponToCheerWithCheerAndUpdateTimerPrefix(KeyValuePair<Agent, RandomTimer> kvp)
+        private static bool IsFormationSelectable(Formation formation, Agent selectorAgent)
         {
-            Agent key = kvp.Key;
-            if (key.GetCurrentActionType(1) != Agent.ActionCodeType.EquipUnequip)
-            {
-                EquipmentIndex wieldedItemIndex = key.GetWieldedItemIndex(Agent.HandIndex.MainHand);
-                bool flag = wieldedItemIndex != EquipmentIndex.None && !key.Equipment[wieldedItemIndex].CurrentUsageItem.Item.ItemFlags.HasAnyFlag(ItemFlags.DropOnAnyAction);
-                if (!flag)
-                {
-                    EquipmentIndex equipmentIndex = EquipmentIndex.None;
-                    for (EquipmentIndex equipmentIndex2 = EquipmentIndex.WeaponItemBeginSlot; equipmentIndex2 < EquipmentIndex.Weapon4; equipmentIndex2++)
-                    {
-                        if (!key.Equipment[equipmentIndex2].IsEmpty && !key.Equipment[equipmentIndex2].CurrentUsageItem.Item.ItemFlags.HasAnyFlag(ItemFlags.DropOnAnyAction))
-                        {
-                            equipmentIndex = equipmentIndex2;
-                            break;
-                        }
-                    }
-                    if (equipmentIndex == EquipmentIndex.None)
-                    {
-                        if (wieldedItemIndex != EquipmentIndex.None)
-                        {
-                            key.TryToSheathWeaponInHand(Agent.HandIndex.MainHand, Agent.WeaponWieldActionType.WithAnimation);
-                        }
-                        else
-                        {
-                            flag = true;
-                        }
-                    }
-                    else
-                    {
-                        key.TryToWieldWeaponInSlot(equipmentIndex, Agent.WeaponWieldActionType.WithAnimation, false);
-                    }
-                }
-                if (flag)
-                {
-                    var voiceType = new SkinVoiceType("Victory");
-                    key.SetActionChannel(1, OrderControllerExtensions.CheerActions[MBRandom.RandomInt(OrderControllerExtensions.CheerActions.Length)], false, 0UL, 0f, 1f, -0.2f, 0.4f, 0f, false, -0.2f, 0, true);
-                    key.MakeVoice(voiceType, SkinVoiceManager.CombatVoiceNetworkPredictionType.NoPrediction);
-                    kvp.Value.Reset(Mission.Current.Time);
-                    kvp.Value.ChangeDuration(6f, 12f);
-                }
-            }
-            return false;
+            return (selectorAgent == null || formation.PlayerOwner == selectorAgent) && formation.CountOfUnits > 0;
         }
-        #endregion SelectAllFormations and Victory bugfix
 
+       
         internal static bool AfterSetOrderMakeVoicePrefix(OrderType orderType, Agent agent)
         {
-            OrderControllerExtensions.AfterSetOrderMakeVoice(orderType, agent);
+            OrderControllerLogic.AfterSetOrderMakeVoice(orderType, agent);
 
             return false;
         }

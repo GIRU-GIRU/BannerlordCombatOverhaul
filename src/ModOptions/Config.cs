@@ -1,7 +1,9 @@
 ﻿using System.IO;
 using System.Reflection;
+using GCO.GCOToolbox;
 using HarmonyLib;
 using Newtonsoft.Json;
+using static GCO.ModOptions.SubModuleInfo;
 
 namespace GCO.ModOptions
 {
@@ -17,12 +19,17 @@ namespace GCO.ModOptions
 
         public static CompatibilitySettings CompatibilitySettings { get; private set; }
 
-        public static void InitConfig()
+        public static SubModuleContents SubModuleInfoContents { get; private set; }
+
+    public static void InitConfig()
         {
             CompatibilitySettings = new CompatibilitySettings()
             {
                 XorbarexCleaveExists = false,
             };
+
+            SubModuleInfo info = new SubModuleInfo();
+            SubModuleInfoContents = info.DeserializeSubModule();
 
             if (configExists)
             {
@@ -40,60 +47,73 @@ namespace GCO.ModOptions
             ConfigSettings = new ConfigSettings()
             {
                 CleaveEnabled = true,
-                ProjectileBalancingEnabled = true,
-                HPOnKillEnabled = true,
-                HPOnKillMedicineLevelScalePercentage = 0.1f,
-                HyperArmorEnabled = true,
-                SimplifiedSurrenderLogic = true,
-                HPOnKillAmount = 20f,
-                ProjectileStunPercentageThreshold = 40f,
-                HyperArmorDuration = 1f,
-                StandardizedFlinchOnEnemiesEnabled = true,
                 AdditionalCleaveForTroopsInShieldWall = true,
                 AdditionalCleaveForTroopsInShieldWallAngleRestriction = 60,
-                OrderVoiceCommandQueuing = true,
+                CleaveEnabledForAllUnits = true,
 
+                StandardizedFlinchOnEnemiesEnabled = true,
+
+                HyperArmorEnabledForHeros = true,
+                HyperArmorEnabledForAllUnits = true,
+                HyperArmorDuration = 1,
+
+                HPOnKillEnabledForHeros = true,
+                HPOnKillForAI = true,
+                HPOnKillMedicineLevelScalePercentage = 0.1f,
+                HPOnKillAmount = 20f,
+
+                ProjectileBalancingEnabled = true,
+                ProjectileStunPercentageThreshold = 40f,
+                HorseProjectileCrippleEnabled = true,
+                HorseHeadshotRearingEnabled = true,
+                HorseProjectileCrippleDuration = 1,
+
+                OrderVoiceCommandQueuing = true,
+                OrderControllerCameraImprovementsEnable = true,
                 MurderEnabled = false,
+                SimplifiedSurrenderLogic = true,
                 TrueFriendlyFireEnabled = false,
-            };
+            };            
         }
 
-        public static void ConfigureHarmonyPatches(ref Harmony harmony)
+        public static void ConfigureHarmonyPatches(Harmony harmony)
         {
-            if (ConfigSettings.HyperArmorEnabled || ConfigSettings.ProjectileBalancingEnabled)
+            if (ConfigSettings.HyperArmorEnabledForHeros || ConfigSettings.ProjectileBalancingEnabled)
             {
-                HarmonyPatchesConfiguration.HyperArmorAndProjectileBalancing(ref harmony);
+                HarmonyPatchesConfiguration.HyperArmorAndProjectileBalancing(harmony);
             }
 
-            if (ConfigSettings.OrderVoiceCommandQueuing)
-            {
-                HarmonyPatchesConfiguration.OrderVoiceCommandQueuingPatch(ref harmony);
-            }
+            //ConfigureQueuedVoiceLogic in SubModuleMain due to static class initializing incorrectly
 
             if (ConfigSettings.StandardizedFlinchOnEnemiesEnabled)
             {
-                HarmonyPatchesConfiguration.StandardizedFlinchOnEnemiesEnablePatch(ref harmony);
+                HarmonyPatchesConfiguration.StandardizedFlinchOnEnemiesEnablePatch(harmony);
             }
 
             if (ConfigSettings.TrueFriendlyFireEnabled || ConfigSettings.MurderEnabled)
             {
-                HarmonyPatchesConfiguration.KillFriendliesPatch(ref harmony);
+                HarmonyPatchesConfiguration.KillFriendliesPatch(harmony);
             }
 
             if (ConfigSettings.CleaveEnabled)
             {
-                HarmonyPatchesConfiguration.CleaveEnabledPatch(ref harmony);
+                HarmonyPatchesConfiguration.CleaveEnabledPatch(harmony);
             }
 
             if (ConfigSettings.SimplifiedSurrenderLogic)
             {
-                HarmonyPatchesConfiguration.SimplifiedSurrenderLogicEnabledPatch(ref harmony);
+                HarmonyPatchesConfiguration.SimplifiedSurrenderLogicEnabledPatch(harmony);
             }
 
             if (ConfigSettings.ProjectileBalancingEnabled)
             {
-                HarmonyPatchesConfiguration.ProjectileBalancingEnabledPatch(ref harmony);
+                HarmonyPatchesConfiguration.ProjectileBalancingEnabledPatch(harmony);
             }
+
+            if (ConfigSettings.OrderControllerCameraImprovementsEnable)
+            {
+                HarmonyPatchesConfiguration.OrderControllerCameraImprovementsPatch(harmony);
+            }       
         }
     }
 }

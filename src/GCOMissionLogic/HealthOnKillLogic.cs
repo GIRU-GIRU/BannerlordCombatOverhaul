@@ -18,15 +18,12 @@ namespace GCO.GCOMissionLogic
         private float GetMedicineSkillCalculation()
         {
             float medicineSkill = 0f;
-            try
+
+            medicineSkill = (int)Math.Floor((double)Hero.MainHero.GetSkillValue(DefaultSkills.Medicine));
+            if (Config.ConfigSettings.HPOnKillMedicineLevelScalePercentage > 0)
             {
-                medicineSkill = (int)Math.Floor((double)Hero.MainHero.GetSkillValue(DefaultSkills.Medicine));
-                if (Config.ConfigSettings.HPOnKillMedicineLevelScalePercentage > 0)
-                {
-                    medicineSkill = (float)medicineSkill * Config.ConfigSettings.HPOnKillMedicineLevelScalePercentage * 0.01f;
-                }
+                medicineSkill = (float)medicineSkill * Config.ConfigSettings.HPOnKillMedicineLevelScalePercentage * 0.01f;
             }
-            catch { }
 
             return medicineSkill;
         }
@@ -46,12 +43,12 @@ namespace GCO.GCOMissionLogic
 
                         InformationManager.DisplayMessage(new InformationMessage($"Healed {(int)healAmount} health!", Colors.White));
                     }
-                    else if(Config.ConfigSettings.HPOnKillForAI && affAgent2.IsActive())
+                    else if (Config.ConfigSettings.HPOnKillForAI && affAgent2.IsActive())
                     {
-                       affAgent2.Health = Math.Min(affAgent2.Health + Config.ConfigSettings.HPOnKillAmount, affAgent2.HealthLimit);
+                        affAgent2.Health = Math.Min(affAgent2.Health + Config.ConfigSettings.HPOnKillAmount, affAgent2.HealthLimit);
                     }
-                }              
-            }           
+                }
+            }
         }
     }
 }

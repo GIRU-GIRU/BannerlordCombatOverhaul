@@ -53,28 +53,20 @@ namespace GCO.GCOToolbox
             {
                 bool isHorseArcher = false;
 
-                try
-                {
-                    if (victim != null && !victim.IsMount)
-                    {
-                        if (victim.HasWeapon() && !victim.WieldedWeapon.IsEmpty && victim.WieldedWeapon.Weapons != null)
-                        {
-                            if (!victim.IsMainAgent)
-                            {
-                                bool hasBowAndArrows = victim.WieldedWeapon.Weapons.Any(x =>
-                                    x.AmmoClass == WeaponClass.Bow || x.AmmoClass == WeaponClass.Arrow);
 
-                                isHorseArcher = victim.HasMount && hasBowAndArrows;
-                            }
+                if (victim != null && !victim.IsMount)
+                {
+                    if (victim.HasWeapon() && !victim.WieldedWeapon.IsEmpty && victim.WieldedWeapon.Weapons != null)
+                    {
+                        if (!victim.IsMainAgent && victim.WieldedWeapon)
+                        {
+                            bool hasBowAndArrows = victim.WieldedWeapon.Weapons.Any(x =>
+                                x.AmmoClass == WeaponClass.Bow || x.AmmoClass == WeaponClass.Arrow);
+
+                            isHorseArcher = victim.HasMount && hasBowAndArrows;
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    InformationManager.DisplayMessage(
-                   new InformationMessage("CheckForHorseArcher Error " + ex.Message, Colors.White));
-                }
-               
 
                 return isHorseArcher;
             }
@@ -91,114 +83,154 @@ namespace GCO.GCOToolbox
                         {
                             if (victimHitBodyPart == BoneBodyPartType.Head || victimHitBodyPart == BoneBodyPartType.Neck)
                             {
-                                
                                 makesRear = Config.ConfigSettings.HorseHeadshotRearingEnabled;
                             }
                             else
                             {
-                                try
+                                if (victim.IsActive() && victim.RiderAgent)
                                 {
-                                    if (victim.IsActive())
-                                    {
-
-                                        victim.RiderAgent.AgentDrivenProperties.MountSpeed = 0f;                                    
-                                        HorseCrippleLogic.CrippleHorseNew(victim, MissionTime.SecondsFromNow((float)Config.ConfigSettings.HorseProjectileCrippleDuration));
-                                        victim.UpdateAgentStats();
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    InformationManager.DisplayMessage(
-                                     new InformationMessage("Cripple Horse Error " + ex.Message, Colors.White));
+                                    victim.RiderAgent.AgentDrivenProperties.MountSpeed = 0f;
+                                    HorseCrippleLogic.CrippleHorseNew(victim, MissionTime.SecondsFromNow((float)Config.ConfigSettings.HorseProjectileCrippleDuration));
+                                    victim.UpdateAgentStats();
                                 }
                             }
                         }
                     }
                 }
+
                 return makesRear;
             }
 
+
+            private static double CrosspowerStatEmpowermentMultiplier = 1.3;
             internal static int IfCrossbowEmpowerStat(double skillAmount, SkillObject skill)
             {
 
                 if (skill == DefaultSkills.Crossbow)
                 {
-                    skillAmount *= 1.3;
+                    skillAmount *= CrosspowerStatEmpowermentMultiplier;
                 }
 
                 return (int)Math.Round(skillAmount);
             }
 
+
+          
+            //TODO move to config
+
+            private static int ThrowableHeadshotArmorThreshold = 15;
+            private static int ThrowableDefaultDamageMin = 25;
+            private static int ThrowableDefaultDamageMax = 55;
+                               
+            private static int ThrowableArmorThresholdLight = 20;
+            private static int ThrowableArmorThresholdLightDamage = 45;
+                               
+            private static int ThrowableArmorThresholdMed = 30;
+            private static int ThrowableArmorThresholdMedDamage = 40;
+                               
+            private static int ThrowableArmorThresholdHeavy = 40;
+            private static int ThrowableArmorThresholdHeavyDamage = 35;
             private static void ApplyThrowableArmorPen(ref AttackCollisionData collisionData, int inputArmor, bool multiplierHeadOrNeckShot)
             {
                 var inflictedDamage = collisionData.InflictedDamage;
 
                 inflictedDamage -= inputArmor;
-                inflictedDamage = Math.Max(inflictedDamage, 25);
+                inflictedDamage = Math.Max(inflictedDamage, ThrowableDefaultDamageMin);
 
                 if (multiplierHeadOrNeckShot)
                 {
-                    if (inputArmor >= 20)
+                    if (inputArmor >= ThrowableHeadshotArmorThreshold)
                     {
-                        inflictedDamage = Math.Min(inflictedDamage, 60);
+                        inflictedDamage = Math.Min(inflictedDamage, ThrowableDefaultDamageMax);
                     }
                 }
                 else
                 {
-                    if (inputArmor >= 20) inflictedDamage = Math.Min(inflictedDamage, 40);
-                    if (inputArmor >= 30) inflictedDamage = Math.Min(inflictedDamage, 35);
-                    if (inputArmor >= 40) inflictedDamage = Math.Min(inflictedDamage, 30);
+                    if (inputArmor >= ThrowableArmorThresholdLight) inflictedDamage = Math.Min(inflictedDamage, ThrowableArmorThresholdLightDamage);
+                    if (inputArmor >= ThrowableArmorThresholdMed) inflictedDamage = Math.Min(inflictedDamage, ThrowableArmorThresholdMedDamage);
+                    if (inputArmor >= ThrowableArmorThresholdHeavy) inflictedDamage = Math.Min(inflictedDamage, ThrowableArmorThresholdHeavyDamage);
                 }
 
 
                 collisionData.InflictedDamage = inflictedDamage;
             }
+
+            //TODO move to config
+            private static double ArmorReductionMultiplier = 0.7;
+
+            private static int CrossbowHeadshotArmorThreshold = 15;
+            private static int CrossbowDefaultDamageMin = 25;
+            private static int CrossbowDefaultDamageMax = 55;
+
+            private static int CrossbowArmorThresholdLight = 20;
+            private static int CrossbowArmorThresholdLightDamage = 45;
+
+            private static int CrossbowArmorThresholdMed = 30;
+            private static int CrossbowArmorThresholdMedDamage = 40;
+                         
+            private static int CrossbowArmorThresholdHeavy = 40;
+            private static int CrossbowArmorThresholdHeavyDamage = 35;
 
             private static void ApplyBoltArmorPen(ref AttackCollisionData collisionData, int inputArmor, bool multiplierHeadOrNeckShot)
             {
                 var inflictedDamage = collisionData.InflictedDamage;
-                var inputArmorReduced = (int)Math.Round(inputArmor * 0.7);
+                var inputArmorReduced = (int)Math.Round(inputArmor * ArmorReductionMultiplier);
 
                 inflictedDamage -= inputArmorReduced;
-                inflictedDamage = Math.Max(inflictedDamage, 35);
+                inflictedDamage = Math.Max(inflictedDamage, CrossbowDefaultDamageMin);
 
                 if (multiplierHeadOrNeckShot)
                 {
-                    if (inputArmor >= 20)
+                    if (inputArmor >= CrossbowHeadshotArmorThreshold)
                     {
-                        inflictedDamage = Math.Min(inflictedDamage, 65);
+                        inflictedDamage = Math.Min(inflictedDamage, CrossbowDefaultDamageMax);
                     }
                 }
                 else
                 {
-                    if (inputArmor >= 20) inflictedDamage = Math.Min(inflictedDamage, 45);
-                    if (inputArmor >= 30) inflictedDamage = Math.Min(inflictedDamage, 40);
-                    if (inputArmor >= 40) inflictedDamage = Math.Min(inflictedDamage, 35);
+                    if (inputArmor >= CrossbowArmorThresholdLight) inflictedDamage = Math.Min(inflictedDamage, CrossbowArmorThresholdLightDamage);
+                    if (inputArmor >= CrossbowArmorThresholdMed) inflictedDamage = Math.Min(inflictedDamage, CrossbowArmorThresholdMedDamage);
+                    if (inputArmor >= CrossbowArmorThresholdHeavy) inflictedDamage = Math.Min(inflictedDamage, CrossbowArmorThresholdHeavyDamage);
                 }
 
 
                 collisionData.InflictedDamage = inflictedDamage;
             }
+
+
+            //TODO move to config
+            private static int BowHeadshotArmorThreshold = 15;
+            private static int BowDefaultDamageMin = 25;
+            private static int BowDefaultDamageMax = 55;
+
+            private static int BowArmorThresholdLight = 20;
+            private static int BowArmorThresholdLightDamage = 35;
+                         
+            private static int BowArmorThresholdMed = 30;
+            private static int BowArmorThresholdMedDamage = 30;
+                         
+            private static int BowArmorThresholdHeavy = 40;
+            private static int BowArmorThresholdHeavyDamage = 25;
 
             private static void ApplyArrowArmorPen(ref AttackCollisionData collisionData, int inputArmor, bool multiplierHeadOrNeckShot)
             {
                 var inflictedDamage = collisionData.InflictedDamage;
 
                 inflictedDamage -= inputArmor;
-                inflictedDamage = Math.Max(inflictedDamage, 25);
+                inflictedDamage = Math.Max(inflictedDamage, BowDefaultDamageMin);
 
                 if (multiplierHeadOrNeckShot)
                 {
-                    if (inputArmor >= 15)
+                    if (inputArmor >= BowHeadshotArmorThreshold)
                     {
-                        inflictedDamage = Math.Min(inflictedDamage, 55);
+                        inflictedDamage = Math.Min(inflictedDamage, BowDefaultDamageMax);
                     }
                 }
                 else
                 {
-                    if (inputArmor >= 20) inflictedDamage = Math.Min(inflictedDamage, 35);
-                    if (inputArmor >= 30) inflictedDamage = Math.Min(inflictedDamage, 30);
-                    if (inputArmor >= 40) inflictedDamage = Math.Min(inflictedDamage, 25);
+                    if (inputArmor >= BowArmorThresholdLight) inflictedDamage = Math.Min(inflictedDamage, BowArmorThresholdLightDamage);
+                    if (inputArmor >= BowArmorThresholdMed) inflictedDamage = Math.Min(inflictedDamage, BowArmorThresholdMedDamage);
+                    if (inputArmor >= BowArmorThresholdHeavy) inflictedDamage = Math.Min(inflictedDamage, BowArmorThresholdHeavyDamage);
                 }
 
 

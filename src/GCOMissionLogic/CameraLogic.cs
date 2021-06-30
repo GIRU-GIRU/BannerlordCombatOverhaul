@@ -24,6 +24,14 @@ namespace GCO.GCOMissionLogic
         private float _maxHeight;
         private float _minDistance;
         private bool _battleSizeNotDetermined = true;
+        private float _camOffset = 0.2f;
+
+        internal enum TeamSizeEnum
+        {
+            Small = 0,
+            Medium = 1,
+            Large = 2,
+        }
 
 
         public override void OnMissionTick(float dt)
@@ -66,19 +74,6 @@ namespace GCO.GCOMissionLogic
         {
 
             cameraSpecialTargetPositionToAdd = new Vec3 { z = _maxHeight };
-            //var bannerPosition = __instance.GetOrderFlagPosition();
-            //var playerPosition = __instance.Mission.MainAgent.Position;
-            //var bannerDistance = playerPosition.Distance(bannerPosition);
-
-
-            //if (true)
-            //{
-            //     CalcHeightOffset(ref cameraSpecialTargetPositionToAdd);
-            //}
-            //else
-            //{
-            //    cameraSpecialTargetPositionToAdd = Vec3.Zero;
-            //}
         }
 
         internal bool ShouldOccur()
@@ -107,16 +102,16 @@ namespace GCO.GCOMissionLogic
 
         private void CalculateCameraSpeedLarge(ref Vec3 cameraSpecialTargetPositionToAdd, ref float cameraSpecialTargetDistanceToAdd, ref float cameraSpecialTargetAddedElevation)
         {
-            cameraSpecialTargetPositionToAdd = new Vec3 { z = Math.Max(cameraSpecialTargetPositionToAdd.z - 0.2f, 0) };
-            cameraSpecialTargetDistanceToAdd = Math.Max(cameraSpecialTargetDistanceToAdd - 0.2f, 0);
-            cameraSpecialTargetAddedElevation = Math.Max(cameraSpecialTargetAddedElevation - 0.2f, 0f);
+            cameraSpecialTargetPositionToAdd = new Vec3 { z = Math.Max(cameraSpecialTargetPositionToAdd.z - _camOffset, 0) };
+            cameraSpecialTargetDistanceToAdd = Math.Max(cameraSpecialTargetDistanceToAdd - _camOffset, 0);
+            cameraSpecialTargetAddedElevation = Math.Max(cameraSpecialTargetAddedElevation - _camOffset, 0f);
         }
 
         private void CalculateCameraSpeedMedium(ref Vec3 cameraSpecialTargetPositionToAdd, ref float cameraSpecialTargetDistanceToAdd, ref float cameraSpecialTargetAddedElevation)
         {
-            cameraSpecialTargetPositionToAdd = new Vec3 { z = Math.Max(cameraSpecialTargetPositionToAdd.z - 0.2f, 0) };
-            cameraSpecialTargetDistanceToAdd = Math.Max(cameraSpecialTargetDistanceToAdd - 0.2f, 0);
-            cameraSpecialTargetAddedElevation = Math.Max(cameraSpecialTargetAddedElevation - 0.2f, 0f);
+            cameraSpecialTargetPositionToAdd = new Vec3 { z = Math.Max(cameraSpecialTargetPositionToAdd.z - _camOffset, 0) };
+            cameraSpecialTargetDistanceToAdd = Math.Max(cameraSpecialTargetDistanceToAdd - _camOffset, 0);
+            cameraSpecialTargetAddedElevation = Math.Max(cameraSpecialTargetAddedElevation - _camOffset, 0f);
         }
 
         private void CalculateCameraSpeedSmall(ref Vec3 cameraSpecialTargetPositionToAdd, ref float cameraSpecialTargetDistanceToAdd, ref float cameraSpecialTargetAddedElevation)
@@ -126,136 +121,42 @@ namespace GCO.GCOMissionLogic
             cameraSpecialTargetAddedElevation = 0f;
         }
 
-
-
-
         private void DetermineBattleSize()
         {
-            try
+            if (!Mission || Mission.Agents.Count() == 0) return;
+
+            var playerAgent = Mission.Agents.Where(x => x.IsPlayerControlled).FirstOrDefault();
+
+            if (playerAgent != null)
             {
-                var playerAgent = Mission.Agents.Where(x => x.IsPlayerControlled).FirstOrDefault();
+                var playerTeamCount = Mission.Agents.Count(x => x.Team == playerAgent.Team);
 
-                if (playerAgent != null)
+                if (playerTeamCount < 70)
                 {
-                    var playerTeamCount = Mission.Agents.Count(x => x.Team == playerAgent.Team);
+                    _PlayerTeamSize = TeamSizeEnum.Small;
+                    _maxHeight = 1.7f;
+                    _distanceToAdd = 5.3f;
+                    _minDistance = 25f;
+                }
 
-                    if (playerTeamCount < 70)
-                    {
-                        _PlayerTeamSize = TeamSizeEnum.Small;
-                        _maxHeight = 1.7f;
-                        _distanceToAdd = 5.3f;
-                        _minDistance = 25f;
-                    }
+                if (playerTeamCount >= 70)
+                {
+                    _PlayerTeamSize = TeamSizeEnum.Medium;
+                    _maxHeight = 3.5f;
+                    _distanceToAdd = 9.33f;
+                    _minDistance = 20f;
+                }
 
-                    if (playerTeamCount >= 70)
-                    {
-                        _PlayerTeamSize = TeamSizeEnum.Medium;
-                        _maxHeight = 3.5f;
-                        _distanceToAdd = 9.33f;
-                        _minDistance = 20f;
-                    }
-
-                    if (playerTeamCount >= 150)
-                    {
-                        _PlayerTeamSize = TeamSizeEnum.Large;
-                        _maxHeight = 8.5f;
-                        _distanceToAdd = 14.33f;
-                        _minDistance = 10f;
-                    }
+                if (playerTeamCount >= 150)
+                {
+                    _PlayerTeamSize = TeamSizeEnum.Large;
+                    _maxHeight = 8.5f;
+                    _distanceToAdd = 14.33f;
+                    _minDistance = 10f;
                 }
             }
-            catch (Exception)
-            {
-                
-            }           
-        }
 
-
-
-        internal enum TeamSizeEnum
-        {
-            Small = 0,
-            Medium = 1,
-            Large = 2,
         }
     }
 }
 
-
-//internal static class Audio
-//{
-//    private static SoundEvent _SelectOrderCameraSwoosh = null;
-//    public static void CreateSelectOrderCameraSwoosh()
-//    {
-//        //if (_SelectOrderCameraSwoosh == null)
-//        //{
-//        //    string soundLocation = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Audio\\WindSwooshCamera.mp3");
-
-//        //    if (File.Exists(soundLocation))
-//        //    {
-//        //        _SelectOrderCameraSwoosh = SoundEvent.CreateEventFromExternalFile("SelectOrderCameraSwoosh", soundLocation, Mission.Current.Scene);
-//        //    }
-
-//        //}
-//    }
-
-//    private static void CreateSelectOrderCameraSwooshNew(ref MissionScreen __instance)
-//    {
-//        if (_SelectOrderCameraSwoosh == null)
-//        {
-//            string soundLocation = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Audio\\SoundSwooshOgg.ogg");
-
-//            if (File.Exists(soundLocation))
-//            {
-//                _SelectOrderCameraSwoosh = SoundEvent.CreateEventFromExternalFile("SelectOrderCameraSwoosh", soundLocation, __instance.Mission.Scene);
-//            }
-
-//        }
-//    }
-
-//    public static void PlaySelectOrderCameraSwoosh(ref MissionScreen __instance)
-//    {
-
-
-//        //SoundEvent.PlaySound2D("event:/ui/mission/deploy");
-
-//        if (_SelectOrderCameraSwoosh == null)
-//        {
-//            CreateSelectOrderCameraSwooshNew(ref __instance);
-
-//            var test = SoundEvent.GetEventIdFromString("SelectOrderCameraSwoosh");
-//        }
-
-
-//        if (!_SelectOrderCameraSwoosh.IsPlaying())
-//        {
-//            _SelectOrderCameraSwoosh.Play();
-//        }
-
-//    }
-//}
-
-
-
-//private static readonly string[] orderKeys = new string[]
-//{
-//    "SelectOrder1",
-//    "SelectOrder2",
-//    "SelectOrder3",
-//    "SelectOrder4",
-//    "SelectOrder5",
-//    "SelectOrder6",
-//    "SelectOrder7",
-//    "SelectOrder8",
-//};
-
-//public static bool IsOrderKeyPressed(ref MissionScreen __instance)
-//{
-//    for (int i = 0; i < orderKeys.Count(); i++)
-//    {
-//        if (__instance.InputManager.IsHotKeyDown(orderKeys[i])) return true;
-
-//    }
-
-//    return false;
-//}

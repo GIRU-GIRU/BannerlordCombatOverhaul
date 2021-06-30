@@ -10,7 +10,7 @@ namespace GCO.GCOMissionLogic
 {
     public class HorseCrippleLogic : MissionLogic
     {
-  
+
         private static ConcurrentDictionary<Agent, MissionTime> crippledHorseCollection = new ConcurrentDictionary<Agent, MissionTime>();
 
         public static Queue<Tuple<Agent, MissionTime>> horseCrippleQueue = new Queue<Tuple<Agent, MissionTime>>();
@@ -32,25 +32,16 @@ namespace GCO.GCOMissionLogic
 
                     if (queueItem.Item1 != null)
                     {
-                        try
+                        if (queueItem.Item1.IsActive())
                         {
-                            if (queueItem.Item1.IsActive())
-                            {
-                                var test = queueItem.Item1.AgentDrivenProperties.MountSpeed;
-                                queueItem.Item1.UpdateAgentStats();
-                               // queueItem.Item1.AgentDrivenProperties.MountSpeed = 100;
-                               // queueItem.Item1.UpdateAgentStats();
-                            }
-                        }
-                        catch (Exception)
-                        {
+                            var test = queueItem.Item1.AgentDrivenProperties.MountSpeed;
+                            queueItem.Item1.UpdateAgentStats();
 
                         }
                     }
                 }
             }
         }
-
         internal static bool CheckHorseCrippled(Agent agent)
         {
             if (crippledHorseCollection.ContainsKey(agent))
